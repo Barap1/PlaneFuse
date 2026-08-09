@@ -1,8 +1,8 @@
 # PlaneFuse status
 
-Current milestone: M11 - Technical and hackathon audit / release preparation
+Current milestone: M11 - Technical and hackathon audit / release preparation (COMPLETE)
 
-Overall status: IN PROGRESS
+Overall status: RELEASE CANDIDATE
 
 Current branch: main (expected)
 
@@ -18,15 +18,15 @@ Pipeline C status: built; direct Y/UV fused stem with no RGB intermediate
 
 Real model: Apple MobileNetV2 ImageNet integrated; unchanged 252-layer Core ML tail runs after the transformed 48-channel stem
 
-PlaneFuse Live: not started
+PlaneFuse Live: CLI sample and camera NV12 inference path built; physical camera run permission-qualified
 
-Known blockers: M11 still needs final release audit and a permitted physical camera run for any video claim; no privacy setting will be changed autonomously. MobileCLIP and Arm Performix remain optional.
+Known blockers: public push/submission approval and a permitted physical camera run for any video claim remain human-controlled. MobileCLIP and Arm Performix remain optional and were not allowed to jeopardize the core.
 
-Next highest-leverage action: run the hostile technical/hackathon audit, release-history checks, and final clean-clone-style validation; preserve camera permission as an explicit qualification.
+Next highest-leverage action: if release is desired, review `proof/m11-release-audit.md`, run `./pf live --camera` on a permitted Apple-Silicon device, then explicitly approve any public push/submission.
 
 Human decision currently required: no
 
-Last milestone summary: M10 PASS — current commit evidence, benchmark matrix, append-only history, environment metadata, and public-claim ledger are synchronized.
+Last milestone summary: M11 release candidate — technical, benchmark, developer-tooling, local-demo, claim, and hackathon audits are synchronized; no external publication performed.
 
 Notes:
 - Keep this file short.

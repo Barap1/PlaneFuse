@@ -71,9 +71,23 @@ Target evidence/story:
 
 Current self-score: 3/25
 
-## Current total
+## Evidence snapshot before judging
 
-8/100 before implementation. Do not inflate it.
+This is an evidence map, not a self-awarded judge score:
+
+- Technological Implementation: strong evidence for native Metal fusion, fair
+  B/C methodology, real MobileNetV2 tail preservation, numerical/task parity,
+  and eliminated intermediate; profiler screenshots and peak-memory numbers
+  are not claimed.
+- User/Developer Experience: reproducible inspect/compile/verify/bench CLI and
+  local sample/camera executable; polished GUI/video capture remains optional.
+- Potential Impact: reusable narrow stem contract and local Arm64 workload;
+  second configuration is explicitly a reference fixture, not a second
+  pretrained model.
+- WOW factor: the real model still agrees while C avoids the full RGB
+  intermediate; the current showcase is a truthful CLI/local camera proof.
+
+Do not convert this snapshot into a numeric score without judge evidence.
 
 ## Advancement rule
 

@@ -2,6 +2,19 @@
 
 Do not use this until M10, but keep requirements visible.
 
+## PlaneFuse local release-candidate snapshot
+
+The following are complete locally and are not external submission approval:
+
+- [x] Real Apple MobileNetV2/ImageNet B/C proof and two accepted 100-iteration confirmations.
+- [x] Current-state confirmation and machine-readable final matrix committed.
+- [x] M1–M11 technical evidence index and claims ledger synchronized.
+- [x] Arm64/local Metal + Core ML path and reproducible CLI workflow.
+- [x] Camera adapter captures native NV12 and refuses to fabricate metrics when permission/assets are unavailable.
+- [ ] Physical camera run/video capture on a permitted device.
+- [ ] Public repository approval and push.
+- [ ] External hackathon submission.
+
 ## Repository
 
 - [ ] Public GitHub repository approved by user.
