@@ -2,8 +2,8 @@
   "schema_version": 1,
   "status": "PASS",
   "branch": "phase2/continuum",
-  "commit": "3b659b6021b15e8549ba1e1e33b755174c1587c2",
-  "elapsed_seconds": 84,
+  "commit": "6557877fcc4d7329037ad5c0ca73ab3a2647138a",
+  "elapsed_seconds": 83,
   "commands": [
     "./pf setup mobilenetv2",
     "python3 scripts/check_benchmark_index.py",
