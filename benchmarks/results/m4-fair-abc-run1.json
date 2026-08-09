@@ -1,0 +1,50 @@
+{
+  "commit" : "4ed6b675c99cf9e72845b50533955e8bb50fffe8",
+  "environment" : {
+    "architecture" : "arm64",
+    "build_configuration" : "release",
+    "operating_system" : "Version 26.6 (Build 25G72)",
+    "swift_version" : "Apple Swift version 6.3.3 (swiftlang-6.3.3.1.3 clang-2100.1.1.101)",
+    "xcode_version" : "Xcode 26.6"
+  },
+  "measurement" : {
+    "c_vs_b_end_to_end_percentage_delta" : 52.83271275191872,
+    "c_vs_b_frontend_percentage_delta" : -2.406138789229953,
+    "device_class" : "AGXG17SDevice",
+    "device_name" : "Apple M5 Pro",
+    "feature_parity_pass" : true,
+    "height" : 480,
+    "max_feature_absolute_difference" : 1.4305115e-06,
+    "measured_iterations" : 30,
+    "percentage_delta_formula" : "(B - C) \/ B * 100",
+    "percentile_definition" : "nearest-rank: sorted[ceil(p * n) - 1]",
+    "pipeline_b_end_to_end" : {
+      "mean_milliseconds" : 0.47314861197567853,
+      "p50_milliseconds" : 0.43612500303424895,
+      "p95_milliseconds" : 0.8926250011427328
+    },
+    "pipeline_b_frontend" : {
+      "mean_milliseconds" : 0.2201430567462618,
+      "p50_milliseconds" : 0.20087500161025673,
+      "p95_milliseconds" : 0.3166249953210354
+    },
+    "pipeline_brgb_intermediate_allocated_bytes" : 4947968,
+    "pipeline_brgb_intermediate_bytes" : 4915200,
+    "pipeline_c_end_to_end" : {
+      "mean_milliseconds" : 0.21931388958667716,
+      "p50_milliseconds" : 0.2057083329418674,
+      "p95_milliseconds" : 0.3443750028964132
+    },
+    "pipeline_c_feature_allocated_bytes" : 4947968,
+    "pipeline_c_frontend" : {
+      "mean_milliseconds" : 0.21931388958667716,
+      "p50_milliseconds" : 0.2057083329418674,
+      "p95_milliseconds" : 0.3443750028964132
+    },
+    "pipeline_crgb_intermediate_bytes" : 0,
+    "warmup_iterations" : 10,
+    "width" : 640
+  },
+  "schema_version" : 1,
+  "status" : "fair_ab_c_measured"
+}
