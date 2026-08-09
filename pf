@@ -136,6 +136,15 @@ case "$command_name" in
     PF_ARCHITECTURE="$(uname -m)" PF_SWIFT_VERSION="$(swift --version | head -n 1)" PF_XCODE_VERSION="$(xcodebuild -version | head -n 1)" PF_GIT_COMMIT="$(git rev-parse HEAD)" PF_BUILD_CONFIGURATION="release" PF_PROFILE_OUTPUT="$profile_output" run_logged swift run -c release planefuse profile mobilenetv2
     cat "$log_file"
     ;;
+  bridge)
+    if [ "$command_args" != "mobilenetv2" ]; then
+      echo "usage: ./pf bridge mobilenetv2"
+      exit 2
+    fi
+    benchmark_output="${PF_BENCHMARK_OUTPUT:-$ROOT/benchmarks/results/r2-mobilenetv2-shared-bridge.json}"
+    PF_ARCHITECTURE="$(uname -m)" PF_SWIFT_VERSION="$(swift --version | head -n 1)" PF_XCODE_VERSION="$(xcodebuild -version | head -n 1)" PF_GIT_COMMIT="$(git rev-parse HEAD)" PF_BUILD_CONFIGURATION="release" PF_BENCHMARK_OUTPUT="$benchmark_output" run_logged swift run -c release planefuse bridge mobilenetv2
+    cat "$log_file"
+    ;;
   release)
     if [ "$command_args" != "validate" ]; then
       echo "usage: ./pf release validate"

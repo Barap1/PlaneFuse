@@ -1,4 +1,5 @@
 import XCTest
+import Metal
 @testable import PlaneFuseCore
 
 final class MobileNetV2IntegrationTests: XCTestCase {
@@ -32,5 +33,24 @@ final class MobileNetV2IntegrationTests: XCTestCase {
         // index, which is not emitted in this probability dictionary.
         XCTAssertEqual(probabilities.count, 1000)
         XCTAssertNotNil(probabilities.values.max())
+    }
+
+    func testBufferBackedMultiArrayRetainsCanonicalShapeAndStorage() throws {
+        guard let device = MTLCreateSystemDefaultDevice(),
+              let buffer = device.makeBuffer(length: 48 * 112 * 112 * MemoryLayout<Float>.stride, options: .storageModeShared) else {
+            throw XCTSkip("Metal device or shared buffer unavailable.")
+        }
+        let view = try BufferBackedMultiArray(buffer: buffer, shape: [48, 112, 112])
+        XCTAssertEqual(view.multiArray.shape.map(\.intValue), [48, 112, 112])
+        XCTAssertEqual(view.multiArray.strides.map(\.intValue), [112 * 112, 112, 1])
+        XCTAssertEqual(view.storageLength, buffer.length)
+    }
+
+    func testBufferBackedMultiArrayRejectsWrongStrides() throws {
+        guard let device = MTLCreateSystemDefaultDevice(),
+              let buffer = device.makeBuffer(length: 48 * 112 * 112 * MemoryLayout<Float>.stride, options: .storageModeShared) else {
+            throw XCTSkip("Metal device or shared buffer unavailable.")
+        }
+        XCTAssertThrowsError(try BufferBackedMultiArray(buffer: buffer, shape: [48, 112, 112], strides: [1, 112, 112 * 112]))
     }
 }

@@ -327,6 +327,15 @@ private struct MobileNetV2ComponentProfileArtifact: Codable {
     let model: MobileNetV2AssetManifest
 }
 
+private struct MobileNetV2SharedBridgeArtifact: Codable {
+    let schemaVersion: Int
+    let status: String
+    let commit: String?
+    let environment: EnvironmentSnapshot
+    let measurement: MobileNetV2SharedBridgeBenchmark.Measurement
+    let model: MobileNetV2AssetManifest
+}
+
 func runFairBench(configuration: FairABCBenchmark.Configuration, label: String) throws -> Int32 {
     let outputPath = ProcessInfo.processInfo.environment["PF_BENCHMARK_OUTPUT"] ?? "benchmarks/results/fair-\(label).json"
     let measurement = try FairABCBenchmark(configuration: configuration).run()
@@ -435,6 +444,34 @@ func runMobileNetV2Profile() throws -> Int32 {
     return measurement.top1Agreement >= 1.0 ? 0 : 1
 }
 
+func runMobileNetV2SharedBridge() throws -> Int32 {
+    let root = URL(fileURLWithPath: FileManager.default.currentDirectoryPath, isDirectory: true)
+    let coefficientPath = ProcessInfo.processInfo.environment["PF_MOBILENET_COEFFICIENTS"] ?? "models/derived/MobileNetV2StemCoefficients.json"
+    let tailPath = ProcessInfo.processInfo.environment["PF_MOBILENET_TAIL"] ?? "models/derived/tail-compiled/MobileNetV2Tail.mlmodelc"
+    let manifest = MobileNetV2AssetManifest.inspected
+    try manifest.validate(at: root)
+    let corpus = try MobileNetV2Corpus(manifestURL: root.appendingPathComponent(manifest.validationCorpusManifest), root: root)
+    let tail = try CoreMLMobileNetV2TailAdapter(modelURL: URL(fileURLWithPath: tailPath), manifest: manifest)
+    let benchmark = try MobileNetV2SharedBridgeBenchmark(configuration: .quick, coefficientsURL: URL(fileURLWithPath: coefficientPath), tail: tail, corpus: corpus)
+    let measurement = try benchmark.run()
+    let artifact = MobileNetV2SharedBridgeArtifact(schemaVersion: 1, status: "mobilenetv2_shared_bridge", commit: ProcessInfo.processInfo.environment["PF_GIT_COMMIT"], environment: EnvironmentSnapshot(), measurement: measurement, model: manifest)
+    let outputPath = ProcessInfo.processInfo.environment["PF_BENCHMARK_OUTPUT"] ?? "benchmarks/results/r2-mobilenetv2-shared-bridge.json"
+    let url = URL(fileURLWithPath: outputPath)
+    try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+    try JSONEncoder.benchmark.encode(artifact).write(to: url, options: .atomic)
+    emit("PlaneFuse bench MobileNetV2 shared bridge: RECORDED")
+    emit("result: \(outputPath)")
+    emit(String(format: "b_boxed_bridge_p50_ms: %.4f", measurement.pipelineBBoxedBridge.p50Milliseconds))
+    emit(String(format: "b_shared_bridge_p50_ms: %.4f", measurement.pipelineBSharedBridge.p50Milliseconds))
+    emit(String(format: "c_boxed_bridge_p50_ms: %.4f", measurement.pipelineCBoxedBridge.p50Milliseconds))
+    emit(String(format: "c_shared_bridge_p50_ms: %.4f", measurement.pipelineCSharedBridge.p50Milliseconds))
+    emit(String(format: "b_bridge_reduction_percent: %.2f", measurement.bBridgeReductionPercentage))
+    emit(String(format: "c_bridge_reduction_percent: %.2f", measurement.cBridgeReductionPercentage))
+    emit(String(format: "shared_top1_agreement: %.4f", measurement.sharedTop1Agreement))
+    emit(String(format: "max_activation_abs_error: %.8f", measurement.maxActivationAbsoluteDifference))
+    return measurement.sharedTop1Agreement >= 1.0 && measurement.maxActivationAbsoluteDifference <= Double(FairABCBenchmark.featureParityTolerance) ? 0 : 1
+}
+
 do {
     let arguments = Array(CommandLine.arguments.dropFirst())
     guard let command = arguments.first else { throw CommandError.usage }
@@ -480,6 +517,9 @@ do {
     case "profile":
         guard arguments == ["profile", "mobilenetv2"] else { throw CommandError.usage }
         exit(try runMobileNetV2Profile())
+    case "bridge":
+        guard arguments == ["bridge", "mobilenetv2"] else { throw CommandError.usage }
+        exit(try runMobileNetV2SharedBridge())
     default:
         throw CommandError.unknownCommand(command)
     }

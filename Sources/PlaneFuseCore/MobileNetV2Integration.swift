@@ -3,6 +3,7 @@ import CryptoKit
 import CoreGraphics
 import CoreVideo
 import Foundation
+import Metal
 
 /// Immutable description of the selected M5 workload. Weight files are deliberately
 /// not committed; the manifest records where they came from and what a local setup
@@ -64,6 +65,7 @@ public enum MobileNetV2IntegrationError: LocalizedError, Equatable {
     case invalidTailInput(name: String, shape: [Int])
     case invalidStemInput(name: String, shape: [Int])
     case invalidStemOutput(name: String, shape: [Int])
+    case invalidMultiArrayStrides
     case unexpectedTailOutput(String)
     case emptyValidation
 
@@ -80,6 +82,7 @@ public enum MobileNetV2IntegrationError: LocalizedError, Equatable {
         case let .invalidTailInput(name, shape): return "Tail input '\(name)' must be Float32 with exact shape \(shape)."
         case let .invalidStemInput(name, shape): return "StemArray input '\(name)' must be Float32 with exact shape \(shape)."
         case let .invalidStemOutput(name, shape): return "StemArray output '\(name)' must be Float32 with exact shape \(shape)."
+        case .invalidMultiArrayStrides: return "Buffer-backed MLMultiArray requires contiguous canonical strides for its shape."
         case let .unexpectedTailOutput(name): return "The tail output '\(name)' is not the expected classification-probability dictionary."
         case .emptyValidation: return "A MobileNetV2 output-agreement report needs at least one paired sample."
         }
@@ -187,6 +190,52 @@ public struct MobileNetV2TailPredictionBreakdown: Codable, Equatable {
     public let outputExtractionMilliseconds: Double
 }
 
+/// A persistent Core ML view over caller-owned shared storage. The retained
+/// Metal buffer keeps the pointer valid for the lifetime of the view; this
+/// type deliberately makes no claim about hidden copies inside Core ML.
+public final class BufferBackedMultiArray {
+    public let multiArray: MLMultiArray
+    public let shape: [Int]
+    private let buffer: MTLBuffer
+
+    public convenience init(buffer: MTLBuffer, shape: [Int]) throws {
+        let strides = Self.contiguousStrides(for: shape)
+        try self.init(buffer: buffer, shape: shape, strides: strides)
+    }
+
+    public init(buffer: MTLBuffer, shape: [Int], strides: [Int]) throws {
+        guard !shape.isEmpty, shape.allSatisfy({ $0 > 0 }) else { throw MobileNetV2IntegrationError.invalidActivationCount(expected: 1, actual: 0) }
+        guard strides == Self.contiguousStrides(for: shape) else { throw MobileNetV2IntegrationError.invalidMultiArrayStrides }
+        let count = shape.reduce(1, *)
+        guard buffer.length >= count * MemoryLayout<Float>.stride else {
+            throw MobileNetV2IntegrationError.invalidActivationCount(expected: count, actual: buffer.length / MemoryLayout<Float>.stride)
+        }
+        let numberStrides = strides.map(NSNumber.init(value:))
+        self.buffer = buffer
+        self.shape = shape
+        self.multiArray = try MLMultiArray(
+            dataPointer: buffer.contents(),
+            shape: shape.map(NSNumber.init(value:)),
+            dataType: .float32,
+            strides: numberStrides,
+            deallocator: { _ in }
+        )
+    }
+
+    public var storageLength: Int { buffer.length }
+
+    private static func contiguousStrides(for shape: [Int]) -> [Int] {
+        guard !shape.isEmpty else { return [] }
+        var result = [Int](repeating: 1, count: shape.count)
+        if shape.count > 1 {
+            for index in stride(from: shape.count - 2, through: 0, by: -1) {
+                result[index] = result[index + 1] * shape[index + 1]
+            }
+        }
+        return result
+    }
+}
+
 public final class CoreMLMobileNetV2TailAdapter: MobileNetV2TailRunning {
     private let model: MLModel
     private let inputName: String
@@ -214,6 +263,22 @@ public final class CoreMLMobileNetV2TailAdapter: MobileNetV2TailRunning {
 
     public func predict(stemActivation: [Float]) throws -> [String: Double] {
         try predictWithBreakdown(stemActivation: stemActivation).probabilities
+    }
+
+    public func predict(sharedActivation: BufferBackedMultiArray) throws -> [String: Double] {
+        guard sharedActivation.shape == activationShape.map(\.intValue) else {
+            throw MobileNetV2IntegrationError.invalidActivationCount(expected: activationCount, actual: sharedActivation.shape.reduce(1, *))
+        }
+        let output = try model.prediction(from: MLDictionaryFeatureProvider(dictionary: [inputName: sharedActivation.multiArray]))
+        guard let probabilities = output.featureValue(for: outputName)?.dictionaryValue else {
+            throw MobileNetV2IntegrationError.unexpectedTailOutput(outputName)
+        }
+        var extracted: [String: Double] = [:]
+        for (key, value) in probabilities {
+            guard let label = key as? String else { continue }
+            extracted[label] = value.doubleValue
+        }
+        return extracted
     }
 
     public func predictWithBreakdown(stemActivation: [Float]) throws -> MobileNetV2TailPredictionBreakdown {
