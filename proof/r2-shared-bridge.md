@@ -19,12 +19,12 @@ compiled Float32 Core ML tail and the same 20 measured iterations over the
 
 | Pair | Boxed | Buffer-backed view | Reduction |
 | --- | ---: | ---: | ---: |
-| B2 handoff-to-result | 49.4640 ms | 1.3279 ms | 97.3155% |
-| C0 handoff-to-result | 49.4789 ms | 1.3377 ms | 97.2964% |
-| B2 input-to-result | 50.4438 ms | 2.2206 ms | 95.5979% |
-| C0 input-to-result | 50.3103 ms | 2.1327 ms | 95.7609% |
+| B2 handoff-to-result | 48.9133 ms | 1.3296 ms | 97.2818% |
+| C0 handoff-to-result | 48.9898 ms | 1.2987 ms | 97.3490% |
+| B2 input-to-result | 49.8516 ms | 2.2382 ms | 95.5103% |
+| C0 input-to-result | 49.5161 ms | 2.1157 ms | 95.7273% |
 
-The persistent view construction itself measured 0.0113 ms for B and 0.0015 ms
+The persistent view construction itself measured 0.0095 ms for B and 0.0012 ms
 for C in this quick run and is reported separately rather than hidden in the
 per-iteration candidate timing.
 
@@ -47,14 +47,14 @@ All 600 paired differences are preserved in
 
 | Batch | B2 handoff reduction | C0 handoff reduction | B2 end-to-end reduction | C0 end-to-end reduction |
 | ---: | ---: | ---: | ---: | ---: |
-| 1 | 97.3257% | 97.3299% | 95.6399% | 95.7913% |
-| 2 | 97.3387% | 97.3597% | 95.7030% | 95.8442% |
-| 3 | 97.3423% | 97.3282% | 95.6786% | 95.8166% |
+| 1 | 97.3033% | 97.3168% | 95.5677% | 95.7690% |
+| 2 | 97.3502% | 97.3386% | 95.6623% | 95.8030% |
+| 3 | 97.3546% | 97.3427% | 95.6634% | 95.8197% |
 
 This evidence supports “buffer-backed multiarray view” and “no
 element-by-element CPU copy in PlaneFuse.” It does not claim that Core ML
 performs no internal copy.
 
-The raw artifacts were generated from commit `9ea359d` and are indexed as
+The raw artifacts were generated from commit `3cd0313` and are indexed as
 `EXPERIMENTAL` until the R2 hostile review accepts the lifetime and fairness
 methodology.
