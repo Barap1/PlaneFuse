@@ -448,7 +448,13 @@ private struct PolyphaseBenchmarkArtifact: Codable {
     let cVsPolyphaseEndToEndPercentage: Double
     let maxActivationAbsoluteDifference: Double
     let taskAgreement: Double
-    let uniqueChromaReads: Int
+    let nativeYReadInstructions: Int
+    let polyphaseYReadInstructions: Int
+    let nativeUVReadInstructions: Int
+    let polyphaseUVReadInstructions: Int
+    let uniqueChromaCoordinates: Int
+    let nativeWeightedMultiplications: Int
+    let polyphaseWeightedMultiplications: Int
     let generatedPlan: String
 }
 
@@ -672,7 +678,7 @@ func runPolyphaseBench() throws -> Int32 {
     let nativeShared = try BufferBackedMultiArray(buffer: nativeActivation, shape: MetalMobileNetV2NativeStem.activationShape)
     let polyphaseShared = try BufferBackedMultiArray(buffer: polyphaseActivation, shape: MetalMobileNetV2NativeStem.activationShape)
     let confirm = ProcessInfo.processInfo.environment["PF_POLYPHASE_CONFIRM"] == "1"
-    let warmups = confirm ? 20 : 5; let measured = confirm ? 100 : 20
+    let warmups = confirm ? 20 : 5; let measured = confirm ? 200 : 20
     var nativeFrontend: [Double] = []; var polyphaseFrontend: [Double] = []
     var nativeEnd: [Double] = []; var polyphaseEnd: [Double] = []
     var maxError = 0.0; var agreement = 0
@@ -716,7 +722,11 @@ func runPolyphaseBench() throws -> Int32 {
         nativeEndToEnd: nativeEndStats, polyphaseEndToEnd: polyphaseEndStats,
         cVsPolyphaseFrontendPercentage: (nativeFrontendStats.p50Milliseconds - polyphaseFrontendStats.p50Milliseconds) / nativeFrontendStats.p50Milliseconds * 100,
         cVsPolyphaseEndToEndPercentage: (nativeEndStats.p50Milliseconds - polyphaseEndStats.p50Milliseconds) / nativeEndStats.p50Milliseconds * 100,
-        maxActivationAbsoluteDifference: maxError, taskAgreement: Double(agreement) / Double(measured), uniqueChromaReads: 4,
+        maxActivationAbsoluteDifference: maxError, taskAgreement: Double(agreement) / Double(measured),
+        nativeYReadInstructions: 9, polyphaseYReadInstructions: 9,
+        nativeUVReadInstructions: 9, polyphaseUVReadInstructions: 4,
+        uniqueChromaCoordinates: 4, nativeWeightedMultiplications: 27,
+        polyphaseWeightedMultiplications: 17,
         generatedPlan: "Exact nearest-sited 4:2:0: nine luma taps, four aggregated chroma phases, per-tap source offsets for bottom/right padding."
     )
     let outputPath = ProcessInfo.processInfo.environment["PF_BENCHMARK_OUTPUT"] ?? (confirm ? "benchmarks/results/r5-polyphase-confirm.json" : "benchmarks/results/r5-polyphase-quick.json")
