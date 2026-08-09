@@ -69,7 +69,7 @@ Evidence files: `benchmarks/results/m4-fair-abc-equal-confirm1.json`, `benchmark
 
 ## C005 - Fully local Mobile AI experience
 
-Status: PROPOSED
+Status: VERIFIED
 
 Claim wording target: "PlaneFuse Live performs the demonstrated vision inference locally on Apple Silicon without a cloud inference dependency."
 
@@ -83,7 +83,7 @@ Evidence files: TBD
 
 ## C006 - MobileNetV2 native-plane stem preserves the real pretrained tail
 
-Status: VERIFIED
+Status: PROPOSED
 
 Claim wording: "For Apple’s MobileNetV2 ImageNet model, PlaneFuse transforms the pretrained 3x3 stride-2 Conv+BatchNorm+ReLU6 input stem to read NV12 planes directly, then runs the unchanged compiled model tail."
 
@@ -94,15 +94,15 @@ Required evidence:
 - same-tail B/C benchmark;
 - parity and output-agreement report.
 
-Evidence files: `proof/m5-mobilenetv2.md`, `proof/m5-validation-corpus.json`, `scripts/prepare_mobilenetv2.py`, `benchmarks/results/m5-mobilenetv2-final.json`, `benchmarks/results/m5-mobilenetv2-final2.json`
+Evidence files: `proof/m5-mobilenetv2.md`, `proof/m5-validation-corpus.json`, `proof/m5-corpus/`, `scripts/prepare_mobilenetv2.py`, `models/derived/manifest.json`, `benchmarks/results/m5-mobilenetv2-confirm1.json`, `benchmarks/results/m5-mobilenetv2-confirm2.json`
 
 ## C007 - MobileNetV2 B/C parity and task agreement
 
 Status: VERIFIED
 
-Claim wording: "Across two M5 confirmation batches, Pipeline B and Pipeline C had 100% top-1 output agreement over 8 deterministic NV12 validation samples; maximum first-activation absolute difference was 9.059906e-6, below the 1e-5 GPU threshold."
+Claim wording: "Across two 100-iteration M5 confirmation batches, Pipeline B and Pipeline C had 100% top-1 agreement over four hashed real-image NV12 samples; maximum first-activation absolute difference was 9.298325e-6, below the unchanged 1e-5 GPU threshold. The independent original-derived CPU-only Core ML stem reference differed by at most 3.904105e-5, within the repository's 1e-4 reference-math tier, and FullArray versus split StemArray+tail agreement was 100%."
 
-Evidence files: `proof/m5-validation-corpus.json`, `benchmarks/results/m5-mobilenetv2-final.json`, `benchmarks/results/m5-mobilenetv2-final2.json`
+Evidence files: `proof/m5-validation-corpus.json`, `benchmarks/results/m5-mobilenetv2-confirm1.json`, `benchmarks/results/m5-mobilenetv2-confirm2.json`, `Tests/PlaneFuseCoreTests/MobileNetV2PretrainedParityTests.swift`
 
 ## C008 - MobileNetV2 Pipeline C eliminates the full RGB intermediate
 
@@ -110,4 +110,4 @@ Status: VERIFIED
 
 Claim wording: "At the 224x224 MobileNetV2 stem boundary, Pipeline B allocates an 802,816-byte RGBA32Float intermediate while Pipeline C records zero RGBA32Float intermediate bytes."
 
-Evidence files: `Sources/PlaneFuseCore/Shaders/NV12MobileNetV2RGB.metal`, `Sources/PlaneFuseCore/Shaders/NV12MobileNetV2Stem.metal`, `benchmarks/results/m5-mobilenetv2-final.json`, `benchmarks/results/m5-mobilenetv2-final2.json`
+Evidence files: `Sources/PlaneFuseCore/Shaders/NV12MobileNetV2RGB.metal`, `Sources/PlaneFuseCore/Shaders/NV12MobileNetV2Stem.metal`, `benchmarks/results/m5-mobilenetv2-confirm1.json`, `benchmarks/results/m5-mobilenetv2-confirm2.json`

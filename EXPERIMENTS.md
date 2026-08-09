@@ -40,9 +40,23 @@ Change: Added model-graph preparation, exact coefficient export, native NV12 3x3
 Correctness: PASS; max B/C activation absolute difference 9.059906e-6 <= 1e-5; top-1 agreement 1.0 over 8 validation samples in both post-commit confirmation batches.
 Quick benchmark: B/C end-to-end p50 55.9170/54.3686 ms, a 2.77% C reduction; isolated stem-region p50 was 2.0187/0.6765 ms, a 66.48% C reduction.
 Confirmation benchmark: Post-commit batches measured B/C end-to-end p50 56.6585/54.6994 ms (3.46% C reduction) and 56.5140/55.3209 ms (2.11% C reduction). Frontend C reductions were 61.90% and 66.47%.
+Outcome: REJECTED
+Lesson: B/C agreement was insufficient because both paths shared a wrong top/left-heavy SAME-padding convention; the synthetic corpus and missing original-stem parity also prevented acceptance. The CPU-visible MLMultiArray handoff remains explicitly included in timing.
+Accepted commit: none; implementation requires correction before M5 acceptance.
+
+## E004 - repair and independently validate pretrained MobileNetV2
+
+Date: 2026-08-09
+Base commit: 492a171
+Evidence/observation: The audit found top/left-heavy SAME padding, no independent original-stem check, a synthetic/unused corpus, unclear tail lineage, and only 20 measured iterations.
+Hypothesis: Correcting the Apple bottom/right-heavy SAME contract and validating the derived graph against a real hashed corpus will preserve the pretrained task while retaining a fair B/C advantage.
+Change: Corrected reference and both Metal shaders; added derived StemArray/FullArray artifacts, exact tail input/shape/hash validation, four public CC0 images with deterministic ImageIO→NV12 conversion, and a 100-iteration confirmation tier.
+Correctness: PASS; raw B/C max activation error 9.298325e-6 <= 1e-5, B/C and FullArray/split-tail top-1 agreement 1.0, and independent CPU-only Core ML StemArray versus B/C max error 3.904105e-5 <= the documented 1e-4 reference-math tier.
+Quick benchmark: At the repaired implementation, real-corpus B/C end-to-end p50 was 53.0177/51.7739 ms, a 2.35% C reduction.
+Confirmation benchmark: At commit df5f573, two 100-iteration batches measured end-to-end C reductions of 2.02% and 1.89%; frontend reductions were 61.29% and 51.65%. B allocated 802,816 bytes of RGBA32Float intermediate; C allocated 0.
 Outcome: ACCEPT
-Lesson: The real pretrained model preserves the native-stem equivalence and a smaller but repeated end-to-end win after the unchanged Core ML tail. The current CPU-visible MLMultiArray handoff is included in e2e timing; no zero-copy Core ML claim is made.
-Accepted commit: 492a171
+Lesson: The core result survives a credible pretrained workload, but the absolute end-to-end advantage is workload/runtime dependent; the strongest technical evidence is the native stem reduction and eliminated full-RGB intermediate, not a universal speedup claim.
+Accepted commit: 6e685a6, b8b7850, and df5f573
 
 Template:
 

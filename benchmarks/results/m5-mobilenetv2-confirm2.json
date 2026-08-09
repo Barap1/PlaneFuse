@@ -1,0 +1,88 @@
+{
+  "commit" : "df5f5734b842eb98e2e24b6f0523c64ffbd95a79",
+  "environment" : {
+    "architecture" : "arm64",
+    "build_configuration" : "release",
+    "operating_system" : "Version 26.6 (Build 25G72)",
+    "swift_version" : "Apple Swift version 6.3.3 (swiftlang-6.3.3.1.3 clang-2100.1.1.101)",
+    "xcode_version" : "Xcode 26.6"
+  },
+  "measurement" : {
+    "activation_bytes" : 2408448,
+    "c_vs_b_end_to_end_percentage_delta" : 1.8911257839683295,
+    "c_vs_b_frontend_percentage_delta" : 51.64878541542806,
+    "command_buffer_methodology" : "Frontend: one command buffer \/ one submission per B RGB conversion+stem and C native stem. End-to-end: same one-submission B\/C Metal boundary, followed by the same Core ML tail and explicit MLMultiArray handoff.",
+    "configuration" : {
+      "height" : 224,
+      "measured_iterations" : 100,
+      "validation_samples" : 4,
+      "warmup_iterations" : 10,
+      "width" : 224
+    },
+    "device_class" : "AGXG17SDevice",
+    "device_name" : "Apple M5 Pro",
+    "full_array_vs_split_tail_top1_agreement" : 1,
+    "gpu_parity_threshold" : 9.999999747378752e-06,
+    "independent_parity_pass" : true,
+    "independent_stem_array_vs_b_max_absolute_difference" : 3.904104232788086e-05,
+    "independent_stem_array_vs_c_max_absolute_difference" : 3.892183303833008e-05,
+    "max_activation_absolute_difference" : 9.298324584960938e-06,
+    "output_agreement_pass" : true,
+    "pipeline_b_end_to_end" : {
+      "mean_milliseconds" : 53.72714583310881,
+      "median_absolute_deviation_milliseconds" : 0.4093750030733645,
+      "p50_milliseconds" : 53.6827500036452,
+      "p95_milliseconds" : 54.67333333217539
+    },
+    "pipeline_b_frontend" : {
+      "mean_milliseconds" : 0.45038458236376755,
+      "median_absolute_deviation_milliseconds" : 0.031083342037163675,
+      "p50_milliseconds" : 0.4232916689943522,
+      "p95_milliseconds" : 0.5177083221497014
+    },
+    "pipeline_brgb_intermediate_bytes" : 802816,
+    "pipeline_c_end_to_end" : {
+      "mean_milliseconds" : 52.70842291676672,
+      "median_absolute_deviation_milliseconds" : 0.357416647602804,
+      "p50_milliseconds" : 52.667541676783,
+      "p95_milliseconds" : 53.732874992419966
+    },
+    "pipeline_c_frontend" : {
+      "mean_milliseconds" : 0.20721583379781805,
+      "median_absolute_deviation_milliseconds" : 0.013208322343416512,
+      "p50_milliseconds" : 0.20466666319407523,
+      "p95_milliseconds" : 0.24379167007282376
+    },
+    "pipeline_crgb_intermediate_bytes" : 0,
+    "reference_backend" : "Core ML CPU-only source-derived StemArray\/FullArray",
+    "reference_parity_threshold" : 0.0001,
+    "task_agreement_threshold" : 0.995,
+    "top1_agreement" : 1,
+    "validation_corpus_sample_ids" : [
+      "cat-dog",
+      "flower",
+      "cat-flower-pot",
+      "closeup-cat"
+    ],
+    "validation_sample_count" : 4
+  },
+  "model" : {
+    "activation_shape" : [
+      48,
+      112,
+      112
+    ],
+    "derived_manifest" : "models\/derived\/manifest.json",
+    "model_identifier" : "Apple MobileNetV2 ImageNet",
+    "padding_mode" : "sameBottomRight",
+    "source_model_file" : "MobileNetV2.mlmodel",
+    "source_sha256" : "cb5a35f593582232140556bbfa4618e66b37b8ff2fc33ba17db909e1050fd144",
+    "source_url" : "https:\/\/developer.apple.com\/machine-learning\/models\/?q=MobileNetV2",
+    "tail_input_name" : "planefuse_mobilenetv2_stem_features",
+    "tail_model_directory" : "models\/derived\/tail-compiled\/MobileNetV2Tail.mlmodelc",
+    "tail_output_name" : "classLabelProbs",
+    "validation_corpus_manifest" : "proof\/m5-validation-corpus.json"
+  },
+  "schema_version" : 1,
+  "status" : "mobilenetv2_confirm"
+}

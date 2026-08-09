@@ -1,37 +1,37 @@
 {
   "schema_version": 1,
-  "status": "verified_m5_mobilenetv2_equal_submission",
-  "commit": "492a171979a723d04c3fbf15a30af0cc39562783",
+  "status": "verified_equal_submission_fair_ab_c",
+  "commit": "3d17cedad62a905676ad6169a67cb311a46ca346",
   "device_name": "Apple M5 Pro",
   "device_class": "AGXG17SDevice",
-  "model": "Apple MobileNetV2 ImageNet",
-  "input": "8-bit bi-planar NV12, 224x224, BT.601 video range",
+  "model": "M1 four-output 1x1 stem fixture",
+  "input": "8-bit bi-planar NV12, 640x480, BT.601 video range",
   "build_configuration": "release",
   "pipeline_b": {
-    "frontend_p50_ms": 0.5510000046342611,
-    "frontend_p95_ms": 2.0188333292026073,
-    "e2e_p50_ms": 56.658541652723216,
-    "e2e_p95_ms": 57.815749998553656,
-    "rgb_intermediate_bytes": 802816,
-    "rgb_intermediate_allocated_bytes": 802816
+    "frontend_p50_ms": 0.1851666602306068,
+    "frontend_p95_ms": 0.2445833379169926,
+    "e2e_p50_ms": 0.23283332120627165,
+    "e2e_p95_ms": 0.337166668032296,
+    "rgb_intermediate_bytes": 4915200,
+    "rgb_intermediate_allocated_bytes": 4947968
   },
   "pipeline_c": {
-    "frontend_p50_ms": 0.20995833619963378,
-    "frontend_p95_ms": 0.6939583399798721,
-    "e2e_p50_ms": 54.69937500311062,
-    "e2e_p95_ms": 56.024000004981644,
+    "frontend_p50_ms": 0.18258333147969097,
+    "frontend_p95_ms": 0.2301666681887582,
+    "e2e_p50_ms": 0.19479167531244457,
+    "e2e_p95_ms": 0.28375000692903996,
     "rgb_intermediate_bytes": 0,
-    "feature_allocated_bytes": 2408448
+    "feature_allocated_bytes": 4947968
   },
   "correctness": {
     "pass": true,
     "metric": "max_feature_absolute_difference",
-    "value": 0.000009059906005859375,
+    "value": 0.0000014305115,
     "threshold": 0.00001
   },
   "delta": {
-    "frontend_percent": 61.89503912273133,
-    "e2e_percent": 3.457848706415537,
+    "frontend_percent": 1.3951370876909182,
+    "e2e_percent": 16.338574606392026,
     "formula": "(B - C) / B * 100"
   },
   "measurement": {
@@ -39,17 +39,37 @@
     "measured_iterations": 100,
     "percentile_definition": "nearest-rank: sorted[ceil(p * n) - 1]",
     "confirmation_batches": 2,
-    "validation_samples": 8,
-    "top1_agreement": 1.0,
-    "command_buffer_methodology": "Frontend: one command buffer / one submission per B RGB conversion+stem and C native stem. End-to-end: same one-submission B/C Metal boundary, followed by the same Core ML tail and explicit MLMultiArray handoff.",
-    "selected_confirmation": "benchmarks/results/m5-mobilenetv2-final.json"
+    "command_buffer_methodology": "Frontend: one command buffer / one submission per B conversion and C native stem. End-to-end: one command buffer / one submission for B conversion plus normal RGB stem, and one command buffer / one submission for C native stem.",
+    "selected_confirmation": "benchmarks/results/m4-fair-abc-equal-confirm1.json"
   },
+  "additional_verified_workloads": [
+    {
+      "status": "mobilenetv2_confirm_accepted",
+      "commit": "df5f5734b842eb98e2e24b6f0523c64ffbd95a79",
+      "model": "Apple MobileNetV2 ImageNet",
+      "input": "8-bit bi-planar NV12, 224x224, BT.601 video range",
+      "confirmation_batches": 2,
+      "measured_iterations_per_batch": 100,
+      "pipeline_b_e2e_p50_ms": [53.46466667833738, 53.6827500036452],
+      "pipeline_c_e2e_p50_ms": [52.3829166777432, 52.667541676783],
+      "c_vs_b_e2e_percent": [2.0232988771862734, 1.8911257839683295],
+      "pipeline_b_rgb_intermediate_bytes": 802816,
+      "pipeline_c_rgb_intermediate_bytes": 0,
+      "max_b_c_activation_absolute_difference": 0.000009298324584960938,
+      "b_c_gpu_parity_threshold": 0.00001,
+      "independent_reference_backend": "Core ML CPU-only source-derived StemArray/FullArray",
+      "independent_reference_threshold": 0.0001,
+      "independent_reference_max_b_error": 0.00003904104232788086,
+      "independent_reference_max_c_error": 0.00003892183303833008,
+      "task_agreement": 1.0,
+      "task_agreement_threshold": 0.995,
+      "evidence": ["benchmarks/results/m5-mobilenetv2-confirm1.json", "benchmarks/results/m5-mobilenetv2-confirm2.json", "proof/m5-mobilenetv2.md"]
+    }
+  ],
   "evidence": [
-    "benchmarks/results/m5-mobilenetv2-final.json",
-    "benchmarks/results/m5-mobilenetv2-final2.json",
-    "proof/m5-mobilenetv2.md",
-    "proof/m5-validation-corpus.json",
+    "benchmarks/results/m4-fair-abc-equal-confirm1.json",
+    "benchmarks/results/m4-fair-abc-equal-confirm2.json",
     "proof/m1-reference-parity.json",
-    "Sources/PlaneFuseCore/Shaders/NV12MobileNetV2Stem.metal"
+    "Sources/PlaneFuseCore/Shaders/NV12NativeStem.metal"
   ]
 }
