@@ -76,10 +76,19 @@ Claim wording target: "PlaneFuse Live performs the demonstrated vision inference
 Required evidence:
 
 - architecture/runtime inspection;
-- demo with networking not required for inference;
+- real local sample inference with networking not required;
+- camera path that reports no metrics when permission or assets are unavailable;
 - setup docs.
 
-Evidence files: TBD
+Evidence files: `Sources/PlaneFuseLive/main.swift`, `proof/m9-live.md`, `proof/m8-developer-workflow.md`
+
+## C009 - PlaneFuse Live preserves the native-plane claim at camera input
+
+Status: QUALIFIED
+
+Claim wording: "The PlaneFuse Live camera adapter captures video-range NV12, performs the supported center-crop/nearest resize directly on Y and UV planes, then compares the same local MobileNetV2 tail after B and C stems. It does not claim a camera result when permission, assets, or the input contract is unavailable."
+
+Evidence files: `Sources/PlaneFuseLive/main.swift`, `DEMO_PLAN.md`, `proof/m9-live.md`
 
 ## C006 - MobileNetV2 native-plane stem preserves the real pretrained tail
 

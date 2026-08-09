@@ -1,6 +1,6 @@
 # PlaneFuse status
 
-Current milestone: M9 - PlaneFuse Live showcase
+Current milestone: M10 - Evidence and submission package
 
 Overall status: IN PROGRESS
 
@@ -8,7 +8,7 @@ Current branch: main (expected)
 
 Current best verified result: M4 fixture C end-to-end p50 0.1948 ms vs B 0.2328 ms; 16.34% lower under equal-submission methodology
 
-Correctness status: M8 PASS — inspect/compile/verify/bench commands are reproducible, JSON-backed, and honest about missing model assets
+Correctness status: M9 PASS (environment-qualified) — local sample inference is validated; camera NV12 capture/resize/B-C inference builds and reports honestly, but this machine denied camera access
 
 Pipeline A status: not built
 
@@ -20,13 +20,13 @@ Real model: Apple MobileNetV2 ImageNet integrated; unchanged 252-layer Core ML t
 
 PlaneFuse Live: not started
 
-Known blockers: M9 camera shell and task UI are not started. The MobileNetV2 local workload is proven; MobileCLIP remains optional and must not jeopardize that core.
+Known blockers: A permitted physical camera run and polished video capture remain outstanding; no privacy setting will be changed autonomously. The MobileNetV2 core is proven; MobileCLIP remains optional.
 
-Next highest-leverage action: build a local macOS camera/frame showcase that uses the real MobileNetV2 path and displays only measured runtime state.
+Next highest-leverage action: assemble final benchmark/profiler/system evidence, audit every public claim, and prepare clean-clone release instructions.
 
 Human decision currently required: no
 
-Last milestone summary: M8 PASS — `./pf inspect`, `compile`, `verify`, and `bench` expose the supported example without manual source edits; unsupported/missing state is explicit.
+Last milestone summary: M9 PASS (qualified) — `planefuse-live --sample` runs real local B/C inference; `--camera` captures native NV12, resizes without RGB, and runs measured B/C inference when permission/assets are available.
 
 Notes:
 - Keep this file short.

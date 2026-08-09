@@ -74,6 +74,14 @@ case "$command_name" in
     run_logged swift run -c debug planefuse compile mobilenetv2
     cat "$log_file"
     ;;
+  live)
+    if [ "$command_args" != "--help" ] && [ "$command_args" != "--sample" ] && [ "$command_args" != "--camera" ]; then
+      echo "usage: ./pf live --help|--sample|--camera"
+      exit 2
+    fi
+    run_logged swift run -c debug planefuse-live "$command_args"
+    cat "$log_file"
+    ;;
   bench)
     if [ "$command_args" = "quick" ]; then
       benchmark_output="${PF_BENCHMARK_OUTPUT:-$ROOT/benchmarks/results/quick.json}"

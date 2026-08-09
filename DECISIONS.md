@@ -146,6 +146,18 @@ Evidence: `Sources/PlaneFuseCLI/main.swift`, `proof/m8-developer-workflow.md`, a
 
 Revisit when: a true graph compiler backend replaces the current reproducible preparation script.
 
+## D014 - Camera demo uses a native NV12 capture adapter
+
+Status: accepted
+
+Decision: PlaneFuse Live captures video-range bi-planar NV12 and performs the camera-to-224 contract with an even-aligned center crop plus direct Y/UV nearest sampling. It runs real B/C stems and the unchanged tail only after capture, assets, and format validation succeed; otherwise it reports the missing condition and no inference metric.
+
+Why: This keeps the demo's central representation claim visible at the camera boundary. A camera capture adapter is necessary for a useful local experience, but it must not silently introduce an RGB resize or display static benchmark numbers as live results.
+
+Evidence: `Sources/PlaneFuseLive/main.swift`, `proof/m9-live.md`, and the denied-permission smoke log under `artifacts/logs/`.
+
+Revisit when: a signed GUI shell and a permitted device run are available for a final video capture.
+
 ---
 
 New decision template:

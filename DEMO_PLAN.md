@@ -4,7 +4,9 @@ Do not implement this until the technical performance gate passes.
 
 ## 1. User-facing concept
 
-PlaneFuse Live is a fully local semantic camera for Apple Silicon.
+PlaneFuse Live is a fully local Apple-Silicon camera/classification proof. The
+current validated workload is MobileNetV2 ImageNet classification rather than
+zero-shot semantic retrieval; MobileCLIP remains optional.
 
 Preferred demo:
 
@@ -15,6 +17,17 @@ Preferred demo:
 - same useful result available through Pipeline B or PlaneFuse C.
 
 If the chosen real model is classification rather than semantic retrieval, adapt the experience to a clear live recognition task without pretending it is semantic search.
+
+Current executable workflow:
+
+```bash
+./pf live --sample   # real local M5 corpus B/C inference
+./pf live --camera   # actual camera NV12 capture, native-plane resize, B/C inference
+```
+
+The camera mode center-crops to an even-aligned square and resizes Y and UV
+directly to 224x224 NV12. It reports no inference metrics if camera permission,
+assets, or the native frame contract is unavailable.
 
 ## 2. Core visual
 
@@ -75,6 +88,10 @@ Capture:
 - clean CLI output;
 - app screenshot;
 - system/environment summary without personal identifiers.
+
+The current CLI is the reproducible showcase shell. A signed AppKit/SwiftUI
+window is intentionally deferred until the camera path has been exercised on a
+permitted device; the technical proof remains in the shared core and CLI.
 
 ## 6. Do not do
 

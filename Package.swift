@@ -7,6 +7,7 @@ let package = Package(
     products: [
         .library(name: "PlaneFuseCore", targets: ["PlaneFuseCore"]),
         .executable(name: "planefuse", targets: ["PlaneFuseCLI"]),
+        .executable(name: "planefuse-live", targets: ["PlaneFuseLive"]),
     ],
     targets: [
         .target(
@@ -14,6 +15,7 @@ let package = Package(
             resources: [.process("Shaders")]
         ),
         .executableTarget(name: "PlaneFuseCLI", dependencies: ["PlaneFuseCore"]),
+        .executableTarget(name: "PlaneFuseLive", dependencies: ["PlaneFuseCore"]),
         .testTarget(name: "PlaneFuseCoreTests", dependencies: ["PlaneFuseCore"]),
     ]
 )
