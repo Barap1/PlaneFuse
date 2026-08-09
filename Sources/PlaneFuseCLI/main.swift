@@ -99,6 +99,39 @@ func runBench() throws -> Int32 {
     return 0
 }
 
+private struct FairBenchmarkArtifact: Codable {
+    let schemaVersion: Int
+    let status: String
+    let commit: String?
+    let environment: EnvironmentSnapshot
+    let measurement: FairABCBenchmark.Measurement
+}
+
+func runFairBench() throws -> Int32 {
+    let outputPath = ProcessInfo.processInfo.environment["PF_BENCHMARK_OUTPUT"] ?? "benchmarks/results/fair-quick.json"
+    let measurement = try FairABCBenchmark().run()
+    let artifact = FairBenchmarkArtifact(
+        schemaVersion: 1,
+        status: measurement.featureParityPass ? "fair_ab_c_measured" : "fair_ab_c_parity_failed",
+        commit: ProcessInfo.processInfo.environment["PF_GIT_COMMIT"],
+        environment: EnvironmentSnapshot(),
+        measurement: measurement
+    )
+    let data = try JSONEncoder.benchmark.encode(artifact)
+    let url = URL(fileURLWithPath: outputPath)
+    try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+    try data.write(to: url, options: .atomic)
+    emit("PlaneFuse bench fair quick: RECORDED")
+    emit("result: \(outputPath)")
+    emit("status: \(artifact.status)")
+    emit(String(format: "b_e2e_p50_ms: %.4f", measurement.pipelineBEndToEnd.p50Milliseconds))
+    emit(String(format: "c_e2e_p50_ms: %.4f", measurement.pipelineCEndToEnd.p50Milliseconds))
+    emit(String(format: "c_vs_b_e2e_percent: %.2f", measurement.cVsBEndToEndPercentageDelta ?? .nan))
+    emit(String(format: "max_feature_abs_error: %.8f", measurement.maxFeatureAbsoluteDifference))
+    emit("c_rgb_intermediate_bytes: \(measurement.pipelineCRGBIntermediateBytes)")
+    return measurement.featureParityPass ? 0 : 1
+}
+
 do {
     let arguments = Array(CommandLine.arguments.dropFirst())
     guard let command = arguments.first else { throw CommandError.usage }
@@ -108,8 +141,14 @@ do {
     case "verify":
         exit(try runVerify())
     case "bench":
-        guard arguments.dropFirst().first == "quick" else { throw CommandError.usage }
-        exit(try runBench())
+        let benchmarkArguments = Array(arguments.dropFirst())
+        if benchmarkArguments == ["quick"] {
+            exit(try runBench())
+        }
+        if benchmarkArguments == ["fair", "quick"] {
+            exit(try runFairBench())
+        }
+        throw CommandError.usage
     default:
         throw CommandError.unknownCommand(command)
     }
@@ -122,6 +161,12 @@ private extension JSONEncoder {
     static var planeFuse: JSONEncoder {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        return encoder
+    }
+
+    static var benchmark: JSONEncoder {
+        let encoder = JSONEncoder.planeFuse
+        encoder.keyEncodingStrategy = .convertToSnakeCase
         return encoder
     }
 }

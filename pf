@@ -52,12 +52,20 @@ case "$command_name" in
     cat "$log_file"
     ;;
   bench)
-    if [ "$command_args" != "quick" ]; then
-      echo "usage: ./pf bench quick"
-      exit 2
+    if [ "$command_args" = "quick" ]; then
+      benchmark_output="${PF_BENCHMARK_OUTPUT:-$ROOT/benchmarks/results/quick.json}"
+      PF_ARCHITECTURE="$(uname -m)" PF_SWIFT_VERSION="$(swift --version | head -n 1)" PF_XCODE_VERSION="$(xcodebuild -version | head -n 1)" PF_GIT_COMMIT="$(git rev-parse HEAD)" PF_BUILD_CONFIGURATION="release" PF_BENCHMARK_OUTPUT="$benchmark_output" run_logged swift run -c release planefuse bench quick
+      cat "$log_file"
+      exit 0
     fi
-    PF_ARCHITECTURE="$(uname -m)" PF_SWIFT_VERSION="$(swift --version | head -n 1)" PF_XCODE_VERSION="$(xcodebuild -version | head -n 1)" PF_GIT_COMMIT="$(git rev-parse HEAD)" PF_BUILD_CONFIGURATION="release" PF_BENCHMARK_OUTPUT="$ROOT/benchmarks/results/quick.json" run_logged swift run -c release planefuse bench quick
-    cat "$log_file"
+    if [ "$command_args" = "fair quick" ]; then
+      benchmark_output="${PF_BENCHMARK_OUTPUT:-$ROOT/benchmarks/results/fair-quick.json}"
+      PF_ARCHITECTURE="$(uname -m)" PF_SWIFT_VERSION="$(swift --version | head -n 1)" PF_XCODE_VERSION="$(xcodebuild -version | head -n 1)" PF_GIT_COMMIT="$(git rev-parse HEAD)" PF_BUILD_CONFIGURATION="release" PF_BENCHMARK_OUTPUT="$benchmark_output" run_logged swift run -c release planefuse bench fair quick
+      cat "$log_file"
+      exit 0
+    fi
+    echo "usage: ./pf bench quick|fair quick"
+    exit 2
     ;;
   *)
     echo "usage: ./pf <doctor|build|test quick|verify|bench quick>"
