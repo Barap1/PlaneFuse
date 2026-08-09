@@ -178,7 +178,7 @@ public final class MobileNetV2SharedBridgeBenchmark {
             cViewConstructionMilliseconds: cViewConstructionMilliseconds,
             deviceName: device.name,
             deviceClass: String(describing: type(of: device)),
-            methodology: "Matched B2/C0 boxed controls and B2/C1 persistent buffer-backed MLMultiArray views. Each path reuses one activation buffer and one view; GPU completion is awaited before Core ML prediction. Bridge timings include the current Swift-array read plus boxed allocation/population for controls, versus the shared-view prediction call for candidates. No hidden Core ML copy is inferred."
+            methodology: "Matched B2/C0 boxed controls and B2/C1 persistent buffer-backed MLMultiArray views. Each path reuses one activation buffer and one view; GPU completion is awaited before Core ML prediction. Handoff-to-result timings include the current Swift-array read plus boxed allocation/population for controls, versus the shared-view prediction call for candidates. View construction is reported separately. No hidden Core ML copy is inferred."
         )
     }
 

@@ -463,6 +463,8 @@ func runMobileNetV2SharedBridge() throws -> Int32 {
     let tailPath = ProcessInfo.processInfo.environment["PF_MOBILENET_TAIL"] ?? "models/derived/tail-compiled/MobileNetV2Tail.mlmodelc"
     let manifest = MobileNetV2AssetManifest.inspected
     try manifest.validate(at: root)
+    let lineage = try MobileNetV2DerivedArtifactManifest.load(from: root.appendingPathComponent(manifest.derivedManifest))
+    try lineage.validate(at: root)
     let corpus = try MobileNetV2Corpus(manifestURL: root.appendingPathComponent(manifest.validationCorpusManifest), root: root)
     let tail = try CoreMLMobileNetV2TailAdapter(modelURL: URL(fileURLWithPath: tailPath), manifest: manifest)
     let benchmark = try MobileNetV2SharedBridgeBenchmark(configuration: .quick, coefficientsURL: URL(fileURLWithPath: coefficientPath), tail: tail, corpus: corpus)
