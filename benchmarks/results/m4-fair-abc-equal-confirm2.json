@@ -1,0 +1,51 @@
+{
+  "commit" : "3d17cedad62a905676ad6169a67cb311a46ca346",
+  "environment" : {
+    "architecture" : "arm64",
+    "build_configuration" : "release",
+    "operating_system" : "Version 26.6 (Build 25G72)",
+    "swift_version" : "Apple Swift version 6.3.3 (swiftlang-6.3.3.1.3 clang-2100.1.1.101)",
+    "xcode_version" : "Xcode 26.6"
+  },
+  "measurement" : {
+    "c_vs_b_end_to_end_percentage_delta" : 10.238202389559161,
+    "c_vs_b_frontend_percentage_delta" : -0.8175044424784009,
+    "command_buffer_methodology" : "Frontend: one command buffer \/ one submission per B conversion and C native stem. End-to-end: Pipeline B uses one command buffer \/ one submission containing conversion and RGB stem dispatches; Pipeline C uses one command buffer \/ one submission containing one native-stem dispatch.",
+    "device_class" : "AGXG17SDevice",
+    "device_name" : "Apple M5 Pro",
+    "feature_parity_pass" : true,
+    "height" : 480,
+    "max_feature_absolute_difference" : 1.4305115e-06,
+    "measured_iterations" : 100,
+    "percentage_delta_formula" : "(B - C) \/ B * 100",
+    "percentile_definition" : "nearest-rank: sorted[ceil(p * n) - 1]",
+    "pipeline_b_end_to_end" : {
+      "mean_milliseconds" : 0.19525083393091336,
+      "p50_milliseconds" : 0.1819166645873338,
+      "p95_milliseconds" : 0.25929167168214917
+    },
+    "pipeline_b_frontend" : {
+      "mean_milliseconds" : 0.16431875003036112,
+      "p50_milliseconds" : 0.15800000983290374,
+      "p95_milliseconds" : 0.2008749870583415
+    },
+    "pipeline_brgb_intermediate_allocated_bytes" : 4947968,
+    "pipeline_brgb_intermediate_bytes" : 4915200,
+    "pipeline_c_end_to_end" : {
+      "mean_milliseconds" : 0.17394791590049863,
+      "p50_milliseconds" : 0.16329166828654706,
+      "p95_milliseconds" : 0.22916666057426482
+    },
+    "pipeline_c_feature_allocated_bytes" : 4947968,
+    "pipeline_c_frontend" : {
+      "mean_milliseconds" : 0.16443791610072367,
+      "p50_milliseconds" : 0.15929166693240404,
+      "p95_milliseconds" : 0.20291666442062706
+    },
+    "pipeline_crgb_intermediate_bytes" : 0,
+    "warmup_iterations" : 30,
+    "width" : 640
+  },
+  "schema_version" : 1,
+  "status" : "fair_ab_c_confirm"
+}
