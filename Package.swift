@@ -9,7 +9,10 @@ let package = Package(
         .executable(name: "planefuse", targets: ["PlaneFuseCLI"]),
     ],
     targets: [
-        .target(name: "PlaneFuseCore"),
+        .target(
+            name: "PlaneFuseCore",
+            resources: [.process("Shaders")]
+        ),
         .executableTarget(name: "PlaneFuseCLI", dependencies: ["PlaneFuseCore"]),
         .testTarget(name: "PlaneFuseCoreTests", dependencies: ["PlaneFuseCore"]),
     ]
