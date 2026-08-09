@@ -14,7 +14,7 @@ The following are local evidence only and are not external submission approval:
 - [x] R0 one-frame physical-camera smoke on a permitted device.
 - [ ] R6 continuous 300-frame camera run/video capture.
 - [x] R0 expanded 32-input corpus, direct source-image lineage, and artifact classification.
-- [ ] R0 clean-clone validation artifact.
+- [x] R0 clean-clone validation artifact.
 - [ ] Public repository approval and push.
 - [ ] External hackathon submission.
 

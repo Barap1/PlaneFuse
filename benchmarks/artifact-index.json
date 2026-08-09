@@ -26,6 +26,7 @@
     "m6-exp1-phase-aware.json": "REJECTED",
     "m6-exp2-threadgroup-confirm.json": "REJECTED",
     "m6-exp2-threadgroup.json": "REJECTED",
-    "quick.json": "EXPERIMENTAL"
+    "quick.json": "EXPERIMENTAL",
+    "r0-mobilenetv2-quick.json": "ACCEPTED"
   }
 }

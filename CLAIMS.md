@@ -152,3 +152,19 @@ Status: QUALIFIED
 Claim wording: "On one permitted physical camera frame, PlaneFuse captured 1920x1080 NV12 video-range input, performed native-plane crop/resize, ran real local B/C inference, and measured top-1 agreement 1.0. This is not continuous throughput or video evidence."
 
 Evidence files: `proof/r0-camera-smoke.md`, `Sources/PlaneFuseLive/main.swift`
+
+## C014 - R0 clean-clone reproduction
+
+Status: VERIFIED
+
+Claim wording: "A fresh local clone of the Phase 2 branch reproduced project-local MobileNetV2 setup, artifact/docs checks, build, 31 tests, quick benchmark, source lineage, and the sample demo in 84 seconds on arm64 macOS 26.6/Xcode 26.6 with pinned coremltools 9.0."
+
+Evidence files: `proof/r0-clean-clone.json`, `scripts/release_validate.sh`, `requirements-lock.txt`
+
+## C015 - Actual Metal allocation is distinguished from logical payload
+
+Status: VERIFIED
+
+Claim wording: "The R0 MobileNetV2 artifact records B's 802,816-byte logical RGBA32Float payload separately from its measured 819,200-byte Metal allocation, and records matched 2,408,448-byte B/C activation allocations."
+
+Evidence files: `proof/r0-mobilenetv2-allocation.md`, `benchmarks/results/r0-mobilenetv2-quick.json`
