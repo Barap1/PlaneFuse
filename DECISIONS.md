@@ -122,6 +122,18 @@ Evidence: `benchmarks/results/m5-mobilenetv2-confirm1.json`, `benchmarks/results
 
 Revisit when: a direct tensor handoff or a controlled Float32 Core ML compilation path removes the backend-ordering difference.
 
+## D012 - Close the bounded M6 shader-tuning family at the model boundary
+
+Status: accepted
+
+Decision: Retain the accepted 8x8 MobileNetV2 native stem. Do not claim an M6 optimization win from phase-aware UV prefetch or 16x4 threadgroups: both improved an isolated frontend sample but regressed the measured end-to-end boundary, and both were reverted.
+
+Why: PlaneFuse's useful claim is about the complete model boundary, including the unchanged tail and explicit CPU-visible handoff. Isolated kernel movement is not sufficient evidence of application value. The next optimization opportunity must be a different, measured architectural boundary such as tensor handoff or a distinct workload.
+
+Evidence: `EXPERIMENTS.md` E005-E007, `benchmarks/results/m6-exp0-baseline.json`, `benchmarks/results/m6-exp1-phase-aware.json`, and `benchmarks/results/m6-exp2-threadgroup-confirm.json`.
+
+Revisit when: a supported no-copy tail handoff or a second real compatible workload is available for a new hypothesis family.
+
 ---
 
 New decision template:

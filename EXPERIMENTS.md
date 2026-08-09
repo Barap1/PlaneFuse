@@ -58,6 +58,45 @@ Outcome: ACCEPT
 Lesson: The core result survives a credible pretrained workload, but the absolute end-to-end advantage is workload/runtime dependent; the strongest technical evidence is the native stem reduction and eliminated full-RGB intermediate, not a universal speedup claim.
 Accepted commit: 6e685a6, b8b7850, and df5f573
 
+## E005 - explicit phase-aware 2x2 chroma reuse in the MobileNetV2 native stem
+
+Date: 2026-08-09
+Base commit: 7cf5151
+Evidence/observation: The native 3x3 stride-2 kernel logically reuses four UV texels, although the source code issued up to nine UV reads per output.
+Hypothesis: Prefetching the four phase-aware chroma pairs will reduce source-plane bandwidth and improve C frontend/e2e latency.
+Change: Prefetched the four UV pairs for each output patch while preserving Y reads, accumulation order, bottom/right guards, and coefficients.
+Correctness: PASS; quick real-corpus validation retained 100% task agreement and max raw B/C activation error 9.298325e-6.
+Quick benchmark: Baseline C frontend p50 0.3009 ms and e2e p50 52.2850 ms; experiment C frontend p50 0.2518 ms but e2e p50 52.4548 ms, with higher mean e2e time.
+Outcome: REJECTED
+Lesson: The isolated kernel p50 improvement did not survive the user-level e2e boundary; explicit reuse likely traded UV reads for register/selection overhead. Reverted without a commit.
+
+## E006 - native-stem threadgroup geometry
+
+Date: 2026-08-09
+Base commit: 7cf5151
+Evidence/observation: The accepted native kernel uses 8x8 (64-thread) groups; source-plane accesses are spatially local and the output grid is 112x112.
+Hypothesis: A 16x4 (also 64-thread) group may improve X locality and UV/Y coalescing without changing shader math.
+Change: Changed only the native-stem dispatch geometry from 8x8 to 16x4.
+Correctness: PASS; raw B/C max activation error remained 9.298325e-6 and task agreement remained 1.0.
+Quick benchmark: C frontend p50 improved to 0.2605 ms from the 0.3009 ms baseline, but C e2e p50 moved to 52.5810 ms from 52.2850 ms.
+Confirmation benchmark: The 100-iteration confirmation measured C e2e p50 52.7563 ms versus B 53.7635 ms, a 1.87% reduction, below both accepted M5 batches and not an improvement over the 8x8 accepted path.
+Outcome: REJECTED
+Lesson: Threadgroup geometry changes can improve the isolated kernel while losing at the model boundary; retain 8x8 and stop this hypothesis family.
+
+## E007 - M6 bounded optimization plateau
+
+Date: 2026-08-09
+Base commit: 7cf5151
+Evidence/observation: Two distinct source-grid hypotheses preserved the accepted 9.298325e-6 raw B/C parity and 100% task agreement, but neither improved the measured model boundary. Phase-aware UV prefetch improved isolated C frontend p50 by 16.3% and worsened e2e p50 by 0.32 ms; 16x4 threadgroups improved isolated frontend p50 but worsened quick e2e and lost to both accepted 8x8 confirmation batches.
+Hypothesis: The accepted simple 8x8 native stem is already near the practical optimum for this workload/runtime boundary; further local shader tuning is unlikely to improve user-visible inference without changing the handoff or workload.
+Change: No retained code change. Both experiment patches were reverted after parity-preserving quick/confirmation measurements.
+Correctness: PASS for both experiments; the existing M5 numerical and task contracts were unchanged.
+Quick benchmark: Neither candidate improved C end-to-end p50 over the 8x8 baseline.
+Confirmation benchmark: E006 confirmed C e2e p50 52.7563 ms versus accepted M5 C p50 values 52.3829/52.6675 ms; E005 was rejected at the quick boundary before confirmation.
+Outcome: ACCEPT
+Lesson: Close this M6 hypothesis family with a precise plateau conclusion. The strongest remaining contribution is the native-plane model-stem boundary and eliminated intermediate; future gains require a separately evidenced tensor handoff or a different workload, not random shader tuning.
+Accepted commit: recorded with the M6 state transition.
+
 Template:
 
 ## Exxx - short title
