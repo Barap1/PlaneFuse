@@ -97,6 +97,7 @@ public struct MobileNetV2DerivedArtifactManifest: Codable, Equatable {
         public let output: String
         public let shape: [Int]
         public let paddingMode: String
+        public let asymmetryMode: String
         public let inputCoordinate: String
     }
 
@@ -150,6 +151,7 @@ public struct MobileNetV2DerivedArtifactManifest: Codable, Equatable {
               stem.output == MobileNetV2AssetManifest.inspected.tailInputName,
               stem.shape == MobileNetV2AssetManifest.expectedActivationShape,
               stem.paddingMode == "same_bottom_right",
+              stem.asymmetryMode == "BOTTOM_RIGHT_HEAVY",
               stem.inputCoordinate == "2 * output + tap",
               fullArray.derivedFromSourceClassifier,
               fullArray.input == stem.input,

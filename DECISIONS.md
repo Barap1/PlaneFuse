@@ -110,6 +110,18 @@ Evidence: `Sources/PlaneFuseCore/MobileNetV2Integration.swift`, `Sources/PlaneFu
 
 Revisit when: a supported Core ML tensor or MPSGraph handoff can consume the native activation without changing the model tail.
 
+## D011 - Separate CPU reference parity from deployed Metal parity
+
+Status: accepted
+
+Decision: Keep the deployed Pipeline B/C Float32 Metal activation threshold at `<=1e-5` (D008). Validate the source-derived StemArray against B/C using Core ML CPU-only execution with the existing reference-math threshold `<=1e-4`; require task agreement `>=0.995`. Record the backend and all three thresholds in every M5 artifact.
+
+Why: Core ML accelerator execution selects lower-precision arithmetic for this asset, while CPU-only execution is the reproducible Float32 source-derived reference. The remaining CPU-vs-fused-Metal difference is accumulation/order behavior, not a changed model or color contract. This is a separate boundary contract and does not supersede or loosen D008.
+
+Evidence: `benchmarks/results/m5-mobilenetv2-confirm1.json`, `benchmarks/results/m5-mobilenetv2-confirm2.json`, `BENCHMARK_CONTRACT.md`, and the independent advisor review recorded in the M5 audit handoff.
+
+Revisit when: a direct tensor handoff or a controlled Float32 Core ML compilation path removes the backend-ordering difference.
+
 ---
 
 New decision template:

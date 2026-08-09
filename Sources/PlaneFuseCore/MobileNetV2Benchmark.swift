@@ -69,6 +69,10 @@ public final class MobileNetV2Benchmark {
         public let independentStemArrayVsCMaxAbsoluteDifference: Double
         public let fullArrayVsSplitTailTop1Agreement: Double
         public let independentParityPass: Bool
+        public let gpuParityThreshold: Double
+        public let referenceBackend: String
+        public let referenceParityThreshold: Double
+        public let taskAgreementThreshold: Double
 
     }
 
@@ -242,7 +246,11 @@ public final class MobileNetV2Benchmark {
             independentStemArrayVsBMaxAbsoluteDifference: stemArrayVsBMaxError,
             independentStemArrayVsCMaxAbsoluteDifference: stemArrayVsCMaxError,
             fullArrayVsSplitTailTop1Agreement: fullArraySplitTailAgreement,
-            independentParityPass: independentPass
+            independentParityPass: independentPass,
+            gpuParityThreshold: Double(FairABCBenchmark.featureParityTolerance),
+            referenceBackend: "Core ML CPU-only source-derived StemArray/FullArray",
+            referenceParityThreshold: MobileNetV2OutputAgreement.referenceStemParityTolerance,
+            taskAgreementThreshold: MobileNetV2OutputAgreement.requiredTop1Agreement
         )
     }
 

@@ -25,6 +25,7 @@ ARRAY_INPUT_SHAPE = [3, 224, 224]
 # Core ML `same` for this 224x224, kernel-3, stride-2 convolution is SAME_UPPER:
 # the one padding pixel is on the bottom/right, so source = 2 * output + tap.
 STEM_PADDING_MODE = "same_bottom_right"
+STEM_ASYMMETRY_MODE = "BOTTOM_RIGHT_HEAVY"
 
 
 def sha256(path: Path) -> str:
@@ -53,6 +54,10 @@ def validate_source(spec) -> list:
         raise ValueError("expected MobileNetV2 first convolution to be 3 -> 48 channels")
     if list(conv.kernelSize) != [3, 3] or list(conv.stride) != [2, 2] or not conv.HasField("same"):
         raise ValueError("expected a same-padded 3x3 stride-2 first convolution")
+    asymmetry_field = conv.same.DESCRIPTOR.fields_by_name["asymmetryMode"]
+    asymmetry_mode = asymmetry_field.enum_type.values_by_number[conv.same.asymmetryMode].name
+    if asymmetry_mode != STEM_ASYMMETRY_MODE:
+        raise ValueError(f"expected {STEM_ASYMMETRY_MODE} SAME padding, found {asymmetry_mode}")
     expected_output = (224 + 2 - 1) // 2
     if expected_output != STEM_SHAPE[1] or STEM_PADDING_MODE != "same_bottom_right":
         raise ValueError("unsupported MobileNetV2 SAME padding contract")
@@ -171,6 +176,7 @@ def main() -> int:
             "output": STEM_OUTPUT,
             "shape": STEM_SHAPE,
             "padding_mode": STEM_PADDING_MODE,
+            "asymmetry_mode": STEM_ASYMMETRY_MODE,
             "input_coordinate": "2 * output + tap",
             "operations": ["Conv2D 3x3 stride 2 SAME(bottom/right)", "BatchNorm", "ReLU6"],
             "coefficients": str(coefficients),
@@ -194,6 +200,7 @@ def main() -> int:
         },
     }
     if (manifest["stem"]["padding_mode"] != STEM_PADDING_MODE
+            or manifest["stem"]["asymmetry_mode"] != STEM_ASYMMETRY_MODE
             or manifest["stem"]["input_coordinate"] != "2 * output + tap"
             or manifest["stem"]["input"] != manifest["full_array"]["input"]
             or manifest["stem"]["input_shape"] != manifest["full_array"]["input_shape"]
