@@ -1,7 +1,8 @@
 # M11 release-preparation audit
 
-Status: release candidate prepared; external publication and physical camera
-capture remain human-controlled
+Status: historical pre-Phase-2 release snapshot; superseded as current status by
+R0 hardening. External publication and continuous camera capture remain
+human-controlled.
 
 ## Technical audit
 
@@ -25,8 +26,9 @@ capture remain human-controlled
 ## Mobile AI dimensions
 
 - Latency: measured frontend and end-to-end p50/p95 for fair B/C.
-- Memory/intermediate elimination: observed B RGBA32Float intermediate is
-  802,816 bytes; C records zero for that intermediate. No peak-memory claim.
+- Memory/intermediate elimination: B's logical RGBA32Float intermediate
+  payload is 802,816 bytes; C records zero for that intermediate. No runtime
+  allocation, bandwidth, or peak-memory claim.
 - Arm64/on-device: release confirmation records arm64 Apple M5 Pro and local
   Core ML/Metal execution; no cloud dependency is required by the proof.
 - Developer tooling: shared compatibility inspection plus reproducible CLI.

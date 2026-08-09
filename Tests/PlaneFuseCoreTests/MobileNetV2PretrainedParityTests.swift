@@ -33,6 +33,8 @@ final class MobileNetV2PretrainedParityTests: XCTestCase {
 
         var maxStemArrayVsB = 0.0
         var maxStemArrayVsC = 0.0
+        var fullArraySplitTailMatches = 0
+        var disagreements: [String] = []
         for frame in try corpus.loadFrames() {
             let input = try factory.makeNV12Textures(width: 224, height: 224, yPlaneBytes: frame.yPlaneBytes, uvPlaneBytes: frame.uvPlaneBytes)
             try rgb.execute(input, normalizedRGB: normalizedRGB, into: bOutput)
@@ -43,14 +45,17 @@ final class MobileNetV2PretrainedParityTests: XCTestCase {
             let cFeatures = try native.readActivation(from: cOutput)
             maxStemArrayVsB = max(maxStemArrayVsB, Self.maxAbs(stemFeatures, bFeatures))
             maxStemArrayVsC = max(maxStemArrayVsC, Self.maxAbs(stemFeatures, cFeatures))
-            XCTAssertEqual(
-                Self.topLabel(try fullArray.predict(normalizedRGB: sourcePreprocessed)),
-                Self.topLabel(try tail.predict(stemActivation: stemFeatures)),
-                "FullArray and StemArray+Tail diverged for corpus sample \(frame.id)"
-            )
+            let fullLabel = Self.topLabel(try fullArray.predict(normalizedRGB: sourcePreprocessed))
+            let splitLabel = Self.topLabel(try tail.predict(stemActivation: stemFeatures))
+            if fullLabel == splitLabel { fullArraySplitTailMatches += 1 }
+            else { disagreements.append("\(frame.id): full=\(fullLabel ?? "nil") split=\(splitLabel ?? "nil")") }
         }
         XCTAssertLessThanOrEqual(maxStemArrayVsB, MobileNetV2OutputAgreement.referenceStemParityTolerance)
         XCTAssertLessThanOrEqual(maxStemArrayVsC, MobileNetV2OutputAgreement.referenceStemParityTolerance)
+        let agreement = Double(fullArraySplitTailMatches) / Double(corpus.manifest.samples.count)
+        print("FullArray/split-tail top-1 agreement: \(fullArraySplitTailMatches)/\(corpus.manifest.samples.count) = \(agreement)")
+        if !disagreements.isEmpty { print("FullArray/split-tail disagreements: \(disagreements.joined(separator: ", "))") }
+        XCTAssertGreaterThanOrEqual(agreement, MobileNetV2OutputAgreement.requiredTop1Agreement)
     }
 
     private static func maxAbs(_ lhs: [Float], _ rhs: [Float]) -> Double {

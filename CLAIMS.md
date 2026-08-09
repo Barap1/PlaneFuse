@@ -88,13 +88,13 @@ Status: QUALIFIED
 
 Claim wording: "The PlaneFuse Live camera adapter captures video-range NV12, performs the supported center-crop/nearest resize directly on Y and UV planes, then compares the same local MobileNetV2 tail after B and C stems. It does not claim a camera result when permission, assets, or the input contract is unavailable."
 
-Evidence files: `Sources/PlaneFuseLive/main.swift`, `DEMO_PLAN.md`, `proof/m9-live.md`
+Evidence files: `Sources/PlaneFuseLive/main.swift`, `DEMO_PLAN_V2.md`, `proof/m9-live.md`
 
 ## C010 - Current release-state MobileNetV2 confirmation
 
 Status: VERIFIED
 
-Claim wording: "At release-state commit `139c92a`, the current 100-iteration MobileNetV2 confirmation measured equal-submission Pipeline C p50 at 50.8605 ms versus Pipeline B at 51.8460 ms (1.90098% lower); frontend p50 was 0.22821 ms versus 0.50075 ms (54.4267% lower). B allocated an 802,816-byte RGBA32Float intermediate and C recorded zero bytes for that intermediate, with B/C max activation error 9.298325e-6 and 100% top-1 agreement over four hashed corpus images."
+Claim wording: "At release-state commit `139c92a`, the current 100-iteration MobileNetV2 confirmation measured equal-submission Pipeline C p50 at 50.8605 ms versus Pipeline B at 51.8460 ms (1.90098% lower); frontend p50 was 0.22821 ms versus 0.50075 ms (54.4267% lower). B's logical RGBA32Float intermediate payload was 802,816 bytes and C recorded zero bytes for that intermediate, with B/C max activation error 9.298325e-6 and 100% top-1 agreement over four hashed corpus images. Actual Metal allocation is not asserted by this artifact."
 
 Evidence files: `benchmarks/results/m10-mobilenetv2-confirm-current.json`, `benchmarks/final-matrix.json`, `proof/m10-evidence-index.md`
 
@@ -125,6 +125,30 @@ Evidence files: `proof/m5-validation-corpus.json`, `benchmarks/results/m5-mobile
 
 Status: VERIFIED
 
-Claim wording: "At the 224x224 MobileNetV2 stem boundary, Pipeline B allocates an 802,816-byte RGBA32Float intermediate while Pipeline C records zero RGBA32Float intermediate bytes."
+Claim wording: "At the 224x224 MobileNetV2 stem boundary, Pipeline B has an 802,816-byte logical RGBA32Float intermediate payload while Pipeline C records zero RGBA32Float intermediate bytes. This is not a peak-memory or runtime-allocation claim."
 
-Evidence files: `Sources/PlaneFuseCore/Shaders/NV12MobileNetV2RGB.metal`, `Sources/PlaneFuseCore/Shaders/NV12MobileNetV2Stem.metal`, `benchmarks/results/m5-mobilenetv2-confirm1.json`, `benchmarks/results/m5-mobilenetv2-confirm2.json`
+Evidence files: `Sources/PlaneFuseCore/Shaders/NV12MobileNetV2RGB.metal`, `Sources/PlaneFuseCore/Shaders/NV12MobileNetV2Stem.metal`, `benchmarks/results/m5-mobilenetv2-confirm1.json`, `benchmarks/results/m5-mobilenetv2-confirm2.json`, `benchmarks/artifact-index.json`
+
+## C011 - R0 source-model lineage closure
+
+Status: VERIFIED
+
+Claim wording: "With the declared CPU-only backend and deterministic 224x224 sRGB image preparation, the original Apple MobileNetV2 image-input model and derived FullArray agree on all 32 top-1 and top-5 results in the R0 corpus; maximum probability-vector absolute error was 8.3e-7."
+
+Evidence files: `proof/r0-source-lineage.json`, `Sources/PlaneFuseCore/MobileNetV2Integration.swift`, `Sources/PlaneFuseCore/MobileNetV2Corpus.swift`
+
+## C012 - R0 expanded quality corpus
+
+Status: VERIFIED
+
+Claim wording: "The R0 quality harness contains four provenance-bearing CC0/public-domain real images and 28 deterministic repository-generated stress inputs covering luma extremes, chroma extremes, gradients, checkerboards, edges, padding boundaries, and chroma phases."
+
+Evidence files: `proof/m5-validation-corpus.json`, `proof/m5-corpus/`, `scripts/generate_stress_corpus.py`
+
+## C013 - R0 physical-camera smoke
+
+Status: QUALIFIED
+
+Claim wording: "On one permitted physical camera frame, PlaneFuse captured 1920x1080 NV12 video-range input, performed native-plane crop/resize, ran real local B/C inference, and measured top-1 agreement 1.0. This is not continuous throughput or video evidence."
+
+Evidence files: `proof/r0-camera-smoke.md`, `Sources/PlaneFuseLive/main.swift`

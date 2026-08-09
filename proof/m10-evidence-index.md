@@ -25,8 +25,8 @@ four hashed real images, Release configuration, arm64 Apple M5 Pro, macOS
 
 At commit `139c92a`, equal-submission B/C MobileNetV2 p50 was 51.8460 ms / 50.8605
 ms end-to-end, a 1.90098% C reduction. Frontend p50 was 0.50075 ms / 0.22821
-ms, a 54.4267% C reduction. B allocated an 802,816-byte RGBA32Float
-intermediate; C recorded zero bytes for that intermediate. B/C max activation
+ms, a 54.4267% C reduction. B's logical RGBA32Float intermediate payload was
+802,816 bytes; C recorded zero bytes for that intermediate. B/C max activation
 error was `9.298325e-6`, task agreement was 100%, and the independent CPU-only
 source-derived reference errors were `3.904105e-5` / `3.892183e-5`.
 
@@ -46,5 +46,5 @@ release-state confirmation, not a replacement of that two-batch evidence.
 - `artifacts/environment.json`: non-PII local environment snapshot.
 
 No power, energy, or measured GPU-bandwidth claim is made. The memory statement
-is limited to the observed RGBA32Float intermediate allocation and the
-structural no-RGB dataflow; it is not a peak-memory claim.
+is limited to the logical RGBA32Float intermediate payload and structural
+no-RGB dataflow; it is not a runtime-allocation or peak-memory claim.

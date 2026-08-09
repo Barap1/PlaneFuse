@@ -31,6 +31,15 @@ run_logged() {
 }
 
 case "$command_name" in
+  setup)
+    if [ "$command_args" != "mobilenetv2" ]; then
+      echo "usage: ./pf setup mobilenetv2"
+      exit 2
+    fi
+    run_logged scripts/setup_mobilenetv2.sh
+    echo "PASS  pf setup mobilenetv2 (log: $log_file)"
+    tail -n 8 "$log_file"
+    ;;
   doctor)
     PF_ARCHITECTURE="$(uname -m)" PF_SWIFT_VERSION="$(swift --version | head -n 1)" PF_XCODE_VERSION="$(xcodebuild -version | head -n 1)" run_logged swift run -c debug planefuse doctor
     cat "$log_file"
@@ -50,10 +59,12 @@ case "$command_name" in
   verify)
     if [ "$command_args" = "mobilenetv2" ]; then
       run_logged swift run -c debug planefuse verify mobilenetv2
+    elif [ "$command_args" = "lineage" ]; then
+      run_logged swift run -c debug planefuse verify lineage
     elif [ -z "$command_args" ]; then
       run_logged swift run -c debug planefuse verify
     else
-      echo "usage: ./pf verify|verify mobilenetv2"
+      echo "usage: ./pf verify|verify mobilenetv2|verify lineage"
       exit 2
     fi
     cat "$log_file"
@@ -110,8 +121,17 @@ case "$command_name" in
     echo "usage: ./pf bench quick|fair quick|fair confirm|mobilenetv2 quick|mobilenetv2 confirm"
     exit 2
     ;;
+  release)
+    if [ "$command_args" != "validate" ]; then
+      echo "usage: ./pf release validate"
+      exit 2
+    fi
+    run_logged scripts/release_validate.sh
+    echo "PASS  pf release validate (log: $log_file)"
+    tail -n 12 "$log_file"
+    ;;
   *)
-    echo "usage: ./pf <doctor|build|test quick|inspect|compile|verify|bench>"
+    echo "usage: ./pf <setup mobilenetv2|doctor|build|test quick|inspect|compile|verify|bench|release validate>"
     exit 2
     ;;
 esac

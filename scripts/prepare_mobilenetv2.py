@@ -36,6 +36,15 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def portable_path(path: Path) -> str:
+    """Store repository-relative paths so generated manifests work from clones."""
+    resolved = path.resolve()
+    try:
+        return str(resolved.relative_to(Path.cwd().resolve()))
+    except ValueError:
+        return str(resolved)
+
+
 def validate_source(spec) -> list:
     if spec.WhichOneof("Type") != "neuralNetworkClassifier":
         raise ValueError("MobileNetV2 source must be a neuralNetworkClassifier")
@@ -165,10 +174,10 @@ def main() -> int:
     export_coefficients(source, coefficients)
     manifest = {
         "schema_version": 1,
-        "source": str(args.source),
+        "source": portable_path(source),
         "source_sha256": sha256(source),
         "stem": {
-            "path": str(stem),
+            "path": portable_path(stem),
             "sha256": sha256(stem),
             "layer_count": STEM_LAYER_COUNT,
             "input": ARRAY_INPUT,
@@ -179,10 +188,10 @@ def main() -> int:
             "asymmetry_mode": STEM_ASYMMETRY_MODE,
             "input_coordinate": "2 * output + tap",
             "operations": ["Conv2D 3x3 stride 2 SAME(bottom/right)", "BatchNorm", "ReLU6"],
-            "coefficients": str(coefficients),
+            "coefficients": portable_path(coefficients),
         },
         "full_array": {
-            "path": str(full_array),
+            "path": portable_path(full_array),
             "sha256": sha256(full_array),
             "input": ARRAY_INPUT,
             "input_shape": ARRAY_INPUT_SHAPE,
@@ -190,7 +199,7 @@ def main() -> int:
             "derived_from_source_classifier": True,
         },
         "tail": {
-            "path": str(tail),
+            "path": portable_path(tail),
             "sha256": sha256(tail),
             "input": STEM_OUTPUT,
             "shape": STEM_SHAPE,

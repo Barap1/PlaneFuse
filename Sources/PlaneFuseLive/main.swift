@@ -104,6 +104,10 @@ private struct CameraInferenceMeasurement {
     let cEndToEndMilliseconds: Double
     let maxActivationAbsoluteDifference: Double
     let top1Agreement: Double
+    let bTop1Label: String
+    let cTop1Label: String
+    let bTop1Confidence: Double
+    let cTop1Confidence: Double
 }
 
 private func printHelp() {
@@ -206,6 +210,10 @@ private func runCamera() throws {
     print(String(format: "b_end_to_end_elapsed_ms: %.4f", measurement.bEndToEndMilliseconds))
     print(String(format: "c_end_to_end_elapsed_ms: %.4f", measurement.cEndToEndMilliseconds))
     print(String(format: "bc_activation_max_abs_error: %.8f", measurement.maxActivationAbsoluteDifference))
+    print("b_top1_label: \(measurement.bTop1Label)")
+    print(String(format: "b_top1_confidence: %.8f", measurement.bTop1Confidence))
+    print("c_top1_label: \(measurement.cTop1Label)")
+    print(String(format: "c_top1_confidence: %.8f", measurement.cTop1Confidence))
     print(String(format: "top1_agreement: %.4f", measurement.top1Agreement))
     print("c_rgb_intermediate_bytes: 0")
 }
@@ -324,7 +332,7 @@ private func runCameraInference(_ frame: CameraNV12Resize) throws -> CameraInfer
     let cOutput = try tail.predict(stemActivation: cFeatures)
     let cEndToEndMilliseconds = (ProcessInfo.processInfo.systemUptime - cStart) * 1_000
 
-    guard let bTop1 = topLabel(bOutput), let cTop1 = topLabel(cOutput) else {
+    guard let bPrediction = topPrediction(bOutput), let cPrediction = topPrediction(cOutput) else {
         throw LiveError.inferenceOutputUnavailable
     }
     let maxActivationAbsoluteDifference = zip(bFeatures, cFeatures)
@@ -334,8 +342,18 @@ private func runCameraInference(_ frame: CameraNV12Resize) throws -> CameraInfer
         bFrontendMilliseconds: bFrontendMilliseconds, cFrontendMilliseconds: cFrontendMilliseconds,
         bEndToEndMilliseconds: bEndToEndMilliseconds, cEndToEndMilliseconds: cEndToEndMilliseconds,
         maxActivationAbsoluteDifference: maxActivationAbsoluteDifference,
-        top1Agreement: bTop1 == cTop1 ? 1 : 0
+        top1Agreement: bPrediction.label == cPrediction.label ? 1 : 0,
+        bTop1Label: bPrediction.label,
+        cTop1Label: cPrediction.label,
+        bTop1Confidence: bPrediction.confidence,
+        cTop1Confidence: cPrediction.confidence
     )
+}
+
+private func topPrediction(_ probabilities: [String: Double]) -> (label: String, confidence: Double)? {
+    probabilities.max { lhs, rhs in
+        lhs.value == rhs.value ? lhs.key > rhs.key : lhs.value < rhs.value
+    }.map { (label: $0.key, confidence: $0.value) }
 }
 
 private func topLabel(_ probabilities: [String: Double]) -> String? {

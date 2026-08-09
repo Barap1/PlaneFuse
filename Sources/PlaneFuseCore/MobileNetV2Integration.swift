@@ -1,5 +1,7 @@
 import CoreML
 import CryptoKit
+import CoreGraphics
+import CoreVideo
 import Foundation
 
 /// Immutable description of the selected M5 workload. Weight files are deliberately
@@ -227,6 +229,75 @@ public final class CoreMLMobileNetV2TailAdapter: MobileNetV2TailRunning {
     fileprivate static func matches(_ constraint: MLMultiArrayConstraint?, shape: [Int]) -> Bool {
         guard let constraint, constraint.dataType == .float32 else { return false }
         return constraint.shape.map(\.intValue) == shape
+    }
+}
+
+/// Direct adapter for the original Apple image-input model. This is used only
+/// for source-lineage evidence; production B/C timing continues to use the
+/// derived array/tail boundary.
+public final class CoreMLMobileNetV2SourceImageAdapter {
+    private let model: MLModel
+    private let inputName: String
+    private let outputName: String
+
+    public init(modelURL: URL) throws {
+        let resolvedModelURL = modelURL.pathExtension == "mlmodel"
+            ? try MLModel.compileModel(at: modelURL)
+            : modelURL
+        let configuration = MLModelConfiguration()
+        configuration.computeUnits = .cpuOnly
+        let loadedModel = try MLModel(contentsOf: resolvedModelURL, configuration: configuration)
+        let inputs = loadedModel.modelDescription.inputDescriptionsByName
+        guard let input = inputs.first(where: { $0.value.type == .image }) else {
+            throw MobileNetV2IntegrationError.unsupportedManifest
+        }
+        self.model = loadedModel
+        inputName = input.key
+        outputName = loadedModel.modelDescription.outputDescriptionsByName.keys.first(where: { name in
+            loadedModel.modelDescription.outputDescriptionsByName[name]?.type == .dictionary
+        }) ?? "classLabelProbs"
+    }
+
+    public func predict(image: CGImage) throws -> [String: Double] {
+        let pixelBuffer = try Self.makePixelBuffer(from: image)
+        let output = try model.prediction(from: MLDictionaryFeatureProvider(dictionary: [
+            inputName: MLFeatureValue(pixelBuffer: pixelBuffer)
+        ]))
+        guard let probabilities = output.featureValue(for: outputName)?.dictionaryValue else {
+            throw MobileNetV2IntegrationError.unexpectedTailOutput(outputName)
+        }
+        return probabilities.reduce(into: [:]) { result, entry in
+            guard let label = entry.key as? String else { return }
+            result[label] = entry.value.doubleValue
+        }
+    }
+
+    private static func makePixelBuffer(from image: CGImage) throws -> CVPixelBuffer {
+        var pixelBuffer: CVPixelBuffer?
+        let attributes = [kCVPixelBufferCGImageCompatibilityKey: true, kCVPixelBufferCGBitmapContextCompatibilityKey: true] as CFDictionary
+        guard CVPixelBufferCreate(
+            kCFAllocatorDefault, MobileNetV2Corpus.inputWidth, MobileNetV2Corpus.inputHeight,
+            kCVPixelFormatType_32BGRA, attributes, &pixelBuffer
+        ) == kCVReturnSuccess, let pixelBuffer else {
+            throw MobileNetV2IntegrationError.unsupportedManifest
+        }
+        guard CVPixelBufferLockBaseAddress(pixelBuffer, []) == kCVReturnSuccess else {
+            throw MobileNetV2IntegrationError.unsupportedManifest
+        }
+        defer { CVPixelBufferUnlockBaseAddress(pixelBuffer, []) }
+        guard let baseAddress = CVPixelBufferGetBaseAddress(pixelBuffer),
+              let context = CGContext(
+                data: baseAddress, width: MobileNetV2Corpus.inputWidth, height: MobileNetV2Corpus.inputHeight,
+                bitsPerComponent: 8, bytesPerRow: CVPixelBufferGetBytesPerRow(pixelBuffer),
+                space: CGColorSpace(name: CGColorSpace.sRGB)!,
+                bitmapInfo: CGImageAlphaInfo.premultipliedFirst.rawValue | CGBitmapInfo.byteOrder32Little.rawValue
+              ) else {
+            throw MobileNetV2IntegrationError.unsupportedManifest
+        }
+        context.interpolationQuality = .high
+        context.setBlendMode(.copy)
+        context.draw(image, in: CGRect(x: 0, y: 0, width: MobileNetV2Corpus.inputWidth, height: MobileNetV2Corpus.inputHeight))
+        return pixelBuffer
     }
 }
 

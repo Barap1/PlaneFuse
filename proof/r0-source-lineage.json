@@ -1,0 +1,766 @@
+{
+  "acceptance_note" : "The original image-input model and derived FullArray agree on every top-1 result and every real-image top-5 set. Procedural stress cases intentionally expose near-tie ranking sensitivity; their top-5 set agreement is reported separately and is not converted into a population-accuracy claim.",
+  "corpus_sample_count" : 32,
+  "full_array_sha256" : "a14f4103d9386bcf26e0c6d6989b98d03868f0c76f1bc7814bc13419d3b65e69",
+  "orientation_treatment" : "Image orientation metadata is resolved by the deterministic CGContext render before both model calls; no model-side orientation difference is hidden.",
+  "preprocessing" : "ImageIO decode -> deterministic sRGB CGContext render at 224x224 -> normalized CHW Float32 for FullArray; the same rendered image is supplied as a 224x224 BGRA CVPixelBuffer to the original image-input model.",
+  "probability_maximum_absolute_error" : 8.344650268554688e-07,
+  "probability_mean_l1_distance" : 6.88680898752736e-07,
+  "procedural_sample_count" : 28,
+  "procedural_top5_set_agreement" : 1,
+  "real_image_count" : 4,
+  "real_image_top5_set_agreement" : 1,
+  "samples" : [
+    {
+      "full_array_top1" : "Saluki, gazelle hound",
+      "full_array_top5" : [
+        "Saluki, gazelle hound",
+        "Labrador retriever",
+        "golden retriever",
+        "dingo, warrigal, warragal, Canis dingo",
+        "Eskimo dog, husky"
+      ],
+      "id" : "cat-dog",
+      "probability_l1_distance" : 1.922084720717976e-06,
+      "probability_maximum_absolute_error" : 2.905726432800293e-07,
+      "source_top1" : "Saluki, gazelle hound",
+      "source_top5" : [
+        "Saluki, gazelle hound",
+        "Labrador retriever",
+        "golden retriever",
+        "dingo, warrigal, warragal, Canis dingo",
+        "Eskimo dog, husky"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "picket fence, paling",
+      "full_array_top5" : [
+        "picket fence, paling",
+        "greenhouse, nursery, glasshouse",
+        "solar dish, solar collector, solar furnace",
+        "flagpole, flagstaff",
+        "mobile home, manufactured home"
+      ],
+      "id" : "flower",
+      "probability_l1_distance" : 2.3671209419262595e-06,
+      "probability_maximum_absolute_error" : 3.3527612686157227e-07,
+      "source_top1" : "picket fence, paling",
+      "source_top5" : [
+        "picket fence, paling",
+        "greenhouse, nursery, glasshouse",
+        "solar dish, solar collector, solar furnace",
+        "flagpole, flagstaff",
+        "mobile home, manufactured home"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "bucket, pail",
+      "full_array_top5" : [
+        "bucket, pail",
+        "toilet tissue, toilet paper, bathroom tissue",
+        "paper towel",
+        "hamster",
+        "tabby, tabby cat"
+      ],
+      "id" : "cat-flower-pot",
+      "probability_l1_distance" : 1.515560597908916e-06,
+      "probability_maximum_absolute_error" : 3.5762786865234375e-07,
+      "source_top1" : "bucket, pail",
+      "source_top5" : [
+        "bucket, pail",
+        "toilet tissue, toilet paper, bathroom tissue",
+        "paper towel",
+        "hamster",
+        "tabby, tabby cat"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "Egyptian cat",
+      "full_array_top5" : [
+        "Egyptian cat",
+        "tiger cat",
+        "Siamese cat, Siamese",
+        "lynx, catamount",
+        "tabby, tabby cat"
+      ],
+      "id" : "closeup-cat",
+      "probability_l1_distance" : 1.5507469015574316e-06,
+      "probability_maximum_absolute_error" : 8.344650268554688e-07,
+      "source_top1" : "Egyptian cat",
+      "source_top5" : [
+        "Egyptian cat",
+        "tiger cat",
+        "Siamese cat, Siamese",
+        "lynx, catamount",
+        "tabby, tabby cat"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "matchstick",
+      "full_array_top5" : [
+        "matchstick",
+        "nematode, nematode worm, roundworm",
+        "lighter, light, igniter, ignitor",
+        "digital clock",
+        "spotlight, spot"
+      ],
+      "id" : "stress-00",
+      "probability_l1_distance" : 0,
+      "probability_maximum_absolute_error" : 0,
+      "source_top1" : "matchstick",
+      "source_top5" : [
+        "matchstick",
+        "nematode, nematode worm, roundworm",
+        "lighter, light, igniter, ignitor",
+        "digital clock",
+        "spotlight, spot"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "envelope",
+      "full_array_top5" : [
+        "envelope",
+        "corkscrew, bottle screw",
+        "screw",
+        "ballpoint, ballpoint pen, ballpen, Biro",
+        "can opener, tin opener"
+      ],
+      "id" : "stress-01",
+      "probability_l1_distance" : 0,
+      "probability_maximum_absolute_error" : 0,
+      "source_top1" : "envelope",
+      "source_top5" : [
+        "envelope",
+        "corkscrew, bottle screw",
+        "screw",
+        "ballpoint, ballpoint pen, ballpen, Biro",
+        "can opener, tin opener"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "nematode, nematode worm, roundworm",
+      "full_array_top5" : [
+        "nematode, nematode worm, roundworm",
+        "table lamp",
+        "matchstick",
+        "hatchet",
+        "spatula"
+      ],
+      "id" : "stress-02",
+      "probability_l1_distance" : 0,
+      "probability_maximum_absolute_error" : 0,
+      "source_top1" : "nematode, nematode worm, roundworm",
+      "source_top5" : [
+        "nematode, nematode worm, roundworm",
+        "table lamp",
+        "matchstick",
+        "hatchet",
+        "spatula"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "theater curtain, theatre curtain",
+      "full_array_top5" : [
+        "theater curtain, theatre curtain",
+        "envelope",
+        "hourglass",
+        "lipstick, lip rouge",
+        "velvet"
+      ],
+      "id" : "stress-03",
+      "probability_l1_distance" : 0,
+      "probability_maximum_absolute_error" : 0,
+      "source_top1" : "theater curtain, theatre curtain",
+      "source_top5" : [
+        "theater curtain, theatre curtain",
+        "envelope",
+        "hourglass",
+        "lipstick, lip rouge",
+        "velvet"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "nematode, nematode worm, roundworm",
+      "full_array_top5" : [
+        "nematode, nematode worm, roundworm",
+        "whistle",
+        "binder, ring-binder",
+        "cleaver, meat cleaver, chopper",
+        "can opener, tin opener"
+      ],
+      "id" : "stress-04",
+      "probability_l1_distance" : 0,
+      "probability_maximum_absolute_error" : 0,
+      "source_top1" : "nematode, nematode worm, roundworm",
+      "source_top5" : [
+        "nematode, nematode worm, roundworm",
+        "whistle",
+        "binder, ring-binder",
+        "cleaver, meat cleaver, chopper",
+        "can opener, tin opener"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "jellyfish",
+      "full_array_top5" : [
+        "jellyfish",
+        "parachute, chute",
+        "hammerhead, hammerhead shark",
+        "matchstick",
+        "wing"
+      ],
+      "id" : "stress-05",
+      "probability_l1_distance" : 0,
+      "probability_maximum_absolute_error" : 0,
+      "source_top1" : "jellyfish",
+      "source_top5" : [
+        "jellyfish",
+        "parachute, chute",
+        "hammerhead, hammerhead shark",
+        "matchstick",
+        "wing"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "jellyfish",
+      "full_array_top5" : [
+        "jellyfish",
+        "hook, claw",
+        "web site, website, internet site, site",
+        "barbell",
+        "dugong, Dugong dugon"
+      ],
+      "id" : "stress-06",
+      "probability_l1_distance" : 0,
+      "probability_maximum_absolute_error" : 0,
+      "source_top1" : "jellyfish",
+      "source_top5" : [
+        "jellyfish",
+        "hook, claw",
+        "web site, website, internet site, site",
+        "barbell",
+        "dugong, Dugong dugon"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "cleaver, meat cleaver, chopper",
+      "full_array_top5" : [
+        "cleaver, meat cleaver, chopper",
+        "whistle",
+        "hatchet",
+        "can opener, tin opener",
+        "table lamp"
+      ],
+      "id" : "stress-07",
+      "probability_l1_distance" : 0,
+      "probability_maximum_absolute_error" : 0,
+      "source_top1" : "cleaver, meat cleaver, chopper",
+      "source_top5" : [
+        "cleaver, meat cleaver, chopper",
+        "whistle",
+        "hatchet",
+        "can opener, tin opener",
+        "table lamp"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "whistle",
+      "full_array_top5" : [
+        "whistle",
+        "envelope",
+        "can opener, tin opener",
+        "cleaver, meat cleaver, chopper",
+        "hatchet"
+      ],
+      "id" : "stress-08",
+      "probability_l1_distance" : 3.6078490666113794e-06,
+      "probability_maximum_absolute_error" : 8.195638656616211e-08,
+      "source_top1" : "whistle",
+      "source_top5" : [
+        "whistle",
+        "envelope",
+        "can opener, tin opener",
+        "cleaver, meat cleaver, chopper",
+        "hatchet"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "dishwasher, dish washer, dishwashing machine",
+      "full_array_top5" : [
+        "dishwasher, dish washer, dishwashing machine",
+        "beaker",
+        "milk can",
+        "oil filter",
+        "cocktail shaker"
+      ],
+      "id" : "stress-09",
+      "probability_l1_distance" : 2.9115035431459546e-06,
+      "probability_maximum_absolute_error" : 7.152557373046875e-07,
+      "source_top1" : "dishwasher, dish washer, dishwashing machine",
+      "source_top5" : [
+        "dishwasher, dish washer, dishwashing machine",
+        "beaker",
+        "milk can",
+        "oil filter",
+        "cocktail shaker"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "web site, website, internet site, site",
+      "full_array_top5" : [
+        "web site, website, internet site, site",
+        "envelope",
+        "digital clock",
+        "oscilloscope, scope, cathode-ray oscilloscope, CRO",
+        "analog clock"
+      ],
+      "id" : "stress-10",
+      "probability_l1_distance" : 1.7201546143041924e-06,
+      "probability_maximum_absolute_error" : 2.384185791015625e-07,
+      "source_top1" : "web site, website, internet site, site",
+      "source_top5" : [
+        "web site, website, internet site, site",
+        "envelope",
+        "digital clock",
+        "oscilloscope, scope, cathode-ray oscilloscope, CRO",
+        "analog clock"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "binder, ring-binder",
+      "full_array_top5" : [
+        "binder, ring-binder",
+        "combination lock",
+        "hourglass",
+        "analog clock",
+        "whistle"
+      ],
+      "id" : "stress-11",
+      "probability_l1_distance" : 1.7265238057007082e-06,
+      "probability_maximum_absolute_error" : 1.0058283805847168e-07,
+      "source_top1" : "binder, ring-binder",
+      "source_top5" : [
+        "binder, ring-binder",
+        "combination lock",
+        "hourglass",
+        "analog clock",
+        "whistle"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "binder, ring-binder",
+      "full_array_top5" : [
+        "binder, ring-binder",
+        "pool table, billiard table, snooker table",
+        "whistle",
+        "spotlight, spot",
+        "wall clock"
+      ],
+      "id" : "stress-12",
+      "probability_l1_distance" : 0,
+      "probability_maximum_absolute_error" : 0,
+      "source_top1" : "binder, ring-binder",
+      "source_top5" : [
+        "binder, ring-binder",
+        "pool table, billiard table, snooker table",
+        "whistle",
+        "spotlight, spot",
+        "wall clock"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "digital clock",
+      "full_array_top5" : [
+        "digital clock",
+        "wool, woolen, woollen",
+        "pole",
+        "wall clock",
+        "paintbrush"
+      ],
+      "id" : "stress-13",
+      "probability_l1_distance" : 0,
+      "probability_maximum_absolute_error" : 0,
+      "source_top1" : "digital clock",
+      "source_top5" : [
+        "digital clock",
+        "wool, woolen, woollen",
+        "pole",
+        "wall clock",
+        "paintbrush"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "strainer",
+      "full_array_top5" : [
+        "strainer",
+        "window screen",
+        "shower curtain",
+        "honeycomb",
+        "bib"
+      ],
+      "id" : "stress-14",
+      "probability_l1_distance" : 0,
+      "probability_maximum_absolute_error" : 0,
+      "source_top1" : "strainer",
+      "source_top5" : [
+        "strainer",
+        "window screen",
+        "shower curtain",
+        "honeycomb",
+        "bib"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "shower curtain",
+      "full_array_top5" : [
+        "shower curtain",
+        "bib",
+        "rule, ruler",
+        "web site, website, internet site, site",
+        "nail"
+      ],
+      "id" : "stress-15",
+      "probability_l1_distance" : 0,
+      "probability_maximum_absolute_error" : 0,
+      "source_top1" : "shower curtain",
+      "source_top5" : [
+        "shower curtain",
+        "bib",
+        "rule, ruler",
+        "web site, website, internet site, site",
+        "nail"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "matchstick",
+      "full_array_top5" : [
+        "matchstick",
+        "nematode, nematode worm, roundworm",
+        "lighter, light, igniter, ignitor",
+        "spotlight, spot",
+        "digital clock"
+      ],
+      "id" : "stress-16",
+      "probability_l1_distance" : 0,
+      "probability_maximum_absolute_error" : 0,
+      "source_top1" : "matchstick",
+      "source_top5" : [
+        "matchstick",
+        "nematode, nematode worm, roundworm",
+        "lighter, light, igniter, ignitor",
+        "spotlight, spot",
+        "digital clock"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "matchstick",
+      "full_array_top5" : [
+        "matchstick",
+        "nematode, nematode worm, roundworm",
+        "spotlight, spot",
+        "lighter, light, igniter, ignitor",
+        "digital clock"
+      ],
+      "id" : "stress-17",
+      "probability_l1_distance" : 0,
+      "probability_maximum_absolute_error" : 0,
+      "source_top1" : "matchstick",
+      "source_top5" : [
+        "matchstick",
+        "nematode, nematode worm, roundworm",
+        "spotlight, spot",
+        "lighter, light, igniter, ignitor",
+        "digital clock"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "jellyfish",
+      "full_array_top5" : [
+        "jellyfish",
+        "matchstick",
+        "parachute, chute",
+        "space shuttle",
+        "chambered nautilus, pearly nautilus, nautilus"
+      ],
+      "id" : "stress-18",
+      "probability_l1_distance" : 0,
+      "probability_maximum_absolute_error" : 0,
+      "source_top1" : "jellyfish",
+      "source_top5" : [
+        "jellyfish",
+        "matchstick",
+        "parachute, chute",
+        "space shuttle",
+        "chambered nautilus, pearly nautilus, nautilus"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "envelope",
+      "full_array_top5" : [
+        "envelope",
+        "cleaver, meat cleaver, chopper",
+        "hatchet",
+        "hook, claw",
+        "nematode, nematode worm, roundworm"
+      ],
+      "id" : "stress-19",
+      "probability_l1_distance" : 0,
+      "probability_maximum_absolute_error" : 0,
+      "source_top1" : "envelope",
+      "source_top5" : [
+        "envelope",
+        "cleaver, meat cleaver, chopper",
+        "hatchet",
+        "hook, claw",
+        "nematode, nematode worm, roundworm"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "spotlight, spot",
+      "full_array_top5" : [
+        "spotlight, spot",
+        "theater curtain, theatre curtain",
+        "fire screen, fireguard",
+        "screen, CRT screen",
+        "window screen"
+      ],
+      "id" : "stress-20",
+      "probability_l1_distance" : 0,
+      "probability_maximum_absolute_error" : 0,
+      "source_top1" : "spotlight, spot",
+      "source_top5" : [
+        "spotlight, spot",
+        "theater curtain, theatre curtain",
+        "fire screen, fireguard",
+        "screen, CRT screen",
+        "window screen"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "window screen",
+      "full_array_top5" : [
+        "window screen",
+        "fire screen, fireguard",
+        "loudspeaker, speaker, speaker unit, loudspeaker system, speaker system",
+        "lacewing, lacewing fly",
+        "strainer"
+      ],
+      "id" : "stress-21",
+      "probability_l1_distance" : 0,
+      "probability_maximum_absolute_error" : 0,
+      "source_top1" : "window screen",
+      "source_top5" : [
+        "window screen",
+        "fire screen, fireguard",
+        "loudspeaker, speaker, speaker unit, loudspeaker system, speaker system",
+        "lacewing, lacewing fly",
+        "strainer"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "apron",
+      "full_array_top5" : [
+        "apron",
+        "dishrag, dishcloth",
+        "tray",
+        "poncho",
+        "bib"
+      ],
+      "id" : "stress-22",
+      "probability_l1_distance" : 1.934371312017902e-06,
+      "probability_maximum_absolute_error" : 5.438923835754395e-07,
+      "source_top1" : "apron",
+      "source_top5" : [
+        "apron",
+        "dishrag, dishcloth",
+        "tray",
+        "poncho",
+        "bib"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "spotlight, spot",
+      "full_array_top5" : [
+        "spotlight, spot",
+        "envelope",
+        "web site, website, internet site, site",
+        "microphone, mike",
+        "hook, claw"
+      ],
+      "id" : "stress-23",
+      "probability_l1_distance" : 0,
+      "probability_maximum_absolute_error" : 0,
+      "source_top1" : "spotlight, spot",
+      "source_top5" : [
+        "spotlight, spot",
+        "envelope",
+        "web site, website, internet site, site",
+        "microphone, mike",
+        "hook, claw"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "Windsor tie",
+      "full_array_top5" : [
+        "Windsor tie",
+        "shopping basket",
+        "binder, ring-binder",
+        "wall clock",
+        "doormat, welcome mat"
+      ],
+      "id" : "stress-24",
+      "probability_l1_distance" : 0,
+      "probability_maximum_absolute_error" : 0,
+      "source_top1" : "Windsor tie",
+      "source_top5" : [
+        "Windsor tie",
+        "shopping basket",
+        "binder, ring-binder",
+        "wall clock",
+        "doormat, welcome mat"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "shovel",
+      "full_array_top5" : [
+        "shovel",
+        "swab, swob, mop",
+        "doormat, welcome mat",
+        "spotlight, spot",
+        "oil filter"
+      ],
+      "id" : "stress-25",
+      "probability_l1_distance" : 0,
+      "probability_maximum_absolute_error" : 0,
+      "source_top1" : "shovel",
+      "source_top5" : [
+        "shovel",
+        "swab, swob, mop",
+        "doormat, welcome mat",
+        "spotlight, spot",
+        "oil filter"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "spotlight, spot",
+      "full_array_top5" : [
+        "spotlight, spot",
+        "space heater",
+        "digital clock",
+        "fire screen, fireguard",
+        "oscilloscope, scope, cathode-ray oscilloscope, CRO"
+      ],
+      "id" : "stress-26",
+      "probability_l1_distance" : 1.5361483676201715e-06,
+      "probability_maximum_absolute_error" : 7.003545761108398e-07,
+      "source_top1" : "spotlight, spot",
+      "source_top5" : [
+        "spotlight, spot",
+        "space heater",
+        "digital clock",
+        "fire screen, fireguard",
+        "oscilloscope, scope, cathode-ray oscilloscope, CRO"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "cleaver, meat cleaver, chopper",
+      "full_array_top5" : [
+        "cleaver, meat cleaver, chopper",
+        "envelope",
+        "web site, website, internet site, site",
+        "binder, ring-binder",
+        "can opener, tin opener"
+      ],
+      "id" : "stress-27",
+      "probability_l1_distance" : 1.2457248885766603e-06,
+      "probability_maximum_absolute_error" : 1.7136335372924805e-07,
+      "source_top1" : "cleaver, meat cleaver, chopper",
+      "source_top5" : [
+        "cleaver, meat cleaver, chopper",
+        "envelope",
+        "web site, website, internet site, site",
+        "binder, ring-binder",
+        "can opener, tin opener"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    }
+  ],
+  "schema_version" : 1,
+  "source_model_sha256" : "cb5a35f593582232140556bbfa4618e66b37b8ff2fc33ba17db909e1050fd144",
+  "source_model_url" : "https:\/\/ml-assets.apple.com\/coreml\/models\/Image\/ImageClassification\/MobileNetV2\/MobileNetV2.mlmodel",
+  "status" : "PASS",
+  "thresholds" : {
+    "real_image_top5_set_agreement" : 0.995,
+    "top1_agreement" : 0.995
+  },
+  "tool_versions" : {
+    "coremltools" : "9.0",
+    "swift" : "unknown",
+    "xcode" : "unknown"
+  },
+  "top1_agreement" : 1,
+  "top5_set_agreement" : 1
+}

@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "status_field": "acceptance_status",
+  "allowed_statuses": ["ACCEPTED", "SUPERSEDED", "REJECTED", "EXPERIMENTAL"],
+  "rule": "Only ACCEPTED artifacts may support current claims; historical raw JSON remains immutable and all other statuses are excluded from accepted-result summaries.",
+  "artifacts": {
+    "fair-quick.json": "EXPERIMENTAL",
+    "m10-mobilenetv2-confirm-current.json": "ACCEPTED",
+    "m2-pipeline-b-quick.json": "ACCEPTED",
+    "m4-fair-abc-confirm.json": "SUPERSEDED",
+    "m4-fair-abc-confirm2.json": "SUPERSEDED",
+    "m4-fair-abc-equal-confirm1.json": "ACCEPTED",
+    "m4-fair-abc-equal-confirm2.json": "ACCEPTED",
+    "m4-fair-abc-run1.json": "SUPERSEDED",
+    "m4-fair-abc-run2.json": "SUPERSEDED",
+    "m4-fair-abc-run3.json": "SUPERSEDED",
+    "m5-mobilenetv2-confirm.json": "REJECTED",
+    "m5-mobilenetv2-confirm1.json": "ACCEPTED",
+    "m5-mobilenetv2-confirm2.json": "ACCEPTED",
+    "m5-mobilenetv2-final.json": "REJECTED",
+    "m5-mobilenetv2-final2.json": "REJECTED",
+    "m5-mobilenetv2-quick.json": "REJECTED",
+    "m5-mobilenetv2-repair-quick.json": "EXPERIMENTAL",
+    "m5-mobilenetv2-verify.json": "EXPERIMENTAL",
+    "m6-exp0-baseline.json": "EXPERIMENTAL",
+    "m6-exp1-phase-aware.json": "REJECTED",
+    "m6-exp2-threadgroup-confirm.json": "REJECTED",
+    "m6-exp2-threadgroup.json": "REJECTED",
+    "quick.json": "EXPERIMENTAL"
+  }
+}

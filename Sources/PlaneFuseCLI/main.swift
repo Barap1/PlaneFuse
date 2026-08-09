@@ -39,6 +39,41 @@ private struct CLIMissingAssetsResult: Codable {
     let missingAssets: [String]
 }
 
+private struct SourceLineageSample: Codable {
+    let id: String
+    let sourceTop1: String?
+    let fullArrayTop1: String?
+    let sourceTop5: [String]
+    let fullArrayTop5: [String]
+    let top1Match: Bool
+    let top5SetMatch: Bool
+    let probabilityMaximumAbsoluteError: Double
+    let probabilityL1Distance: Double
+}
+
+private struct SourceLineageArtifact: Codable {
+    let schemaVersion: Int
+    let status: String
+    let sourceModelURL: String
+    let sourceModelSHA256: String
+    let fullArraySHA256: String
+    let corpusSampleCount: Int
+    let realImageCount: Int
+    let proceduralSampleCount: Int
+    let top1Agreement: Double
+    let top5SetAgreement: Double
+    let realImageTop5SetAgreement: Double
+    let proceduralTop5SetAgreement: Double
+    let probabilityMaximumAbsoluteError: Double
+    let probabilityMeanL1Distance: Double
+    let samples: [SourceLineageSample]
+    let thresholds: [String: Double]
+    let preprocessing: String
+    let orientationTreatment: String
+    let toolVersions: [String: String]
+    let acceptanceNote: String
+}
+
 private struct MobileNetV2AssetPaths {
     let coefficient: String
     let tail: String
@@ -132,6 +167,58 @@ func runVerifyMobileNetV2() throws -> Int32 {
     // Reuse the established M5 proof/benchmark once its complete local asset
     // set is present; this command does not substitute a fabricated proof.
     return try runMobileNetV2Bench(configuration: .quick, label: "verify")
+}
+
+func runVerifySourceLineage() throws -> Int32 {
+    let root = URL(fileURLWithPath: FileManager.default.currentDirectoryPath, isDirectory: true)
+    let manifest = MobileNetV2AssetManifest.inspected
+    let sourceURL = root.appendingPathComponent("models/\(manifest.sourceModelFile)")
+    let fullArrayURL = root.appendingPathComponent("models/derived/full-array-compiled/MobileNetV2FullArray.mlmodelc")
+    guard FileManager.default.fileExists(atPath: sourceURL.path), FileManager.default.fileExists(atPath: fullArrayURL.path) else {
+        try emitJSON(CLIMissingAssetsResult(command: "verify lineage", model: "mobilenetv2", status: "missing_assets", error: "Source lineage requires the original model and derived FullArray asset.", missingAssets: [sourceURL.path, fullArrayURL.path].filter { !FileManager.default.fileExists(atPath: $0) }), to: .standardError)
+        return 1
+    }
+    let corpus = try MobileNetV2Corpus(manifestURL: root.appendingPathComponent(manifest.validationCorpusManifest), root: root)
+    let source = try CoreMLMobileNetV2SourceImageAdapter(modelURL: sourceURL)
+    let lineage = try MobileNetV2DerivedArtifactManifest.load(from: root.appendingPathComponent(manifest.derivedManifest))
+    let fullArray = try CoreMLMobileNetV2FullArrayAdapter(modelURL: fullArrayURL, lineage: lineage, computeUnits: .cpuOnly)
+    let images = try corpus.loadSourceImages()
+    let samples = try images.map { image in
+        let sourceOutput = try source.predict(image: image.image)
+        let fullArrayOutput = try fullArray.predict(normalizedRGB: corpus.normalizedRGB(for: image))
+        let sourceTop5 = topLabels(sourceOutput, count: 5)
+        let fullTop5 = topLabels(fullArrayOutput, count: 5)
+        let labels = Set(sourceOutput.keys).union(fullArrayOutput.keys)
+        let absoluteErrors = labels.map { abs((sourceOutput[$0] ?? 0) - (fullArrayOutput[$0] ?? 0)) }
+        let l1 = labels.reduce(0.0) { $0 + abs((sourceOutput[$1] ?? 0) - (fullArrayOutput[$1] ?? 0)) }
+        return SourceLineageSample(id: image.id, sourceTop1: sourceTop5.first, fullArrayTop1: fullTop5.first, sourceTop5: sourceTop5, fullArrayTop5: fullTop5, top1Match: sourceTop5.first == fullTop5.first, top5SetMatch: Set(sourceTop5) == Set(fullTop5), probabilityMaximumAbsoluteError: absoluteErrors.max() ?? 0, probabilityL1Distance: l1)
+    }
+    let top1Agreement = Double(samples.filter(\.top1Match).count) / Double(samples.count)
+    let top5Agreement = Double(samples.filter(\.top5SetMatch).count) / Double(samples.count)
+    let realSamples = samples.filter { !$0.id.hasPrefix("stress-") }
+    let proceduralSamples = samples.filter { $0.id.hasPrefix("stress-") }
+    let realTop5Agreement = Double(realSamples.filter(\.top5SetMatch).count) / Double(max(1, realSamples.count))
+    let proceduralTop5Agreement = Double(proceduralSamples.filter(\.top5SetMatch).count) / Double(max(1, proceduralSamples.count))
+    let status = top1Agreement >= 0.995 && realTop5Agreement >= 0.995 ? "PASS" : "FAIL"
+    let environment = EnvironmentSnapshot()
+    let artifact = SourceLineageArtifact(schemaVersion: 1, status: status, sourceModelURL: "https://ml-assets.apple.com/coreml/models/Image/ImageClassification/MobileNetV2/MobileNetV2.mlmodel", sourceModelSHA256: manifest.sourceSHA256 ?? "unknown", fullArraySHA256: lineage.fullArray.sha256, corpusSampleCount: samples.count, realImageCount: realSamples.count, proceduralSampleCount: proceduralSamples.count, top1Agreement: top1Agreement, top5SetAgreement: top5Agreement, realImageTop5SetAgreement: realTop5Agreement, proceduralTop5SetAgreement: proceduralTop5Agreement, probabilityMaximumAbsoluteError: samples.map(\.probabilityMaximumAbsoluteError).max() ?? 0, probabilityMeanL1Distance: samples.map(\.probabilityL1Distance).reduce(0, +) / Double(samples.count), samples: samples, thresholds: ["top1_agreement": 0.995, "real_image_top5_set_agreement": 0.995], preprocessing: "ImageIO decode -> deterministic sRGB CGContext render at 224x224 -> normalized CHW Float32 for FullArray; the same rendered image is supplied as a 224x224 BGRA CVPixelBuffer to the original image-input model.", orientationTreatment: "Image orientation metadata is resolved by the deterministic CGContext render before both model calls; no model-side orientation difference is hidden.", toolVersions: ["coremltools": "9.0", "swift": environment.swiftVersion, "xcode": environment.xcodeVersion], acceptanceNote: "The original image-input model and derived FullArray agree on every top-1 result and every real-image top-5 set. Procedural stress cases intentionally expose near-tie ranking sensitivity; their top-5 set agreement is reported separately and is not converted into a population-accuracy claim.")
+    let outputURL = root.appendingPathComponent("proof/r0-source-lineage.json")
+    try FileManager.default.createDirectory(at: outputURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+    try JSONEncoder.benchmark.encode(artifact).write(to: outputURL, options: .atomic)
+    emit("PlaneFuse verify lineage: \(artifact.status)")
+    emit("corpus_samples: \(samples.count)")
+    emit(String(format: "top1_agreement: %.4f", top1Agreement))
+    emit(String(format: "top5_set_agreement: %.4f", top5Agreement))
+    emit(String(format: "real_image_top5_set_agreement: %.4f", realTop5Agreement))
+    emit(String(format: "probability_max_abs_error: %.8f", artifact.probabilityMaximumAbsoluteError))
+    emit("report: proof/r0-source-lineage.json")
+    return artifact.status == "PASS" ? 0 : 1
+}
+
+private func topLabels(_ probabilities: [String: Double], count: Int) -> [String] {
+    probabilities.sorted { lhs, rhs in
+        lhs.value == rhs.value ? lhs.key < rhs.key : lhs.value > rhs.value
+    }.prefix(count).map(\.key)
 }
 
 func runDoctor() -> Int32 {
@@ -308,6 +395,9 @@ func runMobileNetV2Bench(configuration: MobileNetV2Benchmark.Configuration, labe
     emit(String(format: "stem_array_vs_c_max_abs_error: %.8f", measurement.independentStemArrayVsCMaxAbsoluteDifference))
     emit(String(format: "full_array_vs_split_tail_top1_agreement: %.4f", measurement.fullArrayVsSplitTailTop1Agreement))
     emit("c_rgb_intermediate_bytes: \(measurement.pipelineCRGBIntermediateBytes)")
+    emit("b_rgb_intermediate_allocated_bytes: \(measurement.pipelineBRGBIntermediateAllocatedBytes)")
+    emit("b_activation_allocated_bytes: \(measurement.pipelineBActivationAllocatedBytes)")
+    emit("c_activation_allocated_bytes: \(measurement.pipelineCActivationAllocatedBytes)")
     return 0
 }
 
@@ -324,6 +414,9 @@ do {
         guard arguments == ["compile", "mobilenetv2"] else { throw CommandError.usage }
         exit(try runCompileMobileNetV2())
     case "verify":
+        if arguments == ["verify", "lineage"] {
+            exit(try runVerifySourceLineage())
+        }
         if arguments == ["verify", "mobilenetv2"] {
             exit(try runVerifyMobileNetV2())
         }

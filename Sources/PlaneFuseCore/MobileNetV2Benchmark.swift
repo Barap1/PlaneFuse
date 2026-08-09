@@ -13,7 +13,8 @@ public final class MobileNetV2Benchmark {
         public let width: Int
         public let height: Int
 
-        public init(warmupIterations: Int = 3, measuredIterations: Int = 20, validationSamples: Int = 4, width: Int = 224, height: Int = 224) {
+        /// A zero validation count means "use every sample in the manifest".
+        public init(warmupIterations: Int = 3, measuredIterations: Int = 20, validationSamples: Int = 0, width: Int = 224, height: Int = 224) {
             self.warmupIterations = warmupIterations
             self.measuredIterations = measuredIterations
             self.validationSamples = validationSamples
@@ -21,9 +22,9 @@ public final class MobileNetV2Benchmark {
             self.height = height
         }
 
-        public static let quick = Configuration(warmupIterations: 5, measuredIterations: 20, validationSamples: 4)
+        public static let quick = Configuration(warmupIterations: 5, measuredIterations: 20)
         /// Confirmation is never allowed to reuse the rejected pre-fix 20-run tier.
-        public static let confirm = Configuration(warmupIterations: 10, measuredIterations: 100, validationSamples: 4)
+        public static let confirm = Configuration(warmupIterations: 10, measuredIterations: 100)
     }
 
     public struct Statistics: Codable, Equatable {
@@ -53,7 +54,10 @@ public final class MobileNetV2Benchmark {
         public let pipelineBEndToEnd: Statistics
         public let pipelineCEndToEnd: Statistics
         public let pipelineBRGBIntermediateBytes: Int
+        public let pipelineBRGBIntermediateAllocatedBytes: Int
         public let pipelineCRGBIntermediateBytes: Int
+        public let pipelineBActivationAllocatedBytes: Int
+        public let pipelineCActivationAllocatedBytes: Int
         public let activationBytes: Int
         public let validationSampleCount: Int
         public let top1Agreement: Double
@@ -117,15 +121,24 @@ public final class MobileNetV2Benchmark {
         corpus: MobileNetV2Corpus,
         independentReference: IndependentReference
     ) throws {
-        self.configuration = configuration
+        let sampleCount = corpus.manifest.samples.count
+        self.configuration = configuration.validationSamples == 0
+            ? Configuration(
+                warmupIterations: configuration.warmupIterations,
+                measuredIterations: configuration.measuredIterations,
+                validationSamples: sampleCount,
+                width: configuration.width,
+                height: configuration.height
+            )
+            : configuration
         self.coefficients = try MobileNetV2StemCoefficients.load(from: coefficientsURL)
         self.tail = tail
         self.corpus = corpus
         self.independentReference = independentReference
         guard configuration.width == 224, configuration.height == 224,
               configuration.warmupIterations >= 0, configuration.measuredIterations > 0,
-              configuration.validationSamples > 0,
-              configuration.validationSamples == corpus.manifest.samples.count else { throw Error.invalidConfiguration }
+              self.configuration.validationSamples > 0,
+              self.configuration.validationSamples == sampleCount else { throw Error.invalidConfiguration }
     }
 
     public func run(device: MTLDevice? = MTLCreateSystemDefaultDevice()) throws -> Measurement {
@@ -234,7 +247,10 @@ public final class MobileNetV2Benchmark {
             pipelineBFrontend: Statistics(bFrontend), pipelineCFrontend: Statistics(cFrontend),
             pipelineBEndToEnd: Statistics(bEndToEnd), pipelineCEndToEnd: Statistics(cEndToEnd),
             pipelineBRGBIntermediateBytes: 224 * 224 * 4 * MemoryLayout<Float>.stride,
+            pipelineBRGBIntermediateAllocatedBytes: normalizedRGB.allocatedSize,
             pipelineCRGBIntermediateBytes: 0,
+            pipelineBActivationAllocatedBytes: bActivation.allocatedSize,
+            pipelineCActivationAllocatedBytes: cActivation.allocatedSize,
             activationBytes: MetalMobileNetV2NativeStem.activationCount * MemoryLayout<Float>.stride,
             validationSampleCount: configuration.validationSamples, top1Agreement: agreement,
             maxActivationAbsoluteDifference: maxActivationError, outputAgreementPass: pass,

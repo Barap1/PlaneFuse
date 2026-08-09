@@ -55,6 +55,16 @@ public struct MobileNetV2CorpusFrame: Equatable {
     }
 }
 
+public struct MobileNetV2CorpusSourceImage {
+    public let id: String
+    public let image: CGImage
+
+    public init(id: String, image: CGImage) {
+        self.id = id
+        self.image = image
+    }
+}
+
 public final class MobileNetV2Corpus {
     public static let inputWidth = 224
     public static let inputHeight = 224
@@ -85,7 +95,7 @@ public final class MobileNetV2Corpus {
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         self.manifest = try decoder.decode(MobileNetV2CorpusManifest.self, from: Data(contentsOf: manifestURL))
         self.root = root
-        guard manifest.schemaVersion == 1,
+        guard manifest.schemaVersion >= 1 && manifest.schemaVersion <= 2,
               manifest.input.width == Self.inputWidth,
               manifest.input.height == Self.inputHeight,
               manifest.input.rgbDecode == Self.expectedRGBDecode,
@@ -100,16 +110,53 @@ public final class MobileNetV2Corpus {
         try manifest.samples.map(loadFrame)
     }
 
+    /// Loads the same deterministic 224x224 sRGB image that feeds the corpus
+    /// conversion, for direct original image-input model lineage checks.
+    public func loadSourceImages() throws -> [MobileNetV2CorpusSourceImage] {
+        try manifest.samples.map { sample in
+            MobileNetV2CorpusSourceImage(id: sample.id, image: try loadRenderedImage(sample))
+        }
+    }
+
+    public func normalizedRGB(for sourceImage: MobileNetV2CorpusSourceImage) throws -> [Float] {
+        let rgba = try Self.renderSRGB(image: sourceImage.image, sourceURL: URL(fileURLWithPath: sourceImage.id))
+        let pixelCount = Self.inputWidth * Self.inputHeight
+        var result = [Float](repeating: 0, count: pixelCount * 3)
+        for index in 0..<pixelCount {
+            let offset = index * 4
+            result[index] = (Float(rgba[offset]) / 255 - 0.5) / 0.5
+            result[pixelCount + index] = (Float(rgba[offset + 1]) / 255 - 0.5) / 0.5
+            result[pixelCount * 2 + index] = (Float(rgba[offset + 2]) / 255 - 0.5) / 0.5
+        }
+        return result
+    }
+
     private func loadFrame(_ sample: MobileNetV2CorpusManifest.Sample) throws -> MobileNetV2CorpusFrame {
+        let url = root.appendingPathComponent(sample.relativePath)
+        let rgb = try Self.renderSRGB(image: loadRenderedImage(sample), sourceURL: url)
+        let nv12 = Self.convertRGBToNV12(rgb)
+        return MobileNetV2CorpusFrame(id: sample.id, yPlaneBytes: nv12.y, uvPlaneBytes: nv12.uv)
+    }
+
+    private func loadRenderedImage(_ sample: MobileNetV2CorpusManifest.Sample) throws -> CGImage {
         let url = root.appendingPathComponent(sample.relativePath)
         guard FileManager.default.fileExists(atPath: url.path) else { throw Error.imageMissing(url) }
         let data = try Data(contentsOf: url)
         guard Self.sha256(data) == sample.sha256.lowercased() else { throw Error.imageHashMismatch(url) }
         guard let source = CGImageSourceCreateWithURL(url as CFURL, nil),
               let image = CGImageSourceCreateImageAtIndex(source, 0, nil) else { throw Error.imageDecodeFailed(url) }
-        let rgb = try Self.renderSRGB(image: image, sourceURL: url)
-        let nv12 = Self.convertRGBToNV12(rgb)
-        return MobileNetV2CorpusFrame(id: sample.id, yPlaneBytes: nv12.y, uvPlaneBytes: nv12.uv)
+        var renderedBytes = [UInt8](repeating: 0, count: Self.inputWidth * Self.inputHeight * 4)
+        guard let context = CGContext(
+            data: &renderedBytes, width: Self.inputWidth, height: Self.inputHeight,
+            bitsPerComponent: 8, bytesPerRow: Self.inputWidth * 4,
+            space: CGColorSpace(name: CGColorSpace.sRGB)!,
+            bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue | CGBitmapInfo.byteOrder32Big.rawValue
+        ) else { throw Error.imageDecodeFailed(url) }
+        context.interpolationQuality = .high
+        context.setBlendMode(.copy)
+        context.draw(image, in: CGRect(x: 0, y: 0, width: Self.inputWidth, height: Self.inputHeight))
+        guard let rendered = context.makeImage() else { throw Error.imageDecodeFailed(url) }
+        return rendered
     }
 
     private static func renderSRGB(image: CGImage, sourceURL: URL) throws -> [UInt8] {

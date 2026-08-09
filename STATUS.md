@@ -1,14 +1,14 @@
 # PlaneFuse status
 
-Current milestone: M11 - Technical and hackathon audit / release preparation (COMPLETE)
+Current milestone: R0 - Repository truth, evidence, and reproducibility hardening (IN PROGRESS)
 
-Overall status: RELEASE CANDIDATE
+Overall status: PHASE 2 HARDENING
 
-Current branch: main (expected)
+Current branch: phase2/continuum
 
-Current best verified result: M4 fixture C end-to-end p50 0.1948 ms vs B 0.2328 ms; 16.34% lower under equal-submission methodology
+Current best verified result: pre-Phase-2 control — M4 fixture C end-to-end p50 0.1948 ms vs B 0.2328 ms; 16.34% lower under equal-submission methodology. Release-state MobileNetV2 C p50 was 50.8605 ms vs B 51.8460 ms; 1.90098% lower.
 
-Correctness status: M10 PASS — final current-state MobileNetV2 confirmation, evidence index, system metadata, and claims audit are recorded
+Correctness status: pre-Phase-2 MobileNetV2 evidence remains accepted; R0 corpus/setup/lineage closure is in progress
 
 Pipeline A status: not built
 
@@ -20,13 +20,13 @@ Real model: Apple MobileNetV2 ImageNet integrated; unchanged 252-layer Core ML t
 
 PlaneFuse Live: CLI sample and camera NV12 inference path built; physical camera run permission-qualified
 
-Known blockers: public push/submission approval and a permitted physical camera run for any video claim remain human-controlled. MobileCLIP and Arm Performix remain optional and were not allowed to jeopardize the core.
+Known blockers: R0 still needs clean-clone setup validation, final artifact/reference cleanup, and a returned hostile review after fixes. Public push/submission and any continuous-video capture remain human-controlled.
 
-Next highest-leverage action: if release is desired, review `proof/m11-release-audit.md`, run `./pf live --camera` on a permitted Apple-Silicon device, then explicitly approve any public push/submission.
+Next highest-leverage action: finish the R0 hardening commit, then run the hostile R0 review before starting the shared-buffer bridge.
 
-Human decision currently required: no
+Human decision currently required: no; camera authorization may become a one-time R0 permission boundary.
 
-Last milestone summary: M11 release candidate — technical, benchmark, developer-tooling, local-demo, claim, and hackathon audits are synchronized; no external publication performed.
+Last milestone summary: Phase 2 planning package committed; the former M11 release-candidate label is reopened for mandatory R0 truth/reproducibility hardening.
 
 Notes:
 - Keep this file short.
