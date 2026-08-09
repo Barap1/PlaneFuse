@@ -27,6 +27,8 @@
     "m6-exp2-threadgroup-confirm.json": "REJECTED",
     "m6-exp2-threadgroup.json": "REJECTED",
     "quick.json": "EXPERIMENTAL",
-    "r0-mobilenetv2-quick.json": "ACCEPTED"
+    "r0-mobilenetv2-quick.json": "ACCEPTED",
+    "r1-mobilenetv2-b2.json": "ACCEPTED",
+    "r1-mobilenetv2-components.json": "ACCEPTED"
   }
 }

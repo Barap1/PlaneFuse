@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "status": "VERIFIED",
+  "environment": {
+    "architecture": "arm64",
+    "device": "Apple M5 Pro",
+    "operating_system": "macOS 26.6",
+    "xcode": "Xcode 26.6",
+    "swift": "Apple Swift version 6.3.3"
+  },
+  "metal_trace": {
+    "template": "Metal System Trace",
+    "launch_binary": "planefuse",
+    "command": "profile mobilenetv2",
+    "return_exit_status": 0,
+    "duration_seconds": 6.497170,
+    "trace_export_verified": true,
+    "shader_timeline": "Disabled in the installed template; command-buffer GPU durations below are from MTLCommandBuffer gpuStartTime/gpuEndTime."
+  },
+  "component_gpu_duration_p50_ms": {
+    "pipeline_b1_conversion_plus_rgb_stem": 1.0513750021,
+    "pipeline_c0_native_stem": 0.2419999946
+  },
+  "resource_evidence": {
+    "pipeline_b2_rgb_intermediate": {
+      "representation": "planar Float32 RGB [3,224,224]",
+      "logical_payload_bytes": 602112,
+      "metal_allocated_bytes": 606208
+    },
+    "pipeline_c0_rgb_intermediate": {
+      "logical_payload_bytes": 0,
+      "metal_allocated_bytes": 0
+    },
+    "pipeline_b2_activation": {
+      "metal_allocated_bytes": 2408448
+    },
+    "pipeline_c0_activation": {
+      "metal_allocated_bytes": 2408448
+    }
+  },
+  "evidence_files": [
+    "benchmarks/results/r1-mobilenetv2-components.json",
+    "benchmarks/results/r1-mobilenetv2-b2.json",
+    "Sources/PlaneFuseCore/MetalMobileNetV2RGBPipeline.swift",
+    "Sources/PlaneFuseCore/MetalMobileNetV2NativeStem.swift"
+  ]
+}

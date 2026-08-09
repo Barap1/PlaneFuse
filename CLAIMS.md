@@ -168,3 +168,19 @@ Status: VERIFIED
 Claim wording: "The R0 MobileNetV2 artifact records B's 802,816-byte logical RGBA32Float payload separately from its measured 819,200-byte Metal allocation, and records matched 2,408,448-byte B/C activation allocations."
 
 Evidence files: `proof/r0-mobilenetv2-allocation.md`, `benchmarks/results/r0-mobilenetv2-quick.json`
+
+## C016 - R1 component bottleneck profile
+
+Status: VERIFIED
+
+Claim wording: "On the declared Apple M5 Pro environment, the reproducible R1 component profile measures the current bridge's element-by-element MLMultiArray population/boxing at 48.5663 ms p50 for B1 and 48.4957 ms p50 for C0, dominating the 51.6957/50.6009 ms input-ready-to-result paths."
+
+Evidence files: `proof/r1-bottleneck-profile.md`, `proof/r1-gpu-evidence.json`, `benchmarks/results/r1-mobilenetv2-components.json`, `Sources/PlaneFuseCore/MobileNetV2ComponentProfile.swift`
+
+## C017 - R1 strongest conventional B2 baseline
+
+Status: VERIFIED
+
+Claim wording: "The R1 B2 baseline materializes planar Float32 RGB without an alpha channel, preserves the same Float32 stem and Core ML tail, passes 32-sample top-1 parity with maximum activation error 9.2983e-6, and records a 51.3243 ms p50 versus C0 at 51.3800 ms in the quick paired run; the near-tie is not claimed as an optimization win."
+
+Evidence files: `proof/r1-bottleneck-profile.md`, `benchmarks/results/r1-mobilenetv2-b2.json`, `Sources/PlaneFuseCore/Shaders/NV12MobileNetV2RGB.metal`

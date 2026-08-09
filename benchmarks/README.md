@@ -13,3 +13,8 @@ Files:
 Rules are in `../BENCHMARK_CONTRACT.md` and the stricter Phase 2
 `../BENCHMARK_CONTRACT_V2.md`. Superseded or rejected raw files remain for
 scientific history but cannot support current claims.
+
+Phase 2 R1 diagnostics are reproducible with `./pf profile mobilenetv2`; the
+strongest conventional planar Float32 baseline is `./pf bench mobilenetv2 b2`.
+See `../proof/r1-bottleneck-profile.md` for component boundaries and the
+rejected RGBA16Float candidate.
