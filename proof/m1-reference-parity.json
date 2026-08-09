@@ -1,0 +1,8 @@
+{
+  "maxAbsoluteError" : 2.220446049250313e-15,
+  "pass" : true,
+  "sampleCount" : 512,
+  "schemaVersion" : 1,
+  "semantics" : "nv12-bt601-video-range",
+  "tolerance" : 1e-12
+}

@@ -42,10 +42,19 @@ func runDoctor() -> Int32 {
     return 0
 }
 
-func runVerify() -> Int32 {
-    emit("PlaneFuse verify: CONTRACT")
-    emit("status: M0 placeholder; numerical/model verification begins in M1")
-    return 0
+func runVerify() throws -> Int32 {
+    let report = NativePlaneProof.m1Report()
+    let url = URL(fileURLWithPath: "proof/m1-reference-parity.json")
+    let data = try JSONEncoder.planeFuse.encode(report)
+    try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+    try data.write(to: url, options: .atomic)
+    emit("PlaneFuse verify: \(report.pass ? "PASS" : "FAIL")")
+    emit("semantics: \(report.semantics)")
+    emit("samples: \(report.sampleCount)")
+    emit(String(format: "max_abs_error: %.17g", report.maxAbsoluteError))
+    emit(String(format: "tolerance: %.17g", report.tolerance))
+    emit("report: proof/m1-reference-parity.json")
+    return report.pass ? 0 : 1
 }
 
 func runBench() throws -> Int32 {
@@ -65,7 +74,7 @@ do {
     case "doctor":
         exit(runDoctor())
     case "verify":
-        exit(runVerify())
+        exit(try runVerify())
     case "bench":
         guard arguments.dropFirst().first == "quick" else { throw CommandError.usage }
         exit(try runBench())
