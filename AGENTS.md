@@ -256,3 +256,4 @@ At a milestone boundary, additionally report:
 - important failed approaches;
 - hackathon-score impact;
 - whether human approval is needed.
+- If using XcodeBuildMCP, use the installed XcodeBuildMCP skill before calling XcodeBuildMCP tools.
