@@ -30,6 +30,7 @@ public final class MobileNetV2Benchmark {
         public let p50Milliseconds: Double
         public let p95Milliseconds: Double
         public let meanMilliseconds: Double
+        public let medianAbsoluteDeviationMilliseconds: Double
 
         fileprivate init(_ samples: [Double]) {
             let sorted = samples.sorted()
@@ -39,6 +40,9 @@ public final class MobileNetV2Benchmark {
             self.p50Milliseconds = nearestRank(0.50)
             self.p95Milliseconds = nearestRank(0.95)
             self.meanMilliseconds = samples.reduce(0, +) / Double(samples.count)
+            let median = nearestRank(0.50)
+            let deviations = samples.map { abs($0 - median) }.sorted()
+            self.medianAbsoluteDeviationMilliseconds = deviations[max(1, Int(ceil(0.50 * Double(deviations.count)))) - 1]
         }
     }
 
@@ -60,7 +64,7 @@ public final class MobileNetV2Benchmark {
         public let deviceName: String
         public let deviceClass: String
         public let commandBufferMethodology: String
-        public let validationCorpusSampleIDs: [String]
+        public let validationCorpusSampleIds: [String]
         public let independentStemArrayVsBMaxAbsoluteDifference: Double
         public let independentStemArrayVsCMaxAbsoluteDifference: Double
         public let fullArrayVsSplitTailTop1Agreement: Double
@@ -234,7 +238,7 @@ public final class MobileNetV2Benchmark {
             cVsBEndToEndPercentageDelta: (Statistics(bEndToEnd).p50Milliseconds - Statistics(cEndToEnd).p50Milliseconds) / Statistics(bEndToEnd).p50Milliseconds * 100,
             deviceName: device.name, deviceClass: String(describing: type(of: device)),
             commandBufferMethodology: "Frontend: one command buffer / one submission per B RGB conversion+stem and C native stem. End-to-end: same one-submission B/C Metal boundary, followed by the same Core ML tail and explicit MLMultiArray handoff.",
-            validationCorpusSampleIDs: corpusFrames.map(\.id),
+            validationCorpusSampleIds: corpusFrames.map(\.id),
             independentStemArrayVsBMaxAbsoluteDifference: stemArrayVsBMaxError,
             independentStemArrayVsCMaxAbsoluteDifference: stemArrayVsCMaxError,
             fullArrayVsSplitTailTop1Agreement: fullArraySplitTailAgreement,
