@@ -27,7 +27,7 @@ public struct MobileNetV2AssetManifest: Codable, Equatable {
         tailInputName: "planefuse_mobilenetv2_stem_features",
         tailOutputName: "classLabelProbs",
         activationShape: expectedActivationShape,
-        validationCorpusManifest: "validation-corpus.json"
+        validationCorpusManifest: "proof/m5-validation-corpus.json"
     )
 
     public func validate(at root: URL) throws {

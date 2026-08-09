@@ -1,14 +1,14 @@
 # PlaneFuse status
 
-Current milestone: M5 - Real pretrained model integration
+Current milestone: M6 - Novel 4:2:0/source-grid optimization round
 
 Overall status: IN PROGRESS
 
 Current branch: main (expected)
 
-Current best verified result: C end-to-end p50 0.1948 ms vs B 0.2328 ms; 16.34% lower in equal-submission confirmation batch 1
+Current best verified result: MobileNetV2 C end-to-end p50 54.6994 ms vs B 56.6585 ms; 3.46% lower in post-commit confirmation batch 1
 
-Correctness status: M4 PASS — two 100-iteration fair confirmation batches; max feature abs error 1.4305115e-6 <= 1e-5
+Correctness status: M5 PASS — MobileNetV2 native stem max activation error 9.059906e-6 <= 1e-5; 100% B/C top-1 agreement over 8 samples
 
 Pipeline A status: not built
 
@@ -16,17 +16,17 @@ Pipeline B status: built; release quick artifact recorded
 
 Pipeline C status: built; direct Y/UV fused stem with no RGB intermediate
 
-Real model: not selected; current result is the M1 four-output stem fixture
+Real model: Apple MobileNetV2 ImageNet integrated; unchanged 252-layer Core ML tail runs after the transformed 48-channel stem
 
 PlaneFuse Live: not started
 
-Known blockers: M5 model/architecture selection requires human approval
+Known blockers: M6 must determine whether deeper 4:2:0/source-grid optimization beats the accepted MobileNetV2 baseline; no random tuning after three bounded experiments
 
-Next highest-leverage action: approve the proposed MobileNetV2/ImageNet M5 boundary, then integrate its 3x3 stride-2 Conv/BN/ReLU6 stem and split tail.
+Next highest-leverage action: run the first bounded M6 experiment on MobileNetV2 source-grid/chroma handling, starting from profiler/timing evidence rather than changing the accepted M5 path blindly.
 
-Human decision currently required: yes — approve MobileNetV2/ImageNet as the M5 workload and defer MobileCLIP for the current deadline
+Human decision currently required: no
 
-Last milestone summary: M4 PASS — equal-submission B/C benchmark, two 100-iteration confirmations, 10.24-16.34% C end-to-end p50 reduction, 1.4305115e-6 feature error, and zero C RGB intermediate bytes. Isolated C frontend was effectively tied (-0.82% to +1.40%); no frontend speedup claim is made. Earlier 50% results are superseded because B used two submissions while C used one.
+Last milestone summary: M5 PASS — real Apple MobileNetV2 Conv/BN/ReLU6 stem transformation with unchanged Core ML tail, two post-commit equal-submission confirmations showing 2.11-3.46% C end-to-end p50 reduction, 61.90-66.47% isolated frontend reduction, 9.059906e-6 activation error, 100% output agreement, and zero C RGBA32Float intermediate bytes.
 
 Notes:
 - Keep this file short.

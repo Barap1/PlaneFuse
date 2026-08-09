@@ -30,6 +30,20 @@ Outcome: ACCEPT
 Lesson: The defensible M4 result is a smaller but persistent end-to-end win after equalizing submission methodology; the isolated frontend result remains effectively tied.
 Accepted commit: 3d17ced
 
+## E003 - real pretrained MobileNetV2 native stem and unchanged tail
+
+Date: 2026-08-09
+Base commit: a773382
+Evidence/observation: Apple’s official MobileNetV2 model has a 3x3 stride-2, 3-to-48 Conv followed by BatchNorm and ReLU6. The remaining 252-layer classifier graph can accept a derived [48,112,112] Float32 activation input.
+Hypothesis: Folding the exact pretrained input stem into direct NV12 projection will preserve the model tail’s output while removing the full normalized RGBA intermediate.
+Change: Added model-graph preparation, exact coefficient export, native NV12 3x3 Conv/BN/ReLU6, equal RGB B pipeline, and the same-tail Core ML adapter.
+Correctness: PASS; max B/C activation absolute difference 9.059906e-6 <= 1e-5; top-1 agreement 1.0 over 8 validation samples in both post-commit confirmation batches.
+Quick benchmark: B/C end-to-end p50 55.9170/54.3686 ms, a 2.77% C reduction; isolated stem-region p50 was 2.0187/0.6765 ms, a 66.48% C reduction.
+Confirmation benchmark: Post-commit batches measured B/C end-to-end p50 56.6585/54.6994 ms (3.46% C reduction) and 56.5140/55.3209 ms (2.11% C reduction). Frontend C reductions were 61.90% and 66.47%.
+Outcome: ACCEPT
+Lesson: The real pretrained model preserves the native-stem equivalence and a smaller but repeated end-to-end win after the unchanged Core ML tail. The current CPU-visible MLMultiArray handoff is included in e2e timing; no zero-copy Core ML claim is made.
+Accepted commit: 492a171
+
 Template:
 
 ## Exxx - short title

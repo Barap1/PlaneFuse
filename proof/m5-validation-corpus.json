@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "model": "Apple MobileNetV2 ImageNet",
+  "source_model_sha256": "cb5a35f593582232140556bbfa4618e66b37b8ff2fc33ba17db909e1050fd144",
+  "input": {
+    "format": "8-bit bi-planar NV12",
+    "semantics": "BT.601 video range",
+    "width": 224,
+    "height": 224
+  },
+  "generation": {
+    "kind": "deterministic NV12 fixture variants",
+    "implementation": "MetalBaselineBenchmark.deterministicNV12Fixture plus per-sample byte offsets",
+    "sample_ids": [500, 501, 502, 503, 504, 505, 506, 507]
+  },
+  "purpose": "B/C stem and unchanged-tail equivalence, not an ImageNet accuracy corpus",
+  "acceptance": {
+    "minimum_top1_agreement": 0.995,
+    "maximum_native_stem_absolute_error": 0.00001
+  },
+  "observed_in_m5_confirmations": {
+    "sample_count": 8,
+    "top1_agreement": 1.0,
+    "max_activation_absolute_difference": 0.000009059906005859375,
+    "pass": true
+  }
+}

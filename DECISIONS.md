@@ -88,15 +88,27 @@ Revisit when: a new precision/backend path is introduced with a separately justi
 
 ## D009 - Proposed M5 model boundary
 
-Status: proposed
+Status: accepted
 
-Decision: Pending human approval, use the official Apple MobileNetV2 ImageNet workload for M5. Extend the native path to the model's 3x3 stride-2 convolution plus BatchNorm/ReLU6 stem, then hand off to the unchanged split model tail. Compare it with an optimized RGB path using the same tail and require activation/logit comparison plus at least 99.5% top-k/task agreement before making a real-model claim.
+Decision: Use the official Apple MobileNetV2 ImageNet workload for M5. Extend the native path to the model's 3x3 stride-2 convolution plus BatchNorm/ReLU6 stem, then hand off to the unchanged split model tail. Compare it with an optimized RGB path using the same tail and require activation/logit comparison plus at least 99.5% top-k/task agreement before making a real-model claim.
 
 Why: MobileNetV2 is small enough for a fully local camera workload and has a concrete spatial learned stem that tests PlaneFuse's actual compiler/runtime premise. MobileCLIP is attractive for zero-shot UX, but its model-weight terms and export/splitting scope add deadline and licensing risk; it should be deferred unless explicitly approved.
 
 Evidence: M5 Sol architecture review `019fe5b6-df0b-70e3-a55f-b7723d2beb7b`; Apple MobileNetV2 model gallery; Apple MobileCLIP repository and model-weight license review.
 
-Revisit when: M5 model selection is approved or the MobileNetV2 export/tail boundary proves impractical.
+Revisit when: a later model/generalization milestone adds a different compatible stem or the MobileNetV2 export/tail boundary changes.
+
+## D010 - Make the Core ML handoff boundary explicit
+
+Status: accepted
+
+Decision: M5's current Core ML tail handoff uses a CPU-visible Float32 `MLMultiArray` built from the native activation buffer. Include that adapter in end-to-end timing and do not describe the path as zero-copy into Core ML.
+
+Why: The boundary is reproducible with the available macOS Core ML API and keeps B and C on the same unchanged tail. Hiding the bridge would overstate the current systems result; a later tensor/Metal handoff can be measured as a separate optimization.
+
+Evidence: `Sources/PlaneFuseCore/MobileNetV2Integration.swift`, `Sources/PlaneFuseCore/MobileNetV2Benchmark.swift`, `proof/m5-mobilenetv2.md`.
+
+Revisit when: a supported Core ML tensor or MPSGraph handoff can consume the native activation without changing the model tail.
 
 ---
 

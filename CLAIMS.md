@@ -80,3 +80,34 @@ Required evidence:
 - setup docs.
 
 Evidence files: TBD
+
+## C006 - MobileNetV2 native-plane stem preserves the real pretrained tail
+
+Status: VERIFIED
+
+Claim wording: "For Apple’s MobileNetV2 ImageNet model, PlaneFuse transforms the pretrained 3x3 stride-2 Conv+BatchNorm+ReLU6 input stem to read NV12 planes directly, then runs the unchanged compiled model tail."
+
+Required evidence:
+
+- exact source-model hash and graph boundary;
+- generated stem coefficients and compiled tail;
+- same-tail B/C benchmark;
+- parity and output-agreement report.
+
+Evidence files: `proof/m5-mobilenetv2.md`, `proof/m5-validation-corpus.json`, `scripts/prepare_mobilenetv2.py`, `benchmarks/results/m5-mobilenetv2-final.json`, `benchmarks/results/m5-mobilenetv2-final2.json`
+
+## C007 - MobileNetV2 B/C parity and task agreement
+
+Status: VERIFIED
+
+Claim wording: "Across two M5 confirmation batches, Pipeline B and Pipeline C had 100% top-1 output agreement over 8 deterministic NV12 validation samples; maximum first-activation absolute difference was 9.059906e-6, below the 1e-5 GPU threshold."
+
+Evidence files: `proof/m5-validation-corpus.json`, `benchmarks/results/m5-mobilenetv2-final.json`, `benchmarks/results/m5-mobilenetv2-final2.json`
+
+## C008 - MobileNetV2 Pipeline C eliminates the full RGB intermediate
+
+Status: VERIFIED
+
+Claim wording: "At the 224x224 MobileNetV2 stem boundary, Pipeline B allocates an 802,816-byte RGBA32Float intermediate while Pipeline C records zero RGBA32Float intermediate bytes."
+
+Evidence files: `Sources/PlaneFuseCore/Shaders/NV12MobileNetV2RGB.metal`, `Sources/PlaneFuseCore/Shaders/NV12MobileNetV2Stem.metal`, `benchmarks/results/m5-mobilenetv2-final.json`, `benchmarks/results/m5-mobilenetv2-final2.json`
