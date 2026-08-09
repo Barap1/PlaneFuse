@@ -90,9 +90,17 @@ Claim wording: "The PlaneFuse Live camera adapter captures video-range NV12, per
 
 Evidence files: `Sources/PlaneFuseLive/main.swift`, `DEMO_PLAN.md`, `proof/m9-live.md`
 
+## C010 - Current release-state MobileNetV2 confirmation
+
+Status: VERIFIED
+
+Claim wording: "At release-state commit `139c92a`, the current 100-iteration MobileNetV2 confirmation measured equal-submission Pipeline C p50 at 50.8605 ms versus Pipeline B at 51.8460 ms (1.90098% lower); frontend p50 was 0.22821 ms versus 0.50075 ms (54.4267% lower). B allocated an 802,816-byte RGBA32Float intermediate and C recorded zero bytes for that intermediate, with B/C max activation error 9.298325e-6 and 100% top-1 agreement over four hashed corpus images."
+
+Evidence files: `benchmarks/results/m10-mobilenetv2-confirm-current.json`, `benchmarks/final-matrix.json`, `proof/m10-evidence-index.md`
+
 ## C006 - MobileNetV2 native-plane stem preserves the real pretrained tail
 
-Status: PROPOSED
+Status: VERIFIED
 
 Claim wording: "For Apple’s MobileNetV2 ImageNet model, PlaneFuse transforms the pretrained 3x3 stride-2 Conv+BatchNorm+ReLU6 input stem to read NV12 planes directly, then runs the unchanged compiled model tail."
 

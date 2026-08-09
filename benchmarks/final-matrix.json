@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "status": "measured",
+  "workloads": [
+    {
+      "id": "m4-equal-submission-fixture",
+      "source_artifacts": [
+        "benchmarks/results/m4-fair-abc-equal-confirm1.json",
+        "benchmarks/results/m4-fair-abc-equal-confirm2.json"
+      ],
+      "accepted_claim": "Pipeline C end-to-end p50 was 16.34% lower than B in confirmation batch 1 and 10.24% lower in batch 2.",
+      "scope": "640x480 four-output reference stem; equal one-submission B/C methodology"
+    },
+    {
+      "id": "m5-mobilenetv2-current-confirmation",
+      "commit": "139c92abb447a72c6557ccaae7c2738bb063bf8a",
+      "source_artifact": "benchmarks/results/m10-mobilenetv2-confirm-current.json",
+      "environment": {
+        "architecture": "arm64",
+        "device_class": "AGXG17SDevice",
+        "device_name": "Apple M5 Pro",
+        "operating_system": "Version 26.6 (Build 25G72)",
+        "xcode_version": "Xcode 26.6",
+        "swift_version": "Apple Swift version 6.3.3",
+        "build_configuration": "release"
+      },
+      "configuration": {
+        "warmup_iterations": 10,
+        "measured_iterations": 100,
+        "validation_samples": 4,
+        "input": "224x224 BT.601 video-range NV12"
+      },
+      "pipeline_b": {
+        "frontend_p50_ms": 0.5007500003557652,
+        "frontend_p95_ms": 1.1044583370676264,
+        "end_to_end_p50_ms": 51.84604167880025,
+        "end_to_end_p95_ms": 53.341125007136725,
+        "rgba32float_intermediate_bytes": 802816
+      },
+      "pipeline_c": {
+        "frontend_p50_ms": 0.2282083296449855,
+        "frontend_p95_ms": 0.37737500679213554,
+        "end_to_end_p50_ms": 50.86045833013486,
+        "end_to_end_p95_ms": 52.580958334147,
+        "rgba32float_intermediate_bytes": 0
+      },
+      "delta": {
+        "c_vs_b_end_to_end_p50_percent": 1.9009808979658125,
+        "c_vs_b_frontend_p50_percent": 54.42669406233619
+      },
+      "correctness": {
+        "b_vs_c_max_activation_abs_error": 0.000009298324584960938,
+        "gpu_threshold": 0.00001,
+        "top1_agreement": 1.0,
+        "task_threshold": 0.995,
+        "cpu_source_derived_reference_max_error_b": 0.00003904104232788086,
+        "cpu_source_derived_reference_max_error_c": 0.00003892183303833008,
+        "reference_threshold": 0.0001,
+        "full_array_vs_split_tail_top1_agreement": 1.0
+      },
+      "interpretation": "C beats the credible equal-submission B for this real pretrained workload; the strongest structural result is elimination of the full RGB intermediate, not a universal speedup claim."
+    }
+  ]
+}
