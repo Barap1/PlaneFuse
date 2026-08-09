@@ -1,0 +1,33 @@
+# macOS
+.DS_Store
+
+# Xcode
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.xcresult
+
+# SwiftPM
+.build/
+.swiftpm/xcode/package.xcworkspace/xcuserdata/
+
+# Local artifacts/logs - keep directories, ignore generated contents
+artifacts/logs/*
+!artifacts/logs/.gitkeep
+
+# Local/private benchmark scratch; committed final evidence should be copied explicitly
+benchmarks/tmp/
+
+# Model downloads/caches
+models/
+.cache/
+
+# Python if used for reference tooling
+.venv/
+__pycache__/
+*.pyc
+
+# Environment/secrets
+.env
+.env.*
+!.env.example
