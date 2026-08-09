@@ -334,3 +334,8 @@ Expected end-state repository includes:
 - Devpost-ready write-up and under-3-minute demo script.
 
 No claim goes into the README or Devpost unless it appears in `CLAIMS.md` with evidence.
+
+<!-- PLANEFUSE_PHASE2_SPEC_POINTER -->
+## Active post-M11 continuation
+
+For repository hardening and frontier research after the original M11 snapshot, read `SPEC_V2_ADDENDUM.md`, `RESEARCH_FRONTIER.md`, `MILESTONES_V2.md`, and `BENCHMARK_CONTRACT_V2.md`. These documents extend the project; they do not invalidate previously accepted evidence.

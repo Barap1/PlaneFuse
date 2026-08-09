@@ -257,3 +257,16 @@ At a milestone boundary, additionally report:
 - hackathon-score impact;
 - whether human approval is needed.
 - If using XcodeBuildMCP, use the installed XcodeBuildMCP skill before calling XcodeBuildMCP tools.
+
+<!-- PLANEFUSE_PHASE2_RULES_START -->
+## Active Phase 2 continuation rules
+
+- For work after the original M11 snapshot, read `SPEC_V2_ADDENDUM.md`, `RESEARCH_FRONTIER.md`, `MILESTONES_V2.md`, and `BENCHMARK_CONTRACT_V2.md` before implementation.
+- Treat `MILESTONES_V2.md` as the active continuation sequence. Preserve all previously accepted evidence; do not rewrite history to make a new result look better.
+- R0 is mandatory. Do not begin frontier optimization until R0 passes and the repository is again internally truthful and clean-clone reproducible.
+- The primary current-environment research order is: shared-buffer Core ML bridge, IOSurface-backed bridge, Metal 4 GPU-timeline feasibility, then polyphase 4:2:0 compilation. Profile first and keep only measured wins.
+- Do not install Xcode beta, macOS beta, Core AI beta tooling, or other system-wide software without explicit human approval. Core AI is an optional research branch, not a release dependency.
+- Compare every candidate against the strongest credible conventional baseline using the same tail, precision, input, bridge class, and measurement boundary wherever technically possible.
+- The repository already exceeds its commit-count target. Aim for roughly 8-15 additional coherent Conventional Commits across Phase 2; do not fragment work to inflate history.
+- Keep the existing private remote as a backup. Never make it public or submit externally without explicit human approval.
+<!-- PLANEFUSE_PHASE2_RULES_END -->
