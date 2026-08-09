@@ -176,6 +176,21 @@ Do not claim world-first. Claim the exact implemented combination and provide th
 - “Deep Camera: A Fully Convolutional Neural Network for Image Signal Processing”: https://openaccess.thecvf.com/content_ICCVW_2019/html/LCI/Ratnasingam_Deep_Camera_A_Fully_Convolutional_Neural_Network_for_Image_Signal_ICCVW_2019_paper.html
 - YUV 4:2:0 learned video-coding work: https://arxiv.org/abs/2212.14187
 
+### R5 result and claim boundary
+
+The R5 implementation now instantiates the nearest-sited mode described above:
+the compiler preserves nine full-resolution luma taps and per-tap padding offsets,
+while aggregating the repeated chroma contributions into four UV phases. The
+independent Double reference and the generated Metal path agree across procedural
+chroma-phase and edge cases. Three 200-pair confirmation batches on the accepted
+Float32 shared bridge did not establish a latency improvement: end-to-end p50
+differences were +0.35%, +0.52%, and -0.29% for polyphase relative to the native
+stem. The reduction from nine to four UV read instructions and from 27 to 17
+weighted multiplications is therefore recorded as compiler evidence, not as a
+runtime speed claim. R5 is a rigorous documented negative for the current
+MobileNetV2 boundary; future work must measure a different workload or execution
+boundary before presenting this transformation as a performance win.
+
 ## Ranked opportunity 5 — direct camera textures and GPU resize
 
 The current camera demo locks the `CVPixelBuffer`, copies both planes into Swift arrays, and performs a CPU nearest-neighbor resize.

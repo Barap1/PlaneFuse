@@ -31,6 +31,10 @@
     "r1-mobilenetv2-b2.json": "ACCEPTED",
     "r1-mobilenetv2-components.json": "ACCEPTED",
     "r2-mobilenetv2-shared-bridge-confirm.json": "ACCEPTED",
-    "r2-mobilenetv2-shared-bridge.json": "ACCEPTED"
+    "r2-mobilenetv2-shared-bridge.json": "ACCEPTED",
+    "r5-polyphase-quick.json": "ACCEPTED",
+    "r5-polyphase-confirm-1.json": "ACCEPTED",
+    "r5-polyphase-confirm-2.json": "ACCEPTED",
+    "r5-polyphase-confirm-3.json": "ACCEPTED"
   }
 }

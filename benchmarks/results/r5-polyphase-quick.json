@@ -1,0 +1,107 @@
+{
+  "c_vs_polyphase_end_to_end_percentage" : -1.9715205028011742,
+  "c_vs_polyphase_frontend_percentage" : -3.1223936071708374,
+  "commit" : "9c201dea653d8a775137bf6a4a49a56e5b9c34fd",
+  "environment" : {
+    "architecture" : "arm64",
+    "build_configuration" : "release",
+    "operating_system" : "Version 26.6 (Build 25G72)",
+    "swift_version" : "Apple Swift version 6.3.3 (swiftlang-6.3.3.1.3 clang-2100.1.1.101)",
+    "xcode_version" : "Xcode 26.6"
+  },
+  "generated_plan" : "Exact nearest-sited 4:2:0: nine luma taps, four aggregated chroma phases, per-tap source offsets for bottom\/right padding.",
+  "max_activation_absolute_difference" : 3.337860107421875e-06,
+  "measured_iterations" : 20,
+  "native_end_to_end" : {
+    "mean_milliseconds" : 2.181904169265181,
+    "median_absolute_deviation_milliseconds" : 0.05754167796112597,
+    "p50_milliseconds" : 2.0394583116285503,
+    "p95_milliseconds" : 3.4391250228509307
+  },
+  "native_frontend" : {
+    "mean_milliseconds" : 0.8770895859925076,
+    "median_absolute_deviation_milliseconds" : 0.06591665442101657,
+    "p50_milliseconds" : 0.749958329834044,
+    "p95_milliseconds" : 2.1152083354536444
+  },
+  "native_gpu_execution" : {
+    "mean_milliseconds" : 0.3778625017730519,
+    "median_absolute_deviation_milliseconds" : 0.0005833280738443136,
+    "p50_milliseconds" : 0.23966666776686907,
+    "p95_milliseconds" : 1.5276666672434658
+  },
+  "native_uv_read_instructions" : 9,
+  "native_weighted_multiplications" : 27,
+  "native_y_read_instructions" : 9,
+  "paired_end_to_end_differences_milliseconds" : [
+    -0.24700001813471317,
+    0.03904165350832045,
+    0.0013750104699283838,
+    0.03420835128054023,
+    -0.04391666152514517,
+    0.05237502045929432,
+    0.043208361603319645,
+    -0.07008336251601577,
+    -0.0477083376608789,
+    0.006041635060682893,
+    -0.005999987479299307,
+    0.004124973202124238,
+    -0.022625026758760214,
+    -0.018708320567384362,
+    -0.06016666884534061,
+    -0.031416682759299874,
+    0.028666661819443107,
+    -0.0589166593272239,
+    -0.012208300177007914,
+    0.002875021891668439
+  ],
+  "paired_frontend_differences_milliseconds" : [
+    -0.8385833061765879,
+    0.07333335815928876,
+    -0.11479167733341455,
+    1.3972083397675306,
+    -0.09141667396761477,
+    0.14466664288192987,
+    1.2881250004284084,
+    -0.2500000118743628,
+    -0.021666637621819973,
+    -0.004250003257766366,
+    -0.04091666778549552,
+    0.052291667088866234,
+    -0.0009999785106629133,
+    0.03820835263468325,
+    -0.05654169945046306,
+    -0.03991663106717169,
+    -0.011333322618156672,
+    0.05487501039169729,
+    -0.06854167440906167,
+    -0.0232916499953717
+  ],
+  "polyphase_end_to_end" : {
+    "mean_milliseconds" : 2.1279229142237455,
+    "median_absolute_deviation_milliseconds" : 0.05387500277720392,
+    "p50_milliseconds" : 2.07966665038839,
+    "p95_milliseconds" : 2.1741250238846987
+  },
+  "polyphase_frontend" : {
+    "mean_milliseconds" : 0.8027666641282849,
+    "median_absolute_deviation_milliseconds" : 0.044416694436222315,
+    "p50_milliseconds" : 0.7733749807812274,
+    "p95_milliseconds" : 0.827083335025236
+  },
+  "polyphase_gpu_execution" : {
+    "mean_milliseconds" : 0.29734999843640253,
+    "median_absolute_deviation_milliseconds" : 0.0012083619367331266,
+    "p50_milliseconds" : 0.2337500045541674,
+    "p95_milliseconds" : 0.35062499227933586
+  },
+  "polyphase_uv_read_instructions" : 4,
+  "polyphase_weighted_multiplications" : 17,
+  "polyphase_y_read_instructions" : 9,
+  "schema_version" : 1,
+  "status" : "r5_polyphase_measured",
+  "task_agreement" : 1,
+  "unique_chroma_coordinates" : 4,
+  "validation_corpus_sample_count" : 32,
+  "warmup_iterations" : 5
+}
