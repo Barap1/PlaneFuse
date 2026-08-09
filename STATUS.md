@@ -1,6 +1,6 @@
 # PlaneFuse status
 
-Current milestone: R3 - IOSurface-backed Float16 activation bridge (IN PROGRESS)
+Current milestone: R4 - Metal 4 GPU-timeline model-tail feasibility (IN PROGRESS)
 
 Overall status: PHASE 2 FRONTIER READY
 
@@ -20,13 +20,13 @@ Real model: Apple MobileNetV2 ImageNet integrated; unchanged 252-layer Core ML t
 
 PlaneFuse Live: CLI sample and camera NV12 inference path built; physical camera run permission-qualified
 
-Known blockers: R3 must establish whether an IOSurface-backed Float16 activation and matched Float16 tail can beat the accepted Float32 shared bridge without a quality regression. Public push/submission and any continuous-video capture remain human-controlled.
+Known blockers: R4 must establish whether the stable Xcode 26.6 environment can execute the unchanged tail as a supported Metal 4 ML Program/MTLPackage path. R3 Float16 was rejected on predeclared quality thresholds. Public push/submission and any continuous-video capture remain human-controlled.
 
-Next highest-leverage action: inspect and prototype the IOSurface/Float16 bridge with predeclared quality thresholds; retain the accepted Float32 shared bridge as the control.
+Next highest-leverage action: inspect installed Metal 4 machine-learning tooling and attempt a provenance-preserving tail feasibility path; retain the accepted Float32 shared bridge as the control.
 
 Human decision currently required: no; camera authorization may become a one-time R0 permission boundary.
 
-Last milestone summary: R2 passed hostile review with lifetime-safe buffer-backed views, three 200-iteration confirmation batches, ~97.3% handoff reduction, ~95.6%-95.8% end-to-end reduction, and preserved parity; R3 is now active.
+Last milestone summary: R2 passed hostile review with lifetime-safe buffer-backed views, three 200-iteration confirmation batches, ~97.3% handoff reduction, ~95.6%-95.8% end-to-end reduction, and preserved parity. R3 Float16 feasibility was rejected: max probability error 0.01288722 exceeded 0.005; R4 is now active.
 
 Notes:
 - Keep this file short.
