@@ -1,0 +1,66 @@
+#!/bin/bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")" && pwd -P)"
+LOG_DIR="$ROOT/artifacts/logs"
+BUILD_CACHE="$ROOT/.pf-cache"
+mkdir -p "$LOG_DIR" "$ROOT/benchmarks/results"
+mkdir -p "$BUILD_CACHE/swift" "$BUILD_CACHE/clang" "$BUILD_CACHE/spm"
+
+# Keep compiler and SwiftPM caches inside the repository workspace. This makes
+# the harness work in restricted environments without changing global settings.
+export SWIFT_MODULECACHE_PATH="$BUILD_CACHE/swift"
+export CLANG_MODULE_CACHE_PATH="$BUILD_CACHE/clang"
+export SWIFTPM_MODULECACHE_OVERRIDE="$BUILD_CACHE/spm"
+
+command_name="${1:-help}"
+command_args="${*:2}"
+timestamp="$(date -u +%Y%m%dT%H%M%SZ)"
+log_file="$LOG_DIR/pf-${command_name}-${timestamp}.log"
+
+run_logged() {
+  set +e
+  (cd "$ROOT" && "$@") >"$log_file" 2>&1
+  status=$?
+  set -e
+  if [ "$status" -ne 0 ]; then
+    echo "FAIL  pf $command_name (log: $log_file)"
+    tail -n 12 "$log_file"
+    exit "$status"
+  fi
+}
+
+case "$command_name" in
+  doctor)
+    PF_ARCHITECTURE="$(uname -m)" PF_SWIFT_VERSION="$(swift --version | head -n 1)" PF_XCODE_VERSION="$(xcodebuild -version | head -n 1)" run_logged swift run -c debug planefuse doctor
+    cat "$log_file"
+    ;;
+  build)
+    run_logged swift build -c debug
+    echo "PASS  pf build (log: $log_file)"
+    ;;
+  test)
+    if [ "$command_args" != "quick" ]; then
+      echo "usage: ./pf test quick"
+      exit 2
+    fi
+    run_logged swift test -c debug
+    echo "PASS  pf test quick (log: $log_file)"
+    ;;
+  verify)
+    run_logged swift run -c debug planefuse verify
+    cat "$log_file"
+    ;;
+  bench)
+    if [ "$command_args" != "quick" ]; then
+      echo "usage: ./pf bench quick"
+      exit 2
+    fi
+    PF_ARCHITECTURE="$(uname -m)" PF_BENCHMARK_OUTPUT="$ROOT/benchmarks/results/quick.json" run_logged swift run -c debug planefuse bench quick
+    cat "$log_file"
+    ;;
+  *)
+    echo "usage: ./pf <doctor|build|test quick|verify|bench quick>"
+    exit 2
+    ;;
+esac
