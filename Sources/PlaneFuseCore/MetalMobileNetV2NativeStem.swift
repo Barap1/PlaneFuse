@@ -10,6 +10,13 @@ public final class MetalMobileNetV2NativeStem {
     public static let activationShape = [48, 112, 112]
     public static let activationCount = 48 * 112 * 112
 
+    public struct ExecutionTiming: Codable, Equatable {
+        public let encodeMilliseconds: Double
+        public let gpuWaitMilliseconds: Double
+        public let gpuExecutionMilliseconds: Double?
+        public let totalMilliseconds: Double
+    }
+
     public enum Error: LocalizedError {
         case noDevice, commandQueueUnavailable, shaderMissing, functionMissing
         case coefficientBufferUnavailable, activationBufferUnavailable, commandBufferUnavailable, encoderUnavailable
@@ -70,11 +77,28 @@ public final class MetalMobileNetV2NativeStem {
     }
 
     public func execute(_ input: MetalRGBBaseline.NV12Textures, into activation: MTLBuffer) throws {
+        _ = try executeTimed(input, into: activation)
+    }
+
+    /// Returns CPU encoding and command-buffer wait regions for the R1 profile.
+    public func executeTimed(_ input: MetalRGBBaseline.NV12Textures, into activation: MTLBuffer) throws -> ExecutionTiming {
         guard let commandBuffer = commandQueue.makeCommandBuffer() else { throw Error.commandBufferUnavailable }
+        let start = ProcessInfo.processInfo.systemUptime
         guard let encoder = commandBuffer.makeComputeCommandEncoder() else { throw Error.encoderUnavailable }
         try encode(input, into: activation, using: encoder)
-        encoder.endEncoding(); commandBuffer.commit(); commandBuffer.waitUntilCompleted()
+        encoder.endEncoding()
+        let encoded = ProcessInfo.processInfo.systemUptime
+        commandBuffer.commit()
+        let committed = ProcessInfo.processInfo.systemUptime
+        commandBuffer.waitUntilCompleted()
+        let completed = ProcessInfo.processInfo.systemUptime
         guard commandBuffer.status == .completed else { throw Error.executionFailed }
+        return ExecutionTiming(
+            encodeMilliseconds: (encoded - start) * 1_000,
+            gpuWaitMilliseconds: (completed - committed) * 1_000,
+            gpuExecutionMilliseconds: commandBuffer.gpuEndTime > commandBuffer.gpuStartTime ? (commandBuffer.gpuEndTime - commandBuffer.gpuStartTime) * 1_000 : nil,
+            totalMilliseconds: (completed - start) * 1_000
+        )
     }
 
     /// Encodes only Pipeline C's native stem. The caller owns submission, enabling

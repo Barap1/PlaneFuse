@@ -6,25 +6,32 @@ import Metal
 /// Core ML tail. The MLMultiArray bridge is intentionally inside the e2e region
 /// because it is part of the current reproducible handoff contract.
 public final class MobileNetV2Benchmark {
+    private enum RGBIntermediate {
+        case texture(MTLTexture)
+        case chw(MTLBuffer)
+    }
     public struct Configuration: Codable, Equatable {
         public let warmupIterations: Int
         public let measuredIterations: Int
         public let validationSamples: Int
         public let width: Int
         public let height: Int
+        public let rgbIntermediatePixelFormat: String
 
         /// A zero validation count means "use every sample in the manifest".
-        public init(warmupIterations: Int = 3, measuredIterations: Int = 20, validationSamples: Int = 0, width: Int = 224, height: Int = 224) {
+        public init(warmupIterations: Int = 3, measuredIterations: Int = 20, validationSamples: Int = 0, width: Int = 224, height: Int = 224, rgbIntermediatePixelFormat: String = "rgba32Float") {
             self.warmupIterations = warmupIterations
             self.measuredIterations = measuredIterations
             self.validationSamples = validationSamples
             self.width = width
             self.height = height
+            self.rgbIntermediatePixelFormat = rgbIntermediatePixelFormat
         }
 
         public static let quick = Configuration(warmupIterations: 5, measuredIterations: 20)
         /// Confirmation is never allowed to reuse the rejected pre-fix 20-run tier.
         public static let confirm = Configuration(warmupIterations: 10, measuredIterations: 100)
+        public static let b2Quick = Configuration(warmupIterations: 5, measuredIterations: 20, rgbIntermediatePixelFormat: "rgbCHWFloat32")
     }
 
     public struct Statistics: Codable, Equatable {
@@ -56,6 +63,7 @@ public final class MobileNetV2Benchmark {
         public let pipelineBRGBIntermediateBytes: Int
         public let pipelineBRGBIntermediateAllocatedBytes: Int
         public let pipelineCRGBIntermediateBytes: Int
+        public let pipelineBRGBIntermediatePixelFormat: String
         public let pipelineBActivationAllocatedBytes: Int
         public let pipelineCActivationAllocatedBytes: Int
         public let activationBytes: Int
@@ -129,6 +137,7 @@ public final class MobileNetV2Benchmark {
                 validationSamples: sampleCount,
                 width: configuration.width,
                 height: configuration.height
+                ,rgbIntermediatePixelFormat: configuration.rgbIntermediatePixelFormat
             )
             : configuration
         self.coefficients = try MobileNetV2StemCoefficients.load(from: coefficientsURL)
@@ -146,7 +155,13 @@ public final class MobileNetV2Benchmark {
         let factory = try MetalRGBBaseline(device: device)
         let rgb = try MetalMobileNetV2RGBPipeline(device: device, coefficients: coefficients)
         let native = try MetalMobileNetV2NativeStem(device: device, coefficients: coefficients)
-        let normalizedRGB = try rgb.makeNormalizedRGBTexture()
+        let normalizedRGB: RGBIntermediate
+        switch configuration.rgbIntermediatePixelFormat {
+        case "rgba32Float": normalizedRGB = .texture(try rgb.makeNormalizedRGBTexture(pixelFormat: .rgba32Float))
+        case "rgba16Float": normalizedRGB = .texture(try rgb.makeNormalizedRGBTexture(pixelFormat: .rgba16Float))
+        case "rgbCHWFloat32": normalizedRGB = .chw(try rgb.makeNormalizedRGBCHWBuffer())
+        default: throw Error.invalidConfiguration
+        }
         let bActivation = try rgb.makeActivationBuffer()
         let cActivation = try native.makeActivationBuffer()
         let corpusFrames = try corpus.loadFrames()
@@ -162,12 +177,12 @@ public final class MobileNetV2Benchmark {
 
         for iteration in 0..<configuration.warmupIterations {
             let input = try makeInput(factory: factory, frame: corpusFrames[iteration % corpusFrames.count])
-            try interleave(iteration: iteration, b: { try rgb.execute(input, normalizedRGB: normalizedRGB, into: bActivation) }, c: { try native.execute(input, into: cActivation) })
+            try interleave(iteration: iteration, b: { try executeRGB(rgb, input: input, intermediate: normalizedRGB, activation: bActivation) }, c: { try native.execute(input, into: cActivation) })
         }
         for iteration in 0..<configuration.measuredIterations {
             let input = try makeInput(factory: factory, frame: corpusFrames[iteration % corpusFrames.count])
             try interleave(iteration: iteration, b: {
-                bFrontend.append(try elapsed { try rgb.execute(input, normalizedRGB: normalizedRGB, into: bActivation) })
+                bFrontend.append(try elapsed { try executeRGB(rgb, input: input, intermediate: normalizedRGB, activation: bActivation) })
             }, c: {
                 cFrontend.append(try elapsed { try native.execute(input, into: cActivation) })
             })
@@ -177,7 +192,7 @@ public final class MobileNetV2Benchmark {
             let input = try makeInput(factory: factory, frame: corpusFrames[iteration % corpusFrames.count])
             try interleave(iteration: iteration, b: {
                 _ = try elapsed {
-                    try rgb.execute(input, normalizedRGB: normalizedRGB, into: bActivation)
+                    try executeRGB(rgb, input: input, intermediate: normalizedRGB, activation: bActivation)
                     _ = try tail.predict(stemActivation: rgb.readActivation(from: bActivation))
                 }
             }, c: {
@@ -191,7 +206,7 @@ public final class MobileNetV2Benchmark {
             let input = try makeInput(factory: factory, frame: corpusFrames[iteration % corpusFrames.count])
             try interleave(iteration: iteration, b: {
                 bEndToEnd.append(try elapsed {
-                    try rgb.execute(input, normalizedRGB: normalizedRGB, into: bActivation)
+                    try executeRGB(rgb, input: input, intermediate: normalizedRGB, activation: bActivation)
                     _ = try tail.predict(stemActivation: rgb.readActivation(from: bActivation))
                 })
             }, c: {
@@ -209,7 +224,7 @@ public final class MobileNetV2Benchmark {
         var fullArraySplitTailMatches = 0
         for frame in corpusFrames {
             let input = try makeInput(factory: factory, frame: frame)
-            try rgb.execute(input, normalizedRGB: normalizedRGB, into: bActivation)
+            try executeRGB(rgb, input: input, intermediate: normalizedRGB, activation: bActivation)
             try native.execute(input, into: cActivation)
             let bFeatures = try rgb.readActivation(from: bActivation)
             let cFeatures = try native.readActivation(from: cActivation)
@@ -217,7 +232,7 @@ public final class MobileNetV2Benchmark {
             let bOutput = try tail.predict(stemActivation: bFeatures)
             let cOutput = try tail.predict(stemActivation: cFeatures)
             if Self.topLabel(bOutput) == Self.topLabel(cOutput) { agreementMatches += 1 }
-            let sourcePreprocessed = try rgb.readNormalizedRGB(from: normalizedRGB)
+            let sourcePreprocessed = try readNormalizedRGB(rgb, from: normalizedRGB)
             let stemArrayFeatures = try independentReference.stemArray.predict(normalizedRGB: sourcePreprocessed)
             // Run the independent original-derived graphs CPU-only so their
             // Float32 reference is not perturbed by the asset's default
@@ -246,9 +261,14 @@ public final class MobileNetV2Benchmark {
             configuration: configuration,
             pipelineBFrontend: Statistics(bFrontend), pipelineCFrontend: Statistics(cFrontend),
             pipelineBEndToEnd: Statistics(bEndToEnd), pipelineCEndToEnd: Statistics(cEndToEnd),
-            pipelineBRGBIntermediateBytes: 224 * 224 * 4 * MemoryLayout<Float>.stride,
-            pipelineBRGBIntermediateAllocatedBytes: normalizedRGB.allocatedSize,
+            pipelineBRGBIntermediateBytes: configuration.rgbIntermediatePixelFormat == "rgba16Float"
+                ? 224 * 224 * 4 * MemoryLayout<UInt16>.stride
+                : configuration.rgbIntermediatePixelFormat == "rgbCHWFloat32"
+                    ? 224 * 224 * 3 * MemoryLayout<Float>.stride
+                    : 224 * 224 * 4 * MemoryLayout<Float>.stride,
+            pipelineBRGBIntermediateAllocatedBytes: intermediateAllocatedBytes(normalizedRGB),
             pipelineCRGBIntermediateBytes: 0,
+            pipelineBRGBIntermediatePixelFormat: configuration.rgbIntermediatePixelFormat,
             pipelineBActivationAllocatedBytes: bActivation.allocatedSize,
             pipelineCActivationAllocatedBytes: cActivation.allocatedSize,
             activationBytes: MetalMobileNetV2NativeStem.activationCount * MemoryLayout<Float>.stride,
@@ -272,6 +292,27 @@ public final class MobileNetV2Benchmark {
 
     private func makeInput(factory: MetalRGBBaseline, frame: MobileNetV2CorpusFrame) throws -> MetalRGBBaseline.NV12Textures {
         try factory.makeNV12Textures(width: configuration.width, height: configuration.height, yPlaneBytes: frame.yPlaneBytes, uvPlaneBytes: frame.uvPlaneBytes)
+    }
+
+    private func executeRGB(_ rgb: MetalMobileNetV2RGBPipeline, input: MetalRGBBaseline.NV12Textures, intermediate: RGBIntermediate, activation: MTLBuffer) throws {
+        switch intermediate {
+        case let .texture(texture): try rgb.execute(input, normalizedRGB: texture, into: activation)
+        case let .chw(buffer): try rgb.executeCHW(input, normalizedRGB: buffer, into: activation)
+        }
+    }
+
+    private func readNormalizedRGB(_ rgb: MetalMobileNetV2RGBPipeline, from intermediate: RGBIntermediate) throws -> [Float] {
+        switch intermediate {
+        case let .texture(texture): return try rgb.readNormalizedRGB(from: texture)
+        case let .chw(buffer): return try rgb.readNormalizedRGB(from: buffer)
+        }
+    }
+
+    private func intermediateAllocatedBytes(_ intermediate: RGBIntermediate) -> Int {
+        switch intermediate {
+        case let .texture(texture): return texture.allocatedSize
+        case let .chw(buffer): return buffer.allocatedSize
+        }
     }
 
     private func interleave(iteration: Int, b: () throws -> Void, c: () throws -> Void) rethrows {

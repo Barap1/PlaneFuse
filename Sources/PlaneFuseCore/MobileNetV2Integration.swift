@@ -179,6 +179,14 @@ public protocol MobileNetV2TailRunning {
     func predict(stemActivation: [Float]) throws -> [String: Double]
 }
 
+public struct MobileNetV2TailPredictionBreakdown: Codable, Equatable {
+    public let probabilities: [String: Double]
+    public let multiArrayAllocationMilliseconds: Double
+    public let multiArrayPopulationMilliseconds: Double
+    public let tailPredictionMilliseconds: Double
+    public let outputExtractionMilliseconds: Double
+}
+
 public final class CoreMLMobileNetV2TailAdapter: MobileNetV2TailRunning {
     private let model: MLModel
     private let inputName: String
@@ -205,19 +213,38 @@ public final class CoreMLMobileNetV2TailAdapter: MobileNetV2TailRunning {
     }
 
     public func predict(stemActivation: [Float]) throws -> [String: Double] {
+        try predictWithBreakdown(stemActivation: stemActivation).probabilities
+    }
+
+    public func predictWithBreakdown(stemActivation: [Float]) throws -> MobileNetV2TailPredictionBreakdown {
         guard stemActivation.count == activationCount else {
             throw MobileNetV2IntegrationError.invalidActivationCount(expected: activationCount, actual: stemActivation.count)
         }
+        let allocationStart = ProcessInfo.processInfo.systemUptime
         let array = try MLMultiArray(shape: activationShape, dataType: .float32)
+        let allocationEnd = ProcessInfo.processInfo.systemUptime
+        let populationStart = allocationEnd
         for index in 0..<activationCount { array[index] = NSNumber(value: stemActivation[index]) }
+        let populationEnd = ProcessInfo.processInfo.systemUptime
+        let predictionStart = populationEnd
         let output = try model.prediction(from: MLDictionaryFeatureProvider(dictionary: [inputName: array]))
+        let predictionEnd = ProcessInfo.processInfo.systemUptime
         guard let probabilities = output.featureValue(for: outputName)?.dictionaryValue else {
             throw MobileNetV2IntegrationError.unexpectedTailOutput(outputName)
         }
-        return probabilities.reduce(into: [:]) { result, entry in
-            guard let label = entry.key as? String else { return }
-            result[label] = entry.value.doubleValue
+        var extracted: [String: Double] = [:]
+        for (key, value) in probabilities {
+            guard let label = key as? String else { continue }
+            extracted[label] = value.doubleValue
         }
+        let extractionEnd = ProcessInfo.processInfo.systemUptime
+        return MobileNetV2TailPredictionBreakdown(
+            probabilities: extracted,
+            multiArrayAllocationMilliseconds: (allocationEnd - allocationStart) * 1_000,
+            multiArrayPopulationMilliseconds: (populationEnd - populationStart) * 1_000,
+            tailPredictionMilliseconds: (predictionEnd - predictionStart) * 1_000,
+            outputExtractionMilliseconds: (extractionEnd - predictionEnd) * 1_000
+        )
     }
 
     fileprivate static func resolvedModelURL(_ url: URL) -> URL {

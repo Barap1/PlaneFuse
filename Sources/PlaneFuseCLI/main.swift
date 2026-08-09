@@ -318,6 +318,15 @@ private struct MobileNetV2BenchmarkArtifact: Codable {
     let model: MobileNetV2AssetManifest
 }
 
+private struct MobileNetV2ComponentProfileArtifact: Codable {
+    let schemaVersion: Int
+    let status: String
+    let commit: String?
+    let environment: EnvironmentSnapshot
+    let measurement: MobileNetV2ComponentProfile.Measurement
+    let model: MobileNetV2AssetManifest
+}
+
 func runFairBench(configuration: FairABCBenchmark.Configuration, label: String) throws -> Int32 {
     let outputPath = ProcessInfo.processInfo.environment["PF_BENCHMARK_OUTPUT"] ?? "benchmarks/results/fair-\(label).json"
     let measurement = try FairABCBenchmark(configuration: configuration).run()
@@ -401,6 +410,31 @@ func runMobileNetV2Bench(configuration: MobileNetV2Benchmark.Configuration, labe
     return 0
 }
 
+func runMobileNetV2Profile() throws -> Int32 {
+    let root = URL(fileURLWithPath: FileManager.default.currentDirectoryPath, isDirectory: true)
+    let coefficientPath = ProcessInfo.processInfo.environment["PF_MOBILENET_COEFFICIENTS"] ?? "models/derived/MobileNetV2StemCoefficients.json"
+    let tailPath = ProcessInfo.processInfo.environment["PF_MOBILENET_TAIL"] ?? "models/derived/tail-compiled/MobileNetV2Tail.mlmodelc"
+    let manifest = MobileNetV2AssetManifest.inspected
+    try manifest.validate(at: root)
+    let corpus = try MobileNetV2Corpus(manifestURL: root.appendingPathComponent(manifest.validationCorpusManifest), root: root)
+    let tail = try CoreMLMobileNetV2TailAdapter(modelURL: URL(fileURLWithPath: tailPath), manifest: manifest)
+    let profile = try MobileNetV2ComponentProfile(configuration: .quick, coefficientsURL: URL(fileURLWithPath: coefficientPath), tail: tail, corpus: corpus)
+    let measurement = try profile.run()
+    let artifact = MobileNetV2ComponentProfileArtifact(schemaVersion: 1, status: "mobilenetv2_component_profile", commit: ProcessInfo.processInfo.environment["PF_GIT_COMMIT"], environment: EnvironmentSnapshot(), measurement: measurement, model: manifest)
+    let outputPath = ProcessInfo.processInfo.environment["PF_PROFILE_OUTPUT"] ?? "benchmarks/results/r1-mobilenetv2-components.json"
+    let url = URL(fileURLWithPath: outputPath)
+    try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+    try JSONEncoder.benchmark.encode(artifact).write(to: url, options: .atomic)
+    emit("PlaneFuse profile MobileNetV2: RECORDED")
+    emit("result: \(outputPath)")
+    emit(String(format: "b_input_ready_to_result_p50_ms: %.4f", measurement.pipelineB.inputReadyToResult.p50Milliseconds))
+    emit(String(format: "c_input_ready_to_result_p50_ms: %.4f", measurement.pipelineC.inputReadyToResult.p50Milliseconds))
+    emit(String(format: "b_tail_population_p50_ms: %.4f", measurement.pipelineB.multiArrayPopulation.p50Milliseconds))
+    emit(String(format: "c_tail_population_p50_ms: %.4f", measurement.pipelineC.multiArrayPopulation.p50Milliseconds))
+    emit(String(format: "top1_agreement: %.4f", measurement.top1Agreement))
+    return measurement.top1Agreement >= 1.0 ? 0 : 1
+}
+
 do {
     let arguments = Array(CommandLine.arguments.dropFirst())
     guard let command = arguments.first else { throw CommandError.usage }
@@ -436,10 +470,16 @@ do {
         if benchmarkArguments == ["mobilenetv2", "quick"] {
             exit(try runMobileNetV2Bench(configuration: .quick, label: "quick"))
         }
+        if benchmarkArguments == ["mobilenetv2", "b2"] {
+            exit(try runMobileNetV2Bench(configuration: .b2Quick, label: "b2"))
+        }
         if benchmarkArguments == ["mobilenetv2", "confirm"] {
             exit(try runMobileNetV2Bench(configuration: .confirm, label: "confirm"))
         }
         throw CommandError.usage
+    case "profile":
+        guard arguments == ["profile", "mobilenetv2"] else { throw CommandError.usage }
+        exit(try runMobileNetV2Profile())
     default:
         throw CommandError.unknownCommand(command)
     }

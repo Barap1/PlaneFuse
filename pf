@@ -111,15 +111,30 @@ case "$command_name" in
       cat "$log_file"
       exit 0
     fi
-    if [ "$command_args" = "mobilenetv2 quick" ] || [ "$command_args" = "mobilenetv2 confirm" ]; then
+    if [ "$command_args" = "mobilenetv2 quick" ] || [ "$command_args" = "mobilenetv2 confirm" ] || [ "$command_args" = "mobilenetv2 b2" ]; then
       benchmark_label="${command_args##* }"
-      benchmark_output="${PF_BENCHMARK_OUTPUT:-$ROOT/benchmarks/results/m5-mobilenetv2-$benchmark_label.json}"
-      PF_ARCHITECTURE="$(uname -m)" PF_SWIFT_VERSION="$(swift --version | head -n 1)" PF_XCODE_VERSION="$(xcodebuild -version | head -n 1)" PF_GIT_COMMIT="$(git rev-parse HEAD)" PF_BUILD_CONFIGURATION="release" PF_BENCHMARK_OUTPUT="$benchmark_output" run_logged swift run -c release planefuse bench mobilenetv2 "$benchmark_label"
+      if [ "$benchmark_label" = "b2" ]; then
+        benchmark_output="${PF_BENCHMARK_OUTPUT:-$ROOT/benchmarks/results/r1-mobilenetv2-b2.json}"
+        cli_benchmark_label="b2"
+      else
+        benchmark_output="${PF_BENCHMARK_OUTPUT:-$ROOT/benchmarks/results/m5-mobilenetv2-$benchmark_label.json}"
+        cli_benchmark_label="$benchmark_label"
+      fi
+      PF_ARCHITECTURE="$(uname -m)" PF_SWIFT_VERSION="$(swift --version | head -n 1)" PF_XCODE_VERSION="$(xcodebuild -version | head -n 1)" PF_GIT_COMMIT="$(git rev-parse HEAD)" PF_BUILD_CONFIGURATION="release" PF_BENCHMARK_OUTPUT="$benchmark_output" run_logged swift run -c release planefuse bench mobilenetv2 "$cli_benchmark_label"
       cat "$log_file"
       exit 0
     fi
     echo "usage: ./pf bench quick|fair quick|fair confirm|mobilenetv2 quick|mobilenetv2 confirm"
     exit 2
+    ;;
+  profile)
+    if [ "$command_args" != "mobilenetv2" ]; then
+      echo "usage: ./pf profile mobilenetv2"
+      exit 2
+    fi
+    profile_output="${PF_PROFILE_OUTPUT:-$ROOT/benchmarks/results/r1-mobilenetv2-components.json}"
+    PF_ARCHITECTURE="$(uname -m)" PF_SWIFT_VERSION="$(swift --version | head -n 1)" PF_XCODE_VERSION="$(xcodebuild -version | head -n 1)" PF_GIT_COMMIT="$(git rev-parse HEAD)" PF_BUILD_CONFIGURATION="release" PF_PROFILE_OUTPUT="$profile_output" run_logged swift run -c release planefuse profile mobilenetv2
+    cat "$log_file"
     ;;
   release)
     if [ "$command_args" != "validate" ]; then
@@ -131,7 +146,7 @@ case "$command_name" in
     tail -n 12 "$log_file"
     ;;
   *)
-    echo "usage: ./pf <setup mobilenetv2|doctor|build|test quick|inspect|compile|verify|bench|release validate>"
+    echo "usage: ./pf <setup mobilenetv2|doctor|build|test quick|inspect|compile|verify|bench|profile mobilenetv2|release validate>"
     exit 2
     ;;
 esac
