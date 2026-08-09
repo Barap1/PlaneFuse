@@ -157,7 +157,7 @@ Evidence files: `proof/r0-camera-smoke.md`, `Sources/PlaneFuseLive/main.swift`
 
 Status: VERIFIED
 
-Claim wording: "A fresh local clone of the Phase 2 branch reproduced project-local MobileNetV2 setup, artifact/docs checks, build, 31 tests, quick benchmark, source lineage, and the sample demo in 84 seconds on arm64 macOS 26.6/Xcode 26.6 with pinned coremltools 9.0."
+Claim wording: "A fresh local clone of the Phase 2 branch reproduced project-local MobileNetV2 setup, artifact/docs checks, build, 31 tests, quick benchmark, source lineage, and the sample demo in 83 seconds on arm64 macOS 26.6/Xcode 26.6 with pinned coremltools 9.0."
 
 Evidence files: `proof/r0-clean-clone.json`, `scripts/release_validate.sh`, `requirements-lock.txt`
 
