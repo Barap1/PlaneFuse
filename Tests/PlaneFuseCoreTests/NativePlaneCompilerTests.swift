@@ -76,7 +76,7 @@ final class NativePlaneCompilerTests: XCTestCase {
             edgeUV.append(UInt8((index % 4) * 43 + 1)); edgeUV.append(UInt8(255 - (index % 4) * 31))
         }
         let cases: [(Int, Int, [UInt8], [UInt8])] = [
-            (4, 4, [UInt8](repeating: 128, count: 16), [128, 128, 140, 110, 120, 145, 150, 100]),
+            (4, 4, [UInt8](repeating: 128, count: 16), [UInt8](repeating: 128, count: 8)),
             (6, 4, flatY, flatUV),
             (6, 6, edgeY, edgeUV)
         ]

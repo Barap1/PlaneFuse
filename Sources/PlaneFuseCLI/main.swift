@@ -730,7 +730,7 @@ func runPolyphaseBench() throws -> Int32 {
             if let nGPU { nativeGPU.append(nGPU) }
             if let pGPU { polyphaseGPU.append(pGPU) }
             pairedFrontendDifferences.append(nFrontend - pFrontend)
-            pairedEndToEndDifferences.append(nEnd - pEnd)
+            pairedEndToEndDifferences.append((nFrontend + nEnd) - (pFrontend + pEnd))
             let nativeFeatures = try native.readActivation(from: nativeActivation)
             let polyphaseFeatures = try polyphase.readActivation(from: polyphaseActivation)
             maxError = max(maxError, zip(nativeFeatures, polyphaseFeatures).map { abs(Double($0 - $1)) }.max() ?? 0)
