@@ -1,14 +1,14 @@
 # PlaneFuse status
 
-Current milestone: M0 - Reproducible engineering harness
+Current milestone: M1 - Mathematical/reference proof
 
-Overall status: NOT STARTED
+Overall status: IN PROGRESS
 
 Current branch: main (expected)
 
 Current best verified result: none
 
-Correctness status: no implementation yet
+Correctness status: M0 harness smoke tests pass; M1 reference parity in progress
 
 Pipeline A status: not built
 
@@ -22,11 +22,11 @@ PlaneFuse Live: not started
 
 Known blockers: none recorded yet
 
-Next highest-leverage action: complete environment verification, then execute M0 only.
+Next highest-leverage action: implement and review deterministic NV12/reference/native-stem parity.
 
 Human decision currently required: no
 
-Last milestone summary: none
+Last milestone summary: M0 PASS — package build, quick tests, compact commands, logs, environment capture, and benchmark schema established.
 
 Notes:
 - Keep this file short.

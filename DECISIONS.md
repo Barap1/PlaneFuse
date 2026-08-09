@@ -38,6 +38,18 @@ Decision: Codex may make local Conventional Commits without asking. It must ask 
 
 Why: Frequent local commits improve rollback and experiment traceability while keeping external actions under human control.
 
+## D005 - SwiftPM macOS package is the M0 foundation
+
+Status: accepted
+
+Decision: Start with a native macOS Swift Package Manager library plus executable CLI, keeping the early reference math and benchmark harness independent of an app target.
+
+Why: It gives deterministic build/test/CLI behavior on real Apple Silicon and avoids simulator, signing, and UI complexity before the optimization is proven. A macOS app target can be added at M9 without changing the core library boundary.
+
+Evidence: M0 gate passed with `./pf build`, `./pf test quick`, `./pf doctor`, `./pf verify`, and `./pf bench quick`.
+
+Revisit when: M9 if the live camera shell requires an Xcode app target.
+
 ---
 
 New decision template:
