@@ -132,13 +132,38 @@ public final class MetalRGBNormalStem {
     /// input must be the full RGBA32Float intermediate produced by Pipeline B.
     @discardableResult
     public func execute(normalizedRGB: MTLTexture, into output: MTLTexture) throws -> Execution {
-        try validate(normalizedRGB: normalizedRGB, output: output)
         guard let commandBuffer = commandQueue.makeCommandBuffer() else {
             throw Error.commandBufferUnavailable
         }
         guard let encoder = commandBuffer.makeComputeCommandEncoder() else {
             throw Error.commandEncoderUnavailable
         }
+
+        try encode(normalizedRGB: normalizedRGB, into: output, using: encoder)
+        encoder.endEncoding()
+
+        commandBuffer.commit()
+        commandBuffer.waitUntilCompleted()
+        guard commandBuffer.status == .completed else {
+            throw Error.commandExecutionFailed
+        }
+
+        let duration = commandBuffer.gpuEndTime > commandBuffer.gpuStartTime
+            ? commandBuffer.gpuEndTime - commandBuffer.gpuStartTime
+            : nil
+        let execution = Execution(gpuDuration: duration)
+        lastExecution = execution
+        return execution
+    }
+
+    /// Binds and dispatches the normal RGB stem on a caller-owned encoder. This
+    /// method neither ends the encoder nor commits or waits for its command buffer.
+    public func encode(
+        normalizedRGB: MTLTexture,
+        into output: MTLTexture,
+        using encoder: MTLComputeCommandEncoder
+    ) throws {
+        try validate(normalizedRGB: normalizedRGB, output: output)
 
         encoder.setComputePipelineState(pipelineState)
         encoder.setTexture(normalizedRGB, index: 0)
@@ -154,20 +179,6 @@ public final class MetalRGBNormalStem {
             ),
             threadsPerThreadgroup: threadsPerThreadgroup
         )
-        encoder.endEncoding()
-
-        commandBuffer.commit()
-        commandBuffer.waitUntilCompleted()
-        guard commandBuffer.status == .completed else {
-            throw Error.commandExecutionFailed
-        }
-
-        let duration = commandBuffer.gpuEndTime > commandBuffer.gpuStartTime
-            ? commandBuffer.gpuEndTime - commandBuffer.gpuStartTime
-            : nil
-        let execution = Execution(gpuDuration: duration)
-        lastExecution = execution
-        return execution
     }
 
     private static func packedCoefficients(from stem: OneByOneStem) -> [SIMD4<Float>] {

@@ -46,7 +46,6 @@ final class FairABCBenchmarkTests: XCTestCase {
             FairABCBenchmark.featureParityTolerance
         )
         XCTAssertTrue(measurement.featureParityPass)
-        XCTAssertEqual(measurement.pipelineCFrontend, measurement.pipelineCEndToEnd)
         XCTAssertGreaterThanOrEqual(measurement.pipelineBFrontend.p50Milliseconds, 0)
         XCTAssertGreaterThanOrEqual(
             measurement.pipelineBFrontend.p95Milliseconds,
@@ -57,24 +56,25 @@ final class FairABCBenchmarkTests: XCTestCase {
             measurement.pipelineBEndToEnd.p95Milliseconds,
             measurement.pipelineBEndToEnd.p50Milliseconds
         )
-        // Both B boundaries come from one sequence, so its total interval includes
-        // the measured frontend interval for every iteration.
-        XCTAssertGreaterThanOrEqual(
-            measurement.pipelineBEndToEnd.p50Milliseconds,
-            measurement.pipelineBFrontend.p50Milliseconds
-        )
-        XCTAssertGreaterThanOrEqual(
-            measurement.pipelineBEndToEnd.p95Milliseconds,
-            measurement.pipelineBFrontend.p95Milliseconds
-        )
         XCTAssertGreaterThanOrEqual(measurement.pipelineCFrontend.p50Milliseconds, 0)
         XCTAssertGreaterThanOrEqual(
             measurement.pipelineCFrontend.p95Milliseconds,
             measurement.pipelineCFrontend.p50Milliseconds
         )
+        XCTAssertGreaterThanOrEqual(measurement.pipelineCEndToEnd.p50Milliseconds, 0)
+        XCTAssertGreaterThanOrEqual(
+            measurement.pipelineCEndToEnd.p95Milliseconds,
+            measurement.pipelineCEndToEnd.p50Milliseconds
+        )
         XCTAssertNotNil(measurement.cVsBFrontendPercentageDelta)
         XCTAssertNotNil(measurement.cVsBEndToEndPercentageDelta)
         XCTAssertEqual(measurement.percentageDeltaFormula, FairABCBenchmark.percentageDeltaFormula)
+        XCTAssertEqual(measurement.commandBufferMethodology, FairABCBenchmark.commandBufferMethodology)
+        XCTAssertTrue(
+            measurement.commandBufferMethodology?.contains(
+                "Pipeline B uses one command buffer / one submission"
+            ) == true
+        )
         XCTAssertFalse(measurement.deviceName.isEmpty)
         XCTAssertFalse(measurement.deviceClass.isEmpty)
     }

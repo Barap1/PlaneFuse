@@ -59,9 +59,9 @@ public struct FairABCBenchmark {
         public let pipelineBFrontend: TimingStatistics
         /// B end-to-end: NV12 to normalized RGBA32Float, then the normal RGB 1x1 stem.
         public let pipelineBEndToEnd: TimingStatistics
-        /// C frontend and end-to-end are the same native-plane stem dispatch.
+        /// C frontend: the native-plane stem dispatch measured in the frontend pass.
         public let pipelineCFrontend: TimingStatistics
-        /// Deliberately identical to `pipelineCFrontend`: C has no separate model-input intermediate.
+        /// C end-to-end: the native-plane stem dispatch measured in the end-to-end pass.
         public let pipelineCEndToEnd: TimingStatistics
         public let measuredIterations: Int
         public let warmupIterations: Int
@@ -86,6 +86,9 @@ public struct FairABCBenchmark {
         /// C-vs-B p50 end-to-end delta, computed as `(B - C) / B * 100`.
         public let cVsBEndToEndPercentageDelta: Double?
         public let percentageDeltaFormula: String
+        /// Submission topology for the independently measured frontend and end-to-end passes.
+        /// Optional to retain decoding compatibility with results written before this field existed.
+        public let commandBufferMethodology: String?
 
         public init(
             pipelineBFrontend: TimingStatistics,
@@ -107,7 +110,8 @@ public struct FairABCBenchmark {
             percentileDefinition: String,
             cVsBFrontendPercentageDelta: Double?,
             cVsBEndToEndPercentageDelta: Double?,
-            percentageDeltaFormula: String
+            percentageDeltaFormula: String,
+            commandBufferMethodology: String? = nil
         ) {
             self.pipelineBFrontend = pipelineBFrontend
             self.pipelineBEndToEnd = pipelineBEndToEnd
@@ -129,6 +133,7 @@ public struct FairABCBenchmark {
             self.cVsBFrontendPercentageDelta = cVsBFrontendPercentageDelta
             self.cVsBEndToEndPercentageDelta = cVsBEndToEndPercentageDelta
             self.percentageDeltaFormula = percentageDeltaFormula
+            self.commandBufferMethodology = commandBufferMethodology
         }
     }
 
@@ -149,6 +154,7 @@ public struct FairABCBenchmark {
     public static let featureParityTolerance: Float = 0.00001
     public static let nearestRankPercentileDefinition = "nearest-rank: sorted[ceil(p * n) - 1]"
     public static let percentageDeltaFormula = "(B - C) / B * 100"
+    public static let commandBufferMethodology = "Frontend: one command buffer / one submission per B conversion and C native stem. End-to-end: Pipeline B uses one command buffer / one submission containing conversion and RGB stem dispatches; Pipeline C uses one command buffer / one submission containing one native-stem dispatch."
 
     public let configuration: Configuration
 
@@ -191,18 +197,21 @@ public struct FairABCBenchmark {
         )
 
         var pipelineBFrontendDurations: [Double] = []
+        var pipelineCFrontendDurations: [Double] = []
         var pipelineBEndToEndDurations: [Double] = []
-        var pipelineCDurations: [Double] = []
+        var pipelineCEndToEndDurations: [Double] = []
         pipelineBFrontendDurations.reserveCapacity(configuration.measuredIterations)
+        pipelineCFrontendDurations.reserveCapacity(configuration.measuredIterations)
         pipelineBEndToEndDurations.reserveCapacity(configuration.measuredIterations)
-        pipelineCDurations.reserveCapacity(configuration.measuredIterations)
+        pipelineCEndToEndDurations.reserveCapacity(configuration.measuredIterations)
 
+        // Frontend pass: B measures only NV12-to-RGBA conversion, while C measures
+        // its one native-stem dispatch. Both paths warm up in alternating order.
         for iteration in 0..<configuration.warmupIterations {
             try executeInterleaved(
                 iteration: iteration,
                 pipelineB: {
                     _ = try baseline.execute(input, into: pipelineBRGBIntermediate)
-                    _ = try rgbStem.execute(normalizedRGB: pipelineBRGBIntermediate, into: pipelineBFeatures)
                 },
                 pipelineC: {
                     _ = try nativeStem.execute(input, into: pipelineCFeatures)
@@ -214,18 +223,55 @@ public struct FairABCBenchmark {
             try executeInterleaved(
                 iteration: iteration,
                 pipelineB: {
-                    // A single B sequence supplies both boundaries: NV12-to-RGBA
-                    // frontend latency and NV12-through-normal-RGB-stem latency.
-                    let start = ProcessInfo.processInfo.systemUptime
-                    _ = try baseline.execute(input, into: pipelineBRGBIntermediate)
-                    let frontendEnd = ProcessInfo.processInfo.systemUptime
-                    _ = try rgbStem.execute(normalizedRGB: pipelineBRGBIntermediate, into: pipelineBFeatures)
-                    let end = ProcessInfo.processInfo.systemUptime
-                    pipelineBFrontendDurations.append((frontendEnd - start) * 1_000.0)
-                    pipelineBEndToEndDurations.append((end - start) * 1_000.0)
+                    pipelineBFrontendDurations.append(try measure {
+                        _ = try baseline.execute(input, into: pipelineBRGBIntermediate)
+                    })
                 },
                 pipelineC: {
-                    pipelineCDurations.append(try measure {
+                    pipelineCFrontendDurations.append(try measure {
+                        _ = try nativeStem.execute(input, into: pipelineCFeatures)
+                    })
+                }
+            )
+        }
+
+        // End-to-end pass: B composes conversion and normal-RGB stem encoders in
+        // one command buffer and waits once. C remains one native-stem dispatch in
+        // one command buffer. Each iteration measures exactly one B and one C path.
+        for iteration in 0..<configuration.warmupIterations {
+            try executeInterleaved(
+                iteration: iteration,
+                pipelineB: {
+                    try executePipelineBEndToEnd(
+                        baseline: baseline,
+                        rgbStem: rgbStem,
+                        input: input,
+                        rgbIntermediate: pipelineBRGBIntermediate,
+                        features: pipelineBFeatures
+                    )
+                },
+                pipelineC: {
+                    _ = try nativeStem.execute(input, into: pipelineCFeatures)
+                }
+            )
+        }
+
+        for iteration in 0..<configuration.measuredIterations {
+            try executeInterleaved(
+                iteration: iteration,
+                pipelineB: {
+                    pipelineBEndToEndDurations.append(try measure {
+                        try executePipelineBEndToEnd(
+                            baseline: baseline,
+                            rgbStem: rgbStem,
+                            input: input,
+                            rgbIntermediate: pipelineBRGBIntermediate,
+                            features: pipelineBFeatures
+                        )
+                    })
+                },
+                pipelineC: {
+                    pipelineCEndToEndDurations.append(try measure {
                         _ = try nativeStem.execute(input, into: pipelineCFeatures)
                     })
                 }
@@ -241,13 +287,14 @@ public struct FairABCBenchmark {
             }
 
         let pipelineBFrontend = statistics(for: pipelineBFrontendDurations)
+        let pipelineCFrontend = statistics(for: pipelineCFrontendDurations)
         let pipelineBEndToEnd = statistics(for: pipelineBEndToEndDurations)
-        let pipelineC = statistics(for: pipelineCDurations)
+        let pipelineCEndToEnd = statistics(for: pipelineCEndToEndDurations)
         return Measurement(
             pipelineBFrontend: pipelineBFrontend,
             pipelineBEndToEnd: pipelineBEndToEnd,
-            pipelineCFrontend: pipelineC,
-            pipelineCEndToEnd: pipelineC,
+            pipelineCFrontend: pipelineCFrontend,
+            pipelineCEndToEnd: pipelineCEndToEnd,
             measuredIterations: configuration.measuredIterations,
             warmupIterations: configuration.warmupIterations,
             width: configuration.width,
@@ -263,14 +310,47 @@ public struct FairABCBenchmark {
             percentileDefinition: Self.nearestRankPercentileDefinition,
             cVsBFrontendPercentageDelta: percentageDelta(
                 baseline: pipelineBFrontend.p50Milliseconds,
-                candidate: pipelineC.p50Milliseconds
+                candidate: pipelineCFrontend.p50Milliseconds
             ),
             cVsBEndToEndPercentageDelta: percentageDelta(
                 baseline: pipelineBEndToEnd.p50Milliseconds,
-                candidate: pipelineC.p50Milliseconds
+                candidate: pipelineCEndToEnd.p50Milliseconds
             ),
-            percentageDeltaFormula: Self.percentageDeltaFormula
+            percentageDeltaFormula: Self.percentageDeltaFormula,
+            commandBufferMethodology: Self.commandBufferMethodology
         )
+    }
+
+    /// Executes Pipeline B's conversion and normal RGB stem as two ordered compute
+    /// encoders in one command buffer from the baseline queue. It commits once and
+    /// waits once so B's end-to-end timing has the same submission count as C.
+    private func executePipelineBEndToEnd(
+        baseline: MetalRGBBaseline,
+        rgbStem: MetalRGBNormalStem,
+        input: MetalRGBBaseline.NV12Textures,
+        rgbIntermediate: MTLTexture,
+        features: MTLTexture
+    ) throws {
+        guard let commandBuffer = baseline.commandQueue.makeCommandBuffer() else {
+            throw MetalRGBBaseline.Error.commandBufferUnavailable
+        }
+        guard let conversionEncoder = commandBuffer.makeComputeCommandEncoder() else {
+            throw MetalRGBBaseline.Error.commandEncoderUnavailable
+        }
+        try baseline.encode(input, into: rgbIntermediate, using: conversionEncoder)
+        conversionEncoder.endEncoding()
+
+        guard let stemEncoder = commandBuffer.makeComputeCommandEncoder() else {
+            throw MetalRGBNormalStem.Error.commandEncoderUnavailable
+        }
+        try rgbStem.encode(normalizedRGB: rgbIntermediate, into: features, using: stemEncoder)
+        stemEncoder.endEncoding()
+
+        commandBuffer.commit()
+        commandBuffer.waitUntilCompleted()
+        guard commandBuffer.status == .completed else {
+            throw MetalRGBBaseline.Error.commandExecutionFailed
+        }
     }
 
     private func validateConfiguration() throws {

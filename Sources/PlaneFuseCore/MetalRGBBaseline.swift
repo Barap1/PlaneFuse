@@ -174,13 +174,37 @@ public final class MetalRGBBaseline {
 
     @discardableResult
     public func execute(_ input: NV12Textures, into output: MTLTexture) throws -> Execution {
-        try validate(input: input, output: output)
         guard let commandBuffer = commandQueue.makeCommandBuffer() else {
             throw Error.commandBufferUnavailable
         }
         guard let encoder = commandBuffer.makeComputeCommandEncoder() else {
             throw Error.commandEncoderUnavailable
         }
+
+        try encode(input, into: output, using: encoder)
+        encoder.endEncoding()
+
+        commandBuffer.commit()
+        commandBuffer.waitUntilCompleted()
+        guard commandBuffer.status == .completed else {
+            throw Error.commandExecutionFailed
+        }
+
+        let duration = commandBuffer.gpuEndTime > commandBuffer.gpuStartTime
+            ? commandBuffer.gpuEndTime - commandBuffer.gpuStartTime
+            : nil
+        return Execution(gpuDuration: duration)
+    }
+
+    /// Binds and dispatches the NV12-to-normalized-RGBA conversion on a caller-owned
+    /// encoder. This method neither ends the encoder nor commits or waits for its
+    /// command buffer, allowing Pipeline B to compose this work with its RGB stem.
+    public func encode(
+        _ input: NV12Textures,
+        into output: MTLTexture,
+        using encoder: MTLComputeCommandEncoder
+    ) throws {
+        try validate(input: input, output: output)
 
         encoder.setComputePipelineState(pipelineState)
         encoder.setTexture(input.yPlane, index: 0)
@@ -194,18 +218,6 @@ public final class MetalRGBBaseline {
             depth: 1
         )
         encoder.dispatchThreadgroups(threadgroups, threadsPerThreadgroup: threadsPerThreadgroup)
-        encoder.endEncoding()
-
-        commandBuffer.commit()
-        commandBuffer.waitUntilCompleted()
-        guard commandBuffer.status == .completed else {
-            throw Error.commandExecutionFailed
-        }
-
-        let duration = commandBuffer.gpuEndTime > commandBuffer.gpuStartTime
-            ? commandBuffer.gpuEndTime - commandBuffer.gpuStartTime
-            : nil
-        return Execution(gpuDuration: duration)
     }
 
     public func readRGBA32Float(from texture: MTLTexture) throws -> [Float] {
