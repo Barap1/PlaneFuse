@@ -18,13 +18,13 @@ Pipeline C status: built; direct Y/UV fused stem with no RGB intermediate
 
 Real model: Apple MobileNetV2 ImageNet integrated; unchanged 252-layer Core ML tail runs after the transformed 48-channel stem
 
-PlaneFuse Live: CLI sample and camera NV12 inference path built; physical camera run permission-qualified
+PlaneFuse Live: R6 GPU camera texture path built; 300-frame physical-camera gate not accepted
 
-Known blockers: R6 must replace the camera path's Swift Y/UV copies and CPU resize with retained CVMetalTextureCache plane textures, then demonstrate 300 continuous permitted-camera frames and capture screenshot/screen-recording artifacts. R3 Float16, R4 Metal 4, and R5 latency improvement were rejected or negative on their documented gates. Public push/submission remains human-controlled.
+Known blockers: the R6 implementation is built, but three post-fix camera invocations timed out before receiving a frame. Hardware is present, but the local capture session is not currently delivering frames; restore the permitted camera stream, then rerun the 300-frame gate and capture screenshot/screen-recording artifacts. R3 Float16, R4 Metal 4, and R5 latency improvement were rejected or negative on their documented gates. Public push/submission remains human-controlled.
 
-Next highest-leverage action: implement the R6 camera-plane texture bridge with explicit Core Video resource lifetime and a reusable frame ring, then parity-test it against the accepted one-frame camera path.
+Next highest-leverage action: after the camera stream is restored, rerun `./pf live --camera`; it will validate retained CVMetalTextureCache planes, GPU resize, persistent B/C resources, parity, and 300 frames.
 
-Human decision currently required: no; camera authorization may become a one-time R0 permission boundary.
+Human decision currently required: yes — restore/allow the local camera capture stream if another process or macOS privacy/session state is holding it; no code-signing or publication approval is requested.
 
 Last milestone summary: R5 passed after two hostile review corrections: the exact compiler reduced generated UV instructions 9→4 and weighted multiplications 27→17, preserved independent Double/Metal parity, and recorded three corrected 200-pair batches (+0.23%, -0.64%, +0.39%) without a consistent e2e win. R2 remains the strongest accepted bridge result; R3 Float16 and R4 Metal 4 were rejected on documented quality/format gates.
 

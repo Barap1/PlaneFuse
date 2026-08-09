@@ -28,7 +28,7 @@ The current verified MobileNetV2 result is qualified to the measured Apple M5 Pr
 
 - Apple MobileNetV2 is the only pretrained workload claimed.
 - The accepted tail handoff is CPU-visible Float32 `MLMultiArray`; it is not called zero-copy.
-- Current camera support is a one-frame CLI smoke path; continuous physical-camera video is not yet accepted.
+- The R6 camera path maps CVPixelBuffer Y/UV planes with CVMetalTextureCache and resizes on the GPU with persistent B/C resources; the 300-frame physical-camera gate is not yet accepted because the current session is not delivering frames.
 - Power, peak-memory, bandwidth, population-accuracy, and universal-model claims are intentionally excluded.
 
 ## Start development
