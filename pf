@@ -48,7 +48,30 @@ case "$command_name" in
     echo "PASS  pf test quick (log: $log_file)"
     ;;
   verify)
-    run_logged swift run -c debug planefuse verify
+    if [ "$command_args" = "mobilenetv2" ]; then
+      run_logged swift run -c debug planefuse verify mobilenetv2
+    elif [ -z "$command_args" ]; then
+      run_logged swift run -c debug planefuse verify
+    else
+      echo "usage: ./pf verify|verify mobilenetv2"
+      exit 2
+    fi
+    cat "$log_file"
+    ;;
+  inspect)
+    if [ "$command_args" != "mobilenetv2" ] && [ "$command_args" != "fixture" ]; then
+      echo "usage: ./pf inspect mobilenetv2|fixture"
+      exit 2
+    fi
+    run_logged swift run -c debug planefuse inspect "$command_args"
+    cat "$log_file"
+    ;;
+  compile)
+    if [ "$command_args" != "mobilenetv2" ]; then
+      echo "usage: ./pf compile mobilenetv2"
+      exit 2
+    fi
+    run_logged swift run -c debug planefuse compile mobilenetv2
     cat "$log_file"
     ;;
   bench)
@@ -80,7 +103,7 @@ case "$command_name" in
     exit 2
     ;;
   *)
-    echo "usage: ./pf <doctor|build|test quick|verify|bench quick>"
+    echo "usage: ./pf <doctor|build|test quick|inspect|compile|verify|bench>"
     exit 2
     ;;
 esac

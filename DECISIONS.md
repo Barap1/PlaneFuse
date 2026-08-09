@@ -134,6 +134,18 @@ Evidence: `EXPERIMENTS.md` E005-E007, `benchmarks/results/m6-exp0-baseline.json`
 
 Revisit when: a supported no-copy tail handoff or a second real compatible workload is available for a new hypothesis family.
 
+## D013 - Keep compiler preparation and measured execution separate
+
+Status: accepted
+
+Decision: The M8 `compile` command is preparation-only and reports the exact local assets needed by the model-derivation script. `verify` and `bench` are the only commands allowed to report measured MobileNetV2 runtime evidence.
+
+Why: A developer tool must be useful before model assets are installed without making a preparation report look like a compiled or benchmarked result. Separating these states prevents accidental claims from the CLI and makes clean-clone failure actionable.
+
+Evidence: `Sources/PlaneFuseCLI/main.swift`, `proof/m8-developer-workflow.md`, and the M8 command validation logs under `artifacts/logs/`.
+
+Revisit when: a true graph compiler backend replaces the current reproducible preparation script.
+
 ---
 
 New decision template:

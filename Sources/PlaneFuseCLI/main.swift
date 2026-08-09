@@ -8,15 +8,130 @@ enum CommandError: Error, CustomStringConvertible {
     var description: String {
         switch self {
         case .usage:
-            return "usage: planefuse <doctor|verify|bench> [quick|fair|mobilenetv2]"
+            return "usage: planefuse <doctor|inspect|compile|verify|bench> [fixture|mobilenetv2|quick|fair]"
         case let .unknownCommand(command):
-            return "error: unknown command '\(command)'\nusage: planefuse <doctor|verify|bench> [quick|fair|mobilenetv2]"
+            return "error: unknown command '\(command)'\nusage: planefuse <doctor|inspect|compile|verify|bench> [fixture|mobilenetv2|quick|fair]"
         }
+    }
+}
+
+private struct CLIInspectionResult: Codable {
+    let command: String
+    let model: String
+    let inspection: NativePlaneStemInspection
+}
+
+private struct CLICompileResult: Codable {
+    let command: String
+    let model: String
+    let status: String
+    let compiled: Bool
+    let inspection: NativePlaneStemInspection
+    let requiredLocalAssets: [String]
+    let nextCommand: String
+}
+
+private struct CLIMissingAssetsResult: Codable {
+    let command: String
+    let model: String
+    let status: String
+    let error: String
+    let missingAssets: [String]
+}
+
+private struct MobileNetV2AssetPaths {
+    let coefficient: String
+    let tail: String
+    let stemArray: String
+    let fullArray: String
+
+    init(manifest: MobileNetV2AssetManifest, environment: [String: String]) {
+        coefficient = environment["PF_MOBILENET_COEFFICIENTS"] ?? "models/derived/MobileNetV2StemCoefficients.json"
+        tail = environment["PF_MOBILENET_TAIL"] ?? "models/derived/tail-compiled/MobileNetV2Tail.mlmodelc"
+        stemArray = environment["PF_MOBILENET_STEM_ARRAY"] ?? "models/derived/stem-array-compiled/MobileNetV2Stem.mlmodelc"
+        fullArray = environment["PF_MOBILENET_FULL_ARRAY"] ?? "models/derived/full-array-compiled/MobileNetV2FullArray.mlmodelc"
+    }
+
+    func requiredAssets(for manifest: MobileNetV2AssetManifest) -> [String] {
+        [
+            "models/MobileNetV2.mlmodel",
+            manifest.validationCorpusManifest,
+            manifest.derivedManifest,
+            coefficient,
+            "models/derived/MobileNetV2Stem.mlmodel",
+            "models/derived/MobileNetV2FullArray.mlmodel",
+            "models/derived/MobileNetV2Tail.mlmodel",
+            tail,
+            stemArray,
+            fullArray,
+        ]
     }
 }
 
 func emit(_ message: String) {
     print(message)
+}
+
+func emitJSON<T: Encodable>(_ value: T, to handle: FileHandle = .standardOutput) throws {
+    handle.write(Data(try JSONEncoder.cli.encode(value)))
+    handle.write(Data("\n".utf8))
+}
+
+func runInspect(model: String) throws -> Int32 {
+    let spec: NativePlaneStemSpec
+    switch model {
+    case "mobilenetv2": spec = .mobileNetV2()
+    case "fixture": spec = .referenceFixture()
+    default: throw CommandError.usage
+    }
+    try emitJSON(CLIInspectionResult(
+        command: "inspect",
+        model: model,
+        inspection: NativePlaneStemInspection.inspect(spec)
+    ))
+    return 0
+}
+
+func runCompileMobileNetV2() throws -> Int32 {
+    let spec = NativePlaneStemSpec.mobileNetV2()
+    try spec.validate()
+    let manifest = MobileNetV2AssetManifest.inspected
+    let paths = MobileNetV2AssetPaths(manifest: manifest, environment: ProcessInfo.processInfo.environment)
+    try emitJSON(CLICompileResult(
+        command: "compile",
+        model: "mobilenetv2",
+        status: "prepared",
+        compiled: false,
+        inspection: NativePlaneStemInspection.inspect(spec),
+        requiredLocalAssets: paths.requiredAssets(for: manifest),
+        nextCommand: "python3 scripts/prepare_mobilenetv2.py models/MobileNetV2.mlmodel models/derived"
+    ))
+    return 0
+}
+
+func runVerifyMobileNetV2() throws -> Int32 {
+    let root = URL(fileURLWithPath: FileManager.default.currentDirectoryPath, isDirectory: true)
+    let manifest = MobileNetV2AssetManifest.inspected
+    let paths = MobileNetV2AssetPaths(manifest: manifest, environment: ProcessInfo.processInfo.environment)
+    let requiredAssets = paths.requiredAssets(for: manifest)
+    let missingAssets = requiredAssets.filter { path in
+        let url = URL(fileURLWithPath: path, relativeTo: root).standardizedFileURL
+        return !FileManager.default.fileExists(atPath: url.path)
+    }
+    guard missingAssets.isEmpty else {
+        try emitJSON(CLIMissingAssetsResult(
+            command: "verify",
+            model: "mobilenetv2",
+            status: "missing_assets",
+            error: "MobileNetV2 verification requires these local model assets.",
+            missingAssets: missingAssets
+        ), to: .standardError)
+        return 1
+    }
+
+    // Reuse the established M5 proof/benchmark once its complete local asset
+    // set is present; this command does not substitute a fabricated proof.
+    return try runMobileNetV2Bench(configuration: .quick, label: "verify")
 }
 
 func runDoctor() -> Int32 {
@@ -202,7 +317,17 @@ do {
     switch command {
     case "doctor":
         exit(runDoctor())
+    case "inspect":
+        guard arguments.count == 2 else { throw CommandError.usage }
+        exit(try runInspect(model: arguments[1]))
+    case "compile":
+        guard arguments == ["compile", "mobilenetv2"] else { throw CommandError.usage }
+        exit(try runCompileMobileNetV2())
     case "verify":
+        if arguments == ["verify", "mobilenetv2"] {
+            exit(try runVerifyMobileNetV2())
+        }
+        guard arguments == ["verify"] else { throw CommandError.usage }
         exit(try runVerify())
     case "bench":
         let benchmarkArguments = Array(arguments.dropFirst())
@@ -231,6 +356,13 @@ do {
 }
 
 private extension JSONEncoder {
+    static var cli: JSONEncoder {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys]
+        encoder.keyEncodingStrategy = .convertToSnakeCase
+        return encoder
+    }
+
     static var planeFuse: JSONEncoder {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]

@@ -1,6 +1,6 @@
 # PlaneFuse status
 
-Current milestone: M7 - Reusability / second compatible target
+Current milestone: M9 - PlaneFuse Live showcase
 
 Overall status: IN PROGRESS
 
@@ -8,7 +8,7 @@ Current branch: main (expected)
 
 Current best verified result: M4 fixture C end-to-end p50 0.1948 ms vs B 0.2328 ms; 16.34% lower under equal-submission methodology
 
-Correctness status: M6 PASS — two bounded source-grid experiments preserved parity but regressed the model boundary; accepted simple native stem retained as the practical optimum
+Correctness status: M8 PASS — inspect/compile/verify/bench commands are reproducible, JSON-backed, and honest about missing model assets
 
 Pipeline A status: not built
 
@@ -20,13 +20,13 @@ Real model: Apple MobileNetV2 ImageNet integrated; unchanged 252-layer Core ML t
 
 PlaneFuse Live: not started
 
-Known blockers: M7 has no second pretrained model; the reusable contract currently proves a second parameterized reference configuration, while MobileCLIP remains optional and must not jeopardize the MobileNetV2 core.
+Known blockers: M9 camera shell and task UI are not started. The MobileNetV2 local workload is proven; MobileCLIP remains optional and must not jeopardize that core.
 
-Next highest-leverage action: validate and expose the reusable native-stem configuration contract, then add inspect/compile/verify/bench developer commands.
+Next highest-leverage action: build a local macOS camera/frame showcase that uses the real MobileNetV2 path and displays only measured runtime state.
 
 Human decision currently required: no
 
-Last milestone summary: M6 PASS — E005/E006 were rejected after end-to-end regressions; the 8x8 native stem remains the accepted implementation and no correctness threshold was changed.
+Last milestone summary: M8 PASS — `./pf inspect`, `compile`, `verify`, and `bench` expose the supported example without manual source edits; unsupported/missing state is explicit.
 
 Notes:
 - Keep this file short.
