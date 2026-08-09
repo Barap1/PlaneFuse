@@ -58,9 +58,14 @@ case "$command_name" in
       cat "$log_file"
       exit 0
     fi
-    if [ "$command_args" = "fair quick" ]; then
-      benchmark_output="${PF_BENCHMARK_OUTPUT:-$ROOT/benchmarks/results/fair-quick.json}"
-      PF_ARCHITECTURE="$(uname -m)" PF_SWIFT_VERSION="$(swift --version | head -n 1)" PF_XCODE_VERSION="$(xcodebuild -version | head -n 1)" PF_GIT_COMMIT="$(git rev-parse HEAD)" PF_BUILD_CONFIGURATION="release" PF_BENCHMARK_OUTPUT="$benchmark_output" run_logged swift run -c release planefuse bench fair quick
+    if [ "$command_args" = "fair quick" ] || [ "$command_args" = "fair confirm" ]; then
+      if [ "$command_args" = "fair quick" ]; then
+        benchmark_label="quick"
+      else
+        benchmark_label="confirm"
+      fi
+      benchmark_output="${PF_BENCHMARK_OUTPUT:-$ROOT/benchmarks/results/fair-$benchmark_label.json}"
+      PF_ARCHITECTURE="$(uname -m)" PF_SWIFT_VERSION="$(swift --version | head -n 1)" PF_XCODE_VERSION="$(xcodebuild -version | head -n 1)" PF_GIT_COMMIT="$(git rev-parse HEAD)" PF_BUILD_CONFIGURATION="release" PF_BENCHMARK_OUTPUT="$benchmark_output" run_logged swift run -c release planefuse bench fair "$benchmark_label"
       cat "$log_file"
       exit 0
     fi

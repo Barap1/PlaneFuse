@@ -29,6 +29,13 @@ public struct FairABCBenchmark {
             width: 640,
             height: 480
         )
+
+        public static let confirm = Configuration(
+            warmupIterations: 30,
+            measuredIterations: 100,
+            width: 640,
+            height: 480
+        )
     }
 
     public struct TimingStatistics: Codable, Equatable {

@@ -107,12 +107,12 @@ private struct FairBenchmarkArtifact: Codable {
     let measurement: FairABCBenchmark.Measurement
 }
 
-func runFairBench() throws -> Int32 {
-    let outputPath = ProcessInfo.processInfo.environment["PF_BENCHMARK_OUTPUT"] ?? "benchmarks/results/fair-quick.json"
-    let measurement = try FairABCBenchmark().run()
+func runFairBench(configuration: FairABCBenchmark.Configuration, label: String) throws -> Int32 {
+    let outputPath = ProcessInfo.processInfo.environment["PF_BENCHMARK_OUTPUT"] ?? "benchmarks/results/fair-\(label).json"
+    let measurement = try FairABCBenchmark(configuration: configuration).run()
     let artifact = FairBenchmarkArtifact(
         schemaVersion: 1,
-        status: measurement.featureParityPass ? "fair_ab_c_measured" : "fair_ab_c_parity_failed",
+        status: measurement.featureParityPass ? "fair_ab_c_\(label)" : "fair_ab_c_parity_failed",
         commit: ProcessInfo.processInfo.environment["PF_GIT_COMMIT"],
         environment: EnvironmentSnapshot(),
         measurement: measurement
@@ -121,7 +121,7 @@ func runFairBench() throws -> Int32 {
     let url = URL(fileURLWithPath: outputPath)
     try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
     try data.write(to: url, options: .atomic)
-    emit("PlaneFuse bench fair quick: RECORDED")
+    emit("PlaneFuse bench fair \(label): RECORDED")
     emit("result: \(outputPath)")
     emit("status: \(artifact.status)")
     emit(String(format: "b_e2e_p50_ms: %.4f", measurement.pipelineBEndToEnd.p50Milliseconds))
@@ -146,7 +146,10 @@ do {
             exit(try runBench())
         }
         if benchmarkArguments == ["fair", "quick"] {
-            exit(try runFairBench())
+            exit(try runFairBench(configuration: .quick, label: "quick"))
+        }
+        if benchmarkArguments == ["fair", "confirm"] {
+            exit(try runFairBench(configuration: .confirm, label: "confirm"))
         }
         throw CommandError.usage
     default:
