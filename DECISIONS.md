@@ -74,6 +74,18 @@ Evidence: `Sources/PlaneFuseCore/Shaders/NV12RGB.metal`, `MetalRGBBaselineTests`
 
 Revisit when: adding a resize/chroma-siting mode after the first A/B/C gate.
 
+## D008 - Initial GPU parity acceptance threshold
+
+Status: accepted
+
+Decision: For the first Metal native stem, accept the supported BT.601 NV12 path only when the deterministic GPU feature output has max absolute error <= 1e-5 against the Double-precision reference over the tested pixels and channels. This is a correctness gate, not a performance tradeoff.
+
+Why: Fused GPU arithmetic and Float output can differ from the reference's operation ordering, but the threshold remains tight enough to expose coefficient, plane-indexing, or systematic chroma errors. The threshold is recorded before Pipeline C benchmarking and must not be loosened to make a faster kernel pass.
+
+Evidence: `MetalNativeStemTests.swift` enforces the threshold; the first fixture passed before the Sol review required a second UV-row case.
+
+Revisit when: a new precision/backend path is introduced with a separately justified numerical contract.
+
 ---
 
 New decision template:
