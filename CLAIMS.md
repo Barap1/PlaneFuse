@@ -21,13 +21,13 @@ Required evidence:
 - allocation/buffer graph or profiler capture;
 - supported format/model scope documented.
 
-Evidence files: `Sources/PlaneFuseCore/Shaders/NV12NativeStem.metal`, `Sources/PlaneFuseCore/MetalNativeStem.swift`, `Tests/PlaneFuseCoreTests/MetalNativeStemTests.swift`, `benchmarks/results/m4-fair-abc-confirm.json`
+Evidence files: `Sources/PlaneFuseCore/Shaders/NV12NativeStem.metal`, `Sources/PlaneFuseCore/MetalNativeStem.swift`, `Tests/PlaneFuseCoreTests/MetalNativeStemTests.swift`, `benchmarks/results/m4-fair-abc-equal-confirm1.json`
 
 ## C002 - PlaneFuse improves frontend latency vs optimized RGB
 
 Status: REJECTED
 
-Claim wording: "PlaneFuse improves isolated frontend latency vs optimized RGB." This is not supported by confirmation data: C was 0.74% and 1.03% slower in the two 100-iteration confirmation batches.
+Claim wording: "PlaneFuse improves isolated frontend latency vs optimized RGB." This is not supported by equal-submission confirmation data: C was 0.82% slower in one batch and 1.40% faster in the other.
 
 Required evidence:
 
@@ -36,22 +36,22 @@ Required evidence:
 - commit/system metadata;
 - correctness pass.
 
-Evidence files: `benchmarks/results/m4-fair-abc-confirm.json`, `benchmarks/results/m4-fair-abc-confirm2.json`
+Evidence files: `benchmarks/results/m4-fair-abc-equal-confirm1.json`, `benchmarks/results/m4-fair-abc-equal-confirm2.json`
 
 ## C003 - PlaneFuse improves end-to-end inference latency
 
 Status: VERIFIED
 
-Claim wording: "On the supported 640x480 M1 four-output stem fixture, Pipeline C reduced end-to-end frontend-plus-stem p50 latency by 51.55% versus Pipeline B in confirmation batch 1; the second batch measured 50.93%."
+Claim wording: "On the supported 640x480 M1 four-output stem fixture, with equal one-submission B/C boundaries, Pipeline C reduced end-to-end frontend-plus-stem p50 latency by 16.34% versus Pipeline B in confirmation batch 1; the second batch measured 10.24%."
 
 Required evidence:
 
-- real-model B/C benchmark;
+- same-fixture B/C benchmark;
 - same model/input/build;
 - quality agreement;
 - final repeated results.
 
-Evidence files: `benchmarks/results/m4-fair-abc-confirm.json`, `benchmarks/results/m4-fair-abc-confirm2.json`, `benchmarks/best.json`
+Evidence files: `benchmarks/results/m4-fair-abc-equal-confirm1.json`, `benchmarks/results/m4-fair-abc-equal-confirm2.json`, `benchmarks/best.json`
 
 ## C004 - Model behavior is preserved
 
@@ -65,7 +65,7 @@ Required evidence:
 - fixed validation corpus;
 - task/output agreement report.
 
-Evidence files: `benchmarks/results/m4-fair-abc-confirm.json`, `benchmarks/results/m4-fair-abc-confirm2.json`
+Evidence files: `benchmarks/results/m4-fair-abc-equal-confirm1.json`, `benchmarks/results/m4-fair-abc-equal-confirm2.json`
 
 ## C005 - Fully local Mobile AI experience
 

@@ -86,6 +86,18 @@ Evidence: `MetalNativeStemTests.swift` enforces the threshold; the first fixture
 
 Revisit when: a new precision/backend path is introduced with a separately justified numerical contract.
 
+## D009 - Proposed M5 model boundary
+
+Status: proposed
+
+Decision: Pending human approval, use the official Apple MobileNetV2 ImageNet workload for M5. Extend the native path to the model's 3x3 stride-2 convolution plus BatchNorm/ReLU6 stem, then hand off to the unchanged split model tail. Compare it with an optimized RGB path using the same tail and require activation/logit comparison plus at least 99.5% top-k/task agreement before making a real-model claim.
+
+Why: MobileNetV2 is small enough for a fully local camera workload and has a concrete spatial learned stem that tests PlaneFuse's actual compiler/runtime premise. MobileCLIP is attractive for zero-shot UX, but its model-weight terms and export/splitting scope add deadline and licensing risk; it should be deferred unless explicitly approved.
+
+Evidence: M5 Sol architecture review `019fe5b6-df0b-70e3-a55f-b7723d2beb7b`; Apple MobileNetV2 model gallery; Apple MobileCLIP repository and model-weight license review.
+
+Revisit when: M5 model selection is approved or the MobileNetV2 export/tail boundary proves impractical.
+
 ---
 
 New decision template:
