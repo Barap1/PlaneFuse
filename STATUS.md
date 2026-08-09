@@ -1,6 +1,6 @@
 # PlaneFuse status
 
-Current milestone: M2 - Fair optimized RGB baseline
+Current milestone: M3 - First working PlaneFuse native stem
 
 Overall status: IN PROGRESS
 
@@ -8,11 +8,11 @@ Current branch: main (expected)
 
 Current best verified result: none
 
-Correctness status: M1 PASS — 512-sample reference/native composition parity, max abs error 2.220446049250313e-15
+Correctness status: M2 PASS — Metal Pipeline B fixture matches reference; full C parity not established
 
 Pipeline A status: not built
 
-Pipeline B status: not built
+Pipeline B status: built; release quick artifact recorded
 
 Pipeline C status: not built
 
@@ -22,11 +22,11 @@ PlaneFuse Live: not started
 
 Known blockers: none recorded yet
 
-Next highest-leverage action: lock real NV12 plane sampling and implement Pipeline B's Metal RGB intermediate.
+Next highest-leverage action: implement Pipeline C's native-plane fused stem with identical NV12 source-grid semantics and no full RGB intermediate.
 
 Human decision currently required: no
 
-Last milestone summary: M1 PASS — BT.601 video-range affine composition verified; advisor verdict proceed. Residual risk is real plane/chroma semantics and GPU precision.
+Last milestone summary: M2 PASS — direct Metal Y/UV baseline, deterministic quick benchmark, observed RGBA allocation evidence, and frozen baseline artifact. p50 0.2190 ms / p95 0.7558 ms for the 640×480 frontend; not a C comparison.
 
 Notes:
 - Keep this file short.

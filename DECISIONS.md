@@ -62,6 +62,18 @@ Evidence: `proof/m1-reference-parity.json` records 512 deterministic samples wit
 
 Revisit when: M2 locks source-plane sampling and M3 establishes GPU parity thresholds.
 
+## D007 - M2 locks the first real NV12 plane contract
+
+Status: accepted
+
+Decision: The M2 baseline consumes an 8-bit `R8Uint` Y plane at full resolution and an `RG8Uint` UV plane at half width and half height. Each output pixel uses the nearest stored UV pair at `(x / 2, y / 2)`, applies BT.601 video-range decoding and normalization, and writes a same-size `RGBA32Float` model-input texture. No resize, interpolation, or RGB clamp is part of this contract.
+
+Why: Pipeline B and the first native-plane C kernel need identical source-grid semantics before timing or parity comparisons are meaningful. The contract exposes the exact 4:2:0 geometry rather than treating NV12 as an opaque RGB source.
+
+Evidence: `Sources/PlaneFuseCore/Shaders/NV12RGB.metal`, `MetalRGBBaselineTests`, and `benchmarks/results/m2-pipeline-b-quick.json`.
+
+Revisit when: adding a resize/chroma-siting mode after the first A/B/C gate.
+
 ---
 
 New decision template:
