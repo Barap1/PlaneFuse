@@ -58,7 +58,7 @@ final class NativePlaneCompilerTests: XCTestCase {
     func testNearestSitedPolyphaseCompilerMatchesIndependentReferenceAcrossPhasesAndEdges() {
         let stem = Conv3x3Stride2BatchNormReLU6Stem(
             outputChannels: 1,
-            convolutionWeights: (0..<27).map { Double($0 + 1) },
+            convolutionWeights: (0..<27).map { Double(($0 % 7) - 3) * 0.01 },
             convolutionBias: [0], batchNormScale: [1], batchNormBias: [0],
             batchNormMean: [0], batchNormVariance: [1], batchNormEpsilon: 0
         )

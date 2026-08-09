@@ -184,7 +184,7 @@ while aggregating the repeated chroma contributions into four UV phases. The
 independent Double reference and the generated Metal path agree across procedural
 chroma-phase and edge cases. Three 200-pair confirmation batches on the accepted
 Float32 shared bridge did not establish a latency improvement: end-to-end p50
-differences were +0.70%, -0.36%, and -0.33% for polyphase relative to the native
+differences were +0.23%, -0.64%, and +0.39% for polyphase relative to the native
 stem. The reduction from nine to four UV read instructions and from 27 to 17
 weighted multiplications is therefore recorded as compiler evidence, not as a
 runtime speed claim. R5 is a rigorous documented negative for the current
