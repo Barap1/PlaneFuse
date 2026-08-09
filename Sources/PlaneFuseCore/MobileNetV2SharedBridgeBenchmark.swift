@@ -50,6 +50,10 @@ public final class MobileNetV2SharedBridgeBenchmark {
         public let cHandoffToResultReductionPercentage: Double
         public let bEndToEndReductionPercentage: Double
         public let cEndToEndReductionPercentage: Double
+        public let pairedBEndToEndDifferencesMilliseconds: [Double]
+        public let pairedCEndToEndDifferencesMilliseconds: [Double]
+        public let pairedBHandoffToResultDifferencesMilliseconds: [Double]
+        public let pairedCHandoffToResultDifferencesMilliseconds: [Double]
         public let sharedTop1Agreement: Double
         public let boxedTop1Agreement: Double
         public let sharedVsBoxedTop1Agreement: Double
@@ -158,6 +162,10 @@ public final class MobileNetV2SharedBridgeBenchmark {
             cHandoffToResultReductionPercentage: (cBoxedHandoffP50 - Statistics(cSharedHandoff).p50Milliseconds) / cBoxedHandoffP50 * 100,
             bEndToEndReductionPercentage: (Statistics(bBoxedEnd).p50Milliseconds - Statistics(bSharedEnd).p50Milliseconds) / Statistics(bBoxedEnd).p50Milliseconds * 100,
             cEndToEndReductionPercentage: (Statistics(cBoxedEnd).p50Milliseconds - Statistics(cSharedEnd).p50Milliseconds) / Statistics(cBoxedEnd).p50Milliseconds * 100,
+            pairedBEndToEndDifferencesMilliseconds: zip(bBoxedEnd, bSharedEnd).map { $0 - $1 },
+            pairedCEndToEndDifferencesMilliseconds: zip(cBoxedEnd, cSharedEnd).map { $0 - $1 },
+            pairedBHandoffToResultDifferencesMilliseconds: zip(bBoxedHandoff, bSharedHandoff).map { $0 - $1 },
+            pairedCHandoffToResultDifferencesMilliseconds: zip(cBoxedHandoff, cSharedHandoff).map { $0 - $1 },
             sharedTop1Agreement: Double(sharedMatches) / Double(configuration.measuredIterations),
             boxedTop1Agreement: Double(boxedMatches) / Double(configuration.measuredIterations),
             sharedVsBoxedTop1Agreement: Double(sharedBoxedMatches) / Double(configuration.measuredIterations),
