@@ -35,7 +35,7 @@ B2 materializes normalized RGB as planar Float32 `[3, 224, 224]`, avoiding B1's 
 
 - B2 p50: 51.3243 ms
 - C0 p50: 51.3800 ms
-- C relative to B2: 0.1089% slower in this quick batch; this is an inconclusive near-tie, not a claimed optimization win.
+- C relative to B2: 0.1085% slower in this quick batch; this is an inconclusive near-tie, not a claimed optimization win.
 - B2 frontend p50: 0.2600 ms; C frontend p50: 0.2208 ms
 - B2 logical RGB payload: 602,112 bytes; measured allocation: 606,208 bytes
 - B2/C top-1 agreement: 1.0 over 32 samples
