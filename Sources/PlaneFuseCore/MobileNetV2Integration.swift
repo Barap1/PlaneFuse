@@ -211,6 +211,7 @@ public final class BufferBackedMultiArray {
             throw MobileNetV2IntegrationError.invalidActivationCount(expected: count, actual: buffer.length / MemoryLayout<Float>.stride)
         }
         let numberStrides = strides.map(NSNumber.init(value:))
+        let retainedBuffer = buffer
         self.buffer = buffer
         self.shape = shape
         self.multiArray = try MLMultiArray(
@@ -218,7 +219,7 @@ public final class BufferBackedMultiArray {
             shape: shape.map(NSNumber.init(value:)),
             dataType: .float32,
             strides: numberStrides,
-            deallocator: { _ in }
+            deallocator: { _ in _ = retainedBuffer }
         )
     }
 

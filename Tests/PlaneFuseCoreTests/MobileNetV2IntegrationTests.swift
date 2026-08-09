@@ -1,5 +1,6 @@
 import XCTest
 import Metal
+import CoreML
 @testable import PlaneFuseCore
 
 final class MobileNetV2IntegrationTests: XCTestCase {
@@ -52,5 +53,20 @@ final class MobileNetV2IntegrationTests: XCTestCase {
             throw XCTSkip("Metal device or shared buffer unavailable.")
         }
         XCTAssertThrowsError(try BufferBackedMultiArray(buffer: buffer, shape: [48, 112, 112], strides: [1, 112, 112 * 112]))
+    }
+
+    func testMultiArrayViewRetainsBackingBufferAfterWrapperAndOriginalRelease() throws {
+        guard let device = MTLCreateSystemDefaultDevice() else { throw XCTSkip("Metal device unavailable.") }
+        var backingBuffer: MTLBuffer? = device.makeBuffer(length: 48 * 112 * 112 * MemoryLayout<Float>.stride, options: .storageModeShared)
+        guard backingBuffer != nil else { throw XCTSkip("Shared Metal buffer unavailable.") }
+        var array: MLMultiArray?
+        do {
+            let view = try BufferBackedMultiArray(buffer: backingBuffer!, shape: [48, 112, 112])
+            array = view.multiArray
+            backingBuffer = nil
+        }
+        XCTAssertNotNil(array)
+        array?[0] = NSNumber(value: 7.25)
+        XCTAssertEqual(array?[0].doubleValue ?? -1, 7.25, accuracy: 0.0001)
     }
 }

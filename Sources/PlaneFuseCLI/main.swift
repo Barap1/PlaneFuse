@@ -334,6 +334,7 @@ private struct MobileNetV2SharedBridgeArtifact: Codable {
     let environment: EnvironmentSnapshot
     let measurement: MobileNetV2SharedBridgeBenchmark.Measurement
     let model: MobileNetV2AssetManifest
+    let runtimeAssets: [String: String]
 }
 
 func runFairBench(configuration: FairABCBenchmark.Configuration, label: String) throws -> Int32 {
@@ -425,6 +426,8 @@ func runMobileNetV2Profile() throws -> Int32 {
     let tailPath = ProcessInfo.processInfo.environment["PF_MOBILENET_TAIL"] ?? "models/derived/tail-compiled/MobileNetV2Tail.mlmodelc"
     let manifest = MobileNetV2AssetManifest.inspected
     try manifest.validate(at: root)
+    let lineage = try MobileNetV2DerivedArtifactManifest.load(from: root.appendingPathComponent(manifest.derivedManifest))
+    try lineage.validate(at: root)
     let corpus = try MobileNetV2Corpus(manifestURL: root.appendingPathComponent(manifest.validationCorpusManifest), root: root)
     let tail = try CoreMLMobileNetV2TailAdapter(modelURL: URL(fileURLWithPath: tailPath), manifest: manifest)
     let profile = try MobileNetV2ComponentProfile(configuration: .quick, coefficientsURL: URL(fileURLWithPath: coefficientPath), tail: tail, corpus: corpus)
@@ -454,22 +457,42 @@ func runMobileNetV2SharedBridge() throws -> Int32 {
     let tail = try CoreMLMobileNetV2TailAdapter(modelURL: URL(fileURLWithPath: tailPath), manifest: manifest)
     let benchmark = try MobileNetV2SharedBridgeBenchmark(configuration: .quick, coefficientsURL: URL(fileURLWithPath: coefficientPath), tail: tail, corpus: corpus)
     let measurement = try benchmark.run()
-    let artifact = MobileNetV2SharedBridgeArtifact(schemaVersion: 1, status: "mobilenetv2_shared_bridge", commit: ProcessInfo.processInfo.environment["PF_GIT_COMMIT"], environment: EnvironmentSnapshot(), measurement: measurement, model: manifest)
+    let artifact = MobileNetV2SharedBridgeArtifact(
+        schemaVersion: 1,
+        status: "mobilenetv2_shared_bridge",
+        commit: ProcessInfo.processInfo.environment["PF_GIT_COMMIT"],
+        environment: EnvironmentSnapshot(),
+        measurement: measurement,
+        model: manifest,
+        runtimeAssets: [
+            "coefficients": relativeAssetPath(coefficientPath, root: root),
+            "tail": relativeAssetPath(tailPath, root: root),
+            "derived_manifest": manifest.derivedManifest
+        ]
+    )
     let outputPath = ProcessInfo.processInfo.environment["PF_BENCHMARK_OUTPUT"] ?? "benchmarks/results/r2-mobilenetv2-shared-bridge.json"
     let url = URL(fileURLWithPath: outputPath)
     try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
     try JSONEncoder.benchmark.encode(artifact).write(to: url, options: .atomic)
     emit("PlaneFuse bench MobileNetV2 shared bridge: RECORDED")
     emit("result: \(outputPath)")
-    emit(String(format: "b_boxed_bridge_p50_ms: %.4f", measurement.pipelineBBoxedBridge.p50Milliseconds))
-    emit(String(format: "b_shared_bridge_p50_ms: %.4f", measurement.pipelineBSharedBridge.p50Milliseconds))
-    emit(String(format: "c_boxed_bridge_p50_ms: %.4f", measurement.pipelineCBoxedBridge.p50Milliseconds))
-    emit(String(format: "c_shared_bridge_p50_ms: %.4f", measurement.pipelineCSharedBridge.p50Milliseconds))
-    emit(String(format: "b_bridge_reduction_percent: %.2f", measurement.bBridgeReductionPercentage))
-    emit(String(format: "c_bridge_reduction_percent: %.2f", measurement.cBridgeReductionPercentage))
+    emit(String(format: "b_boxed_handoff_to_result_p50_ms: %.4f", measurement.pipelineBBoxedHandoffToResult.p50Milliseconds))
+    emit(String(format: "b_shared_handoff_to_result_p50_ms: %.4f", measurement.pipelineBSharedHandoffToResult.p50Milliseconds))
+    emit(String(format: "c_boxed_handoff_to_result_p50_ms: %.4f", measurement.pipelineCBoxedHandoffToResult.p50Milliseconds))
+    emit(String(format: "c_shared_handoff_to_result_p50_ms: %.4f", measurement.pipelineCSharedHandoffToResult.p50Milliseconds))
+    emit(String(format: "b_handoff_to_result_reduction_percent: %.2f", measurement.bHandoffToResultReductionPercentage))
+    emit(String(format: "c_handoff_to_result_reduction_percent: %.2f", measurement.cHandoffToResultReductionPercentage))
     emit(String(format: "shared_top1_agreement: %.4f", measurement.sharedTop1Agreement))
     emit(String(format: "max_activation_abs_error: %.8f", measurement.maxActivationAbsoluteDifference))
     return measurement.sharedTop1Agreement >= 1.0 && measurement.maxActivationAbsoluteDifference <= Double(FairABCBenchmark.featureParityTolerance) ? 0 : 1
+}
+
+private func relativeAssetPath(_ path: String, root: URL) -> String {
+    let absolute = URL(fileURLWithPath: path).standardizedFileURL.path
+    let rootPath = root.standardizedFileURL.path
+    if absolute == rootPath { return "." }
+    if absolute.hasPrefix(rootPath + "/") { return String(absolute.dropFirst(rootPath.count + 1)) }
+    return "<external>/" + URL(fileURLWithPath: absolute).lastPathComponent
 }
 
 do {

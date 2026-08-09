@@ -41,12 +41,12 @@ public final class MobileNetV2SharedBridgeBenchmark {
         public let pipelineBSharedEndToEnd: Statistics
         public let pipelineCBoxedEndToEnd: Statistics
         public let pipelineCSharedEndToEnd: Statistics
-        public let pipelineBBoxedBridge: Statistics
-        public let pipelineBSharedBridge: Statistics
-        public let pipelineCBoxedBridge: Statistics
-        public let pipelineCSharedBridge: Statistics
-        public let bBridgeReductionPercentage: Double
-        public let cBridgeReductionPercentage: Double
+        public let pipelineBBoxedHandoffToResult: Statistics
+        public let pipelineBSharedHandoffToResult: Statistics
+        public let pipelineCBoxedHandoffToResult: Statistics
+        public let pipelineCSharedHandoffToResult: Statistics
+        public let bHandoffToResultReductionPercentage: Double
+        public let cHandoffToResultReductionPercentage: Double
         public let bEndToEndReductionPercentage: Double
         public let cEndToEndReductionPercentage: Double
         public let sharedTop1Agreement: Double
@@ -57,6 +57,8 @@ public final class MobileNetV2SharedBridgeBenchmark {
         public let bufferBackedStride: [Int]
         public let bActivationAllocatedBytes: Int
         public let cActivationAllocatedBytes: Int
+        public let bViewConstructionMilliseconds: Double
+        public let cViewConstructionMilliseconds: Double
         public let deviceName: String
         public let deviceClass: String
         public let methodology: String
@@ -64,7 +66,7 @@ public final class MobileNetV2SharedBridgeBenchmark {
 
     private struct TimedResult {
         let total: Double
-        let bridge: Double
+        let handoffToResult: Double
         let output: [String: Double]
     }
 
@@ -89,14 +91,18 @@ public final class MobileNetV2SharedBridgeBenchmark {
         let normalizedRGB = try rgb.makeNormalizedRGBCHWBuffer()
         let bActivation = try rgb.makeActivationBuffer()
         let cActivation = try native.makeActivationBuffer()
+        let bViewStart = ProcessInfo.processInfo.systemUptime
         let bShared = try BufferBackedMultiArray(buffer: bActivation, shape: MetalMobileNetV2NativeStem.activationShape)
+        let bViewConstructionMilliseconds = (ProcessInfo.processInfo.systemUptime - bViewStart) * 1_000
+        let cViewStart = ProcessInfo.processInfo.systemUptime
         let cShared = try BufferBackedMultiArray(buffer: cActivation, shape: MetalMobileNetV2NativeStem.activationShape)
+        let cViewConstructionMilliseconds = (ProcessInfo.processInfo.systemUptime - cViewStart) * 1_000
         let frames = try corpus.loadFrames()
 
         var bBoxedEnd: [Double] = []; var bSharedEnd: [Double] = []
         var cBoxedEnd: [Double] = []; var cSharedEnd: [Double] = []
-        var bBoxedBridge: [Double] = []; var bSharedBridge: [Double] = []
-        var cBoxedBridge: [Double] = []; var cSharedBridge: [Double] = []
+        var bBoxedHandoff: [Double] = []; var bSharedHandoff: [Double] = []
+        var cBoxedHandoff: [Double] = []; var cSharedHandoff: [Double] = []
         var boxedMatches = 0; var sharedMatches = 0; var sharedBoxedMatches = 0
         var maxActivationError = 0.0
         let totalIterations = configuration.warmupIterations + configuration.measuredIterations
@@ -104,18 +110,31 @@ public final class MobileNetV2SharedBridgeBenchmark {
         for iteration in 0..<totalIterations {
             let frame = frames[iteration % frames.count]
             let input = try factory.makeNV12Textures(width: 224, height: 224, yPlaneBytes: frame.yPlaneBytes, uvPlaneBytes: frame.uvPlaneBytes)
-            let bBoxed = try timedBBoxed(rgb: rgb, input: input, normalizedRGB: normalizedRGB, activation: bActivation)
-            let bSharedResult = try timedBShared(rgb: rgb, input: input, normalizedRGB: normalizedRGB, activation: bActivation, shared: bShared)
-            let cBoxed = try timedCBoxed(native: native, input: input, activation: cActivation)
-            let cSharedResult = try timedCShared(native: native, input: input, activation: cActivation, shared: cShared)
+            let bBoxed: TimedResult
+            let bSharedResult: TimedResult
+            let cBoxed: TimedResult
+            let cSharedResult: TimedResult
+            // Alternate both pipeline order and bridge order to avoid assigning
+            // thermal or Core ML state drift to one candidate.
+            if iteration.isMultiple(of: 2) {
+                bBoxed = try timedBBoxed(rgb: rgb, input: input, normalizedRGB: normalizedRGB, activation: bActivation)
+                cBoxed = try timedCBoxed(native: native, input: input, activation: cActivation)
+                bSharedResult = try timedBShared(rgb: rgb, input: input, normalizedRGB: normalizedRGB, activation: bActivation, shared: bShared)
+                cSharedResult = try timedCShared(native: native, input: input, activation: cActivation, shared: cShared)
+            } else {
+                cSharedResult = try timedCShared(native: native, input: input, activation: cActivation, shared: cShared)
+                bSharedResult = try timedBShared(rgb: rgb, input: input, normalizedRGB: normalizedRGB, activation: bActivation, shared: bShared)
+                cBoxed = try timedCBoxed(native: native, input: input, activation: cActivation)
+                bBoxed = try timedBBoxed(rgb: rgb, input: input, normalizedRGB: normalizedRGB, activation: bActivation)
+            }
             guard Self.topLabel(bBoxed.output) == Self.topLabel(bSharedResult.output), Self.topLabel(cBoxed.output) == Self.topLabel(cSharedResult.output) else {
                 throw MobileNetV2Benchmark.Error.outputAgreementFailed(agreement: 0)
             }
             if iteration >= configuration.warmupIterations {
                 bBoxedEnd.append(bBoxed.total); bSharedEnd.append(bSharedResult.total)
                 cBoxedEnd.append(cBoxed.total); cSharedEnd.append(cSharedResult.total)
-                bBoxedBridge.append(bBoxed.bridge); bSharedBridge.append(bSharedResult.bridge)
-                cBoxedBridge.append(cBoxed.bridge); cSharedBridge.append(cSharedResult.bridge)
+                bBoxedHandoff.append(bBoxed.handoffToResult); bSharedHandoff.append(bSharedResult.handoffToResult)
+                cBoxedHandoff.append(cBoxed.handoffToResult); cSharedHandoff.append(cSharedResult.handoffToResult)
                 if Self.topLabel(bBoxed.output) == Self.topLabel(cBoxed.output) { boxedMatches += 1 }
                 if Self.topLabel(bSharedResult.output) == Self.topLabel(cSharedResult.output) { sharedMatches += 1 }
                 if Self.topLabel(bBoxed.output) == Self.topLabel(bSharedResult.output) { sharedBoxedMatches += 1 }
@@ -125,17 +144,17 @@ public final class MobileNetV2SharedBridgeBenchmark {
             }
         }
 
-        let bBoxedBridgeP50 = Statistics(bBoxedBridge).p50Milliseconds
-        let cBoxedBridgeP50 = Statistics(cBoxedBridge).p50Milliseconds
+        let bBoxedHandoffP50 = Statistics(bBoxedHandoff).p50Milliseconds
+        let cBoxedHandoffP50 = Statistics(cBoxedHandoff).p50Milliseconds
         return Measurement(
             schemaVersion: 1,
             configuration: configuration,
             pipelineBBoxedEndToEnd: Statistics(bBoxedEnd), pipelineBSharedEndToEnd: Statistics(bSharedEnd),
             pipelineCBoxedEndToEnd: Statistics(cBoxedEnd), pipelineCSharedEndToEnd: Statistics(cSharedEnd),
-            pipelineBBoxedBridge: Statistics(bBoxedBridge), pipelineBSharedBridge: Statistics(bSharedBridge),
-            pipelineCBoxedBridge: Statistics(cBoxedBridge), pipelineCSharedBridge: Statistics(cSharedBridge),
-            bBridgeReductionPercentage: (bBoxedBridgeP50 - Statistics(bSharedBridge).p50Milliseconds) / bBoxedBridgeP50 * 100,
-            cBridgeReductionPercentage: (cBoxedBridgeP50 - Statistics(cSharedBridge).p50Milliseconds) / cBoxedBridgeP50 * 100,
+            pipelineBBoxedHandoffToResult: Statistics(bBoxedHandoff), pipelineBSharedHandoffToResult: Statistics(bSharedHandoff),
+            pipelineCBoxedHandoffToResult: Statistics(cBoxedHandoff), pipelineCSharedHandoffToResult: Statistics(cSharedHandoff),
+            bHandoffToResultReductionPercentage: (bBoxedHandoffP50 - Statistics(bSharedHandoff).p50Milliseconds) / bBoxedHandoffP50 * 100,
+            cHandoffToResultReductionPercentage: (cBoxedHandoffP50 - Statistics(cSharedHandoff).p50Milliseconds) / cBoxedHandoffP50 * 100,
             bEndToEndReductionPercentage: (Statistics(bBoxedEnd).p50Milliseconds - Statistics(bSharedEnd).p50Milliseconds) / Statistics(bBoxedEnd).p50Milliseconds * 100,
             cEndToEndReductionPercentage: (Statistics(cBoxedEnd).p50Milliseconds - Statistics(cSharedEnd).p50Milliseconds) / Statistics(cBoxedEnd).p50Milliseconds * 100,
             sharedTop1Agreement: Double(sharedMatches) / Double(configuration.measuredIterations),
@@ -146,6 +165,8 @@ public final class MobileNetV2SharedBridgeBenchmark {
             bufferBackedStride: [112 * 112, 112, 1],
             bActivationAllocatedBytes: bActivation.allocatedSize,
             cActivationAllocatedBytes: cActivation.allocatedSize,
+            bViewConstructionMilliseconds: bViewConstructionMilliseconds,
+            cViewConstructionMilliseconds: cViewConstructionMilliseconds,
             deviceName: device.name,
             deviceClass: String(describing: type(of: device)),
             methodology: "Matched B2/C0 boxed controls and B2/C1 persistent buffer-backed MLMultiArray views. Each path reuses one activation buffer and one view; GPU completion is awaited before Core ML prediction. Bridge timings include the current Swift-array read plus boxed allocation/population for controls, versus the shared-view prediction call for candidates. No hidden Core ML copy is inferred."
@@ -158,7 +179,7 @@ public final class MobileNetV2SharedBridgeBenchmark {
         let bridgeStart = ProcessInfo.processInfo.systemUptime
         let output = try tail.predict(stemActivation: rgb.readActivation(from: activation))
         let end = ProcessInfo.processInfo.systemUptime
-        return TimedResult(total: (end - start) * 1_000, bridge: (end - bridgeStart) * 1_000, output: output)
+        return TimedResult(total: (end - start) * 1_000, handoffToResult: (end - bridgeStart) * 1_000, output: output)
     }
 
     private func timedBShared(rgb: MetalMobileNetV2RGBPipeline, input: MetalRGBBaseline.NV12Textures, normalizedRGB: MTLBuffer, activation: MTLBuffer, shared: BufferBackedMultiArray) throws -> TimedResult {
@@ -167,7 +188,7 @@ public final class MobileNetV2SharedBridgeBenchmark {
         let bridgeStart = ProcessInfo.processInfo.systemUptime
         let output = try tail.predict(sharedActivation: shared)
         let end = ProcessInfo.processInfo.systemUptime
-        return TimedResult(total: (end - start) * 1_000, bridge: (end - bridgeStart) * 1_000, output: output)
+        return TimedResult(total: (end - start) * 1_000, handoffToResult: (end - bridgeStart) * 1_000, output: output)
     }
 
     private func timedCBoxed(native: MetalMobileNetV2NativeStem, input: MetalRGBBaseline.NV12Textures, activation: MTLBuffer) throws -> TimedResult {
@@ -176,7 +197,7 @@ public final class MobileNetV2SharedBridgeBenchmark {
         let bridgeStart = ProcessInfo.processInfo.systemUptime
         let output = try tail.predict(stemActivation: native.readActivation(from: activation))
         let end = ProcessInfo.processInfo.systemUptime
-        return TimedResult(total: (end - start) * 1_000, bridge: (end - bridgeStart) * 1_000, output: output)
+        return TimedResult(total: (end - start) * 1_000, handoffToResult: (end - bridgeStart) * 1_000, output: output)
     }
 
     private func timedCShared(native: MetalMobileNetV2NativeStem, input: MetalRGBBaseline.NV12Textures, activation: MTLBuffer, shared: BufferBackedMultiArray) throws -> TimedResult {
@@ -185,7 +206,7 @@ public final class MobileNetV2SharedBridgeBenchmark {
         let bridgeStart = ProcessInfo.processInfo.systemUptime
         let output = try tail.predict(sharedActivation: shared)
         let end = ProcessInfo.processInfo.systemUptime
-        return TimedResult(total: (end - start) * 1_000, bridge: (end - bridgeStart) * 1_000, output: output)
+        return TimedResult(total: (end - start) * 1_000, handoffToResult: (end - bridgeStart) * 1_000, output: output)
     }
 
     private static func topLabel(_ probabilities: [String: Double]) -> String? {
