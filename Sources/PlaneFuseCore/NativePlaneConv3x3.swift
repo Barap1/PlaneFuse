@@ -138,6 +138,88 @@ public enum NativePlaneConv3x3Compiler {
             sourceOffsets: sourceOffsets, bias: bias, paddingMode: stem.paddingMode
         )
     }
+
+    /// Compiles the exact nearest-sited 4:2:0 geometry into nine luma taps and
+    /// four aggregated chroma phases. The source offsets remain per tap so
+    /// bottom/right padding semantics are not folded across invalid samples.
+    public static func compilePolyphase(
+        semantics: NV12Semantics,
+        normalization: RGBNormalization,
+        stem: Conv3x3Stride2BatchNormReLU6Stem
+    ) -> NativePlanePolyphaseConv3x3Stride2Stem {
+        let base = compile(semantics: semantics, normalization: normalization, stem: stem)
+        var luma = [Double](repeating: 0, count: stem.outputChannels * 9)
+        var chroma = [Double](repeating: 0, count: stem.outputChannels * 4 * 2)
+        for output in 0..<stem.outputChannels {
+            for tap in 0..<9 {
+                luma[output * 9 + tap] = base.sourceWeights[(output * 9 + tap) * 3]
+                let phase = (tap / 3 / 2) * 2 + (tap % 3 / 2)
+                chroma[(output * 4 + phase) * 2] += base.sourceWeights[(output * 9 + tap) * 3 + 1]
+                chroma[(output * 4 + phase) * 2 + 1] += base.sourceWeights[(output * 9 + tap) * 3 + 2]
+            }
+        }
+        return NativePlanePolyphaseConv3x3Stride2Stem(
+            outputChannels: stem.outputChannels,
+            lumaWeights: luma,
+            chromaWeights: chroma,
+            sourceOffsets: base.sourceOffsets,
+            bias: base.bias,
+            paddingMode: stem.paddingMode
+        )
+    }
+}
+
+public struct NativePlanePolyphaseConv3x3Stride2Stem: Equatable {
+    public let outputChannels: Int
+    public let lumaWeights: [Double]
+    /// [output, chroma phase (y,x), Cb/Cr].
+    public let chromaWeights: [Double]
+    /// [output, y, x], retained per tap for exact padding behavior.
+    public let sourceOffsets: [Double]
+    public let bias: [Double]
+    public let paddingMode: Conv3x3Stride2PaddingMode
+
+    public func evaluate(
+        yPlane: [UInt8], uvPlane: [UInt8], width: Int, height: Int,
+        semantics: NV12Semantics
+    ) -> [Double] {
+        precondition(width > 0 && height > 0 && width.isMultiple(of: 2) && height.isMultiple(of: 2))
+        let outputWidth = (width + 1) / 2
+        let outputHeight = (height + 1) / 2
+        var values = [Double](repeating: 0, count: outputWidth * outputHeight * outputChannels)
+        for oy in 0..<outputHeight {
+            for ox in 0..<outputWidth {
+                for channel in 0..<outputChannels {
+                    var value = bias[channel]
+                    for ky in 0..<3 {
+                        for kx in 0..<3 {
+                            let x = paddingMode.inputCoordinate(output: ox, kernelTap: kx)
+                            let y = paddingMode.inputCoordinate(output: oy, kernelTap: ky)
+                            guard x >= 0, x < width, y >= 0, y < height else { continue }
+                            let tap = channel * 9 + ky * 3 + kx
+                            let pixel = y * width + x
+                            let source = semantics.decodeSource(y: yPlane[pixel], cb: uvPlane[((y / 2) * (width / 2) + x / 2) * 2], cr: uvPlane[((y / 2) * (width / 2) + x / 2) * 2 + 1])
+                            value += sourceOffsets[tap] + lumaWeights[channel * 9 + ky * 3 + kx] * source[0]
+                        }
+                    }
+                    for chromaY in 0..<2 {
+                        for chromaX in 0..<2 {
+                            let x = ox * 2 + chromaX * 2
+                            let y = oy * 2 + chromaY * 2
+                            guard x < width, y < height else { continue }
+                            let uv = (y / 2) * (width / 2) + x / 2
+                            let phase = chromaY * 2 + chromaX
+                            let base = (channel * 4 + phase) * 2
+                            let source = semantics.decodeSource(y: 128, cb: uvPlane[uv * 2], cr: uvPlane[uv * 2 + 1])
+                            value += chromaWeights[base] * source[1] + chromaWeights[base + 1] * source[2]
+                        }
+                    }
+                    values[(channel * outputHeight + oy) * outputWidth + ox] = min(6, max(0, value))
+                }
+            }
+        }
+        return values
+    }
 }
 
 public enum ReferenceConv3x3Stem {

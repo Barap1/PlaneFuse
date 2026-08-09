@@ -415,6 +415,43 @@ private struct Float16FeasibilityArtifact: Codable {
     let sourceAndBoundary: String
 }
 
+private struct PolyphaseTiming: Codable {
+    let p50Milliseconds: Double
+    let p95Milliseconds: Double
+    let meanMilliseconds: Double
+    let medianAbsoluteDeviationMilliseconds: Double
+
+    init(_ values: [Double]) {
+        let sorted = values.sorted()
+        func rank(_ p: Double) -> Double { sorted[max(1, Int(ceil(p * Double(sorted.count)))) - 1] }
+        let median = rank(0.5)
+        p50Milliseconds = median; p95Milliseconds = rank(0.95)
+        meanMilliseconds = values.reduce(0, +) / Double(values.count)
+        let deviations = values.map { abs($0 - median) }.sorted()
+        medianAbsoluteDeviationMilliseconds = deviations[max(1, Int(ceil(0.5 * Double(deviations.count)))) - 1]
+    }
+}
+
+private struct PolyphaseBenchmarkArtifact: Codable {
+    let schemaVersion: Int
+    let status: String
+    let commit: String?
+    let environment: EnvironmentSnapshot
+    let warmupIterations: Int
+    let measuredIterations: Int
+    let validationCorpusSampleCount: Int
+    let nativeFrontend: PolyphaseTiming
+    let polyphaseFrontend: PolyphaseTiming
+    let nativeEndToEnd: PolyphaseTiming
+    let polyphaseEndToEnd: PolyphaseTiming
+    let cVsPolyphaseFrontendPercentage: Double
+    let cVsPolyphaseEndToEndPercentage: Double
+    let maxActivationAbsoluteDifference: Double
+    let taskAgreement: Double
+    let uniqueChromaReads: Int
+    let generatedPlan: String
+}
+
 func runFairBench(configuration: FairABCBenchmark.Configuration, label: String) throws -> Int32 {
     let outputPath = ProcessInfo.processInfo.environment["PF_BENCHMARK_OUTPUT"] ?? "benchmarks/results/fair-\(label).json"
     let measurement = try FairABCBenchmark(configuration: configuration).run()
@@ -615,6 +652,87 @@ private func relativeAssetPath(_ path: String, root: URL) -> String {
     return "<external>/" + URL(fileURLWithPath: absolute).lastPathComponent
 }
 
+func runPolyphaseBench() throws -> Int32 {
+    let root = URL(fileURLWithPath: FileManager.default.currentDirectoryPath, isDirectory: true)
+    let coefficientPath = ProcessInfo.processInfo.environment["PF_MOBILENET_COEFFICIENTS"] ?? "models/derived/MobileNetV2StemCoefficients.json"
+    let tailPath = ProcessInfo.processInfo.environment["PF_MOBILENET_TAIL"] ?? "models/derived/tail-compiled/MobileNetV2Tail.mlmodelc"
+    let manifest = MobileNetV2AssetManifest.inspected
+    try manifest.validate(at: root)
+    let lineage = try MobileNetV2DerivedArtifactManifest.load(from: root.appendingPathComponent(manifest.derivedManifest))
+    try lineage.validate(at: root)
+    let corpus = try MobileNetV2Corpus(manifestURL: root.appendingPathComponent(manifest.validationCorpusManifest), root: root)
+    let frames = try corpus.loadFrames()
+    let coefficients = try MobileNetV2StemCoefficients.load(from: URL(fileURLWithPath: coefficientPath))
+    let factory = try MetalRGBBaseline()
+    let native = try MetalMobileNetV2NativeStem(coefficients: coefficients)
+    let polyphase = try MetalMobileNetV2PolyphaseStem(coefficients: coefficients)
+    let tail = try CoreMLMobileNetV2TailAdapter(modelURL: URL(fileURLWithPath: tailPath), manifest: manifest)
+    let nativeActivation = try native.makeActivationBuffer()
+    let polyphaseActivation = try polyphase.makeActivationBuffer()
+    let nativeShared = try BufferBackedMultiArray(buffer: nativeActivation, shape: MetalMobileNetV2NativeStem.activationShape)
+    let polyphaseShared = try BufferBackedMultiArray(buffer: polyphaseActivation, shape: MetalMobileNetV2NativeStem.activationShape)
+    let confirm = ProcessInfo.processInfo.environment["PF_POLYPHASE_CONFIRM"] == "1"
+    let warmups = confirm ? 20 : 5; let measured = confirm ? 100 : 20
+    var nativeFrontend: [Double] = []; var polyphaseFrontend: [Double] = []
+    var nativeEnd: [Double] = []; var polyphaseEnd: [Double] = []
+    var maxError = 0.0; var agreement = 0
+    func elapsed(_ operation: () throws -> Void) rethrows -> Double {
+        let start = ProcessInfo.processInfo.systemUptime; try operation(); return (ProcessInfo.processInfo.systemUptime - start) * 1_000
+    }
+    func topLabel(_ probabilities: [String: Double]) -> String? { probabilities.max { $0.value < $1.value }?.key }
+    for iteration in 0..<(warmups + measured) {
+        let frame = frames[iteration % frames.count]
+        let input = try factory.makeNV12Textures(width: 224, height: 224, yPlaneBytes: frame.yPlaneBytes, uvPlaneBytes: frame.uvPlaneBytes)
+        var nFrontend = 0.0; var pFrontend = 0.0; var nEnd = 0.0; var pEnd = 0.0
+        if iteration.isMultiple(of: 2) {
+            nFrontend = try elapsed { try native.execute(input, into: nativeActivation) }
+            nEnd = try elapsed { _ = try tail.predict(sharedActivation: nativeShared) }
+            pFrontend = try elapsed { try polyphase.execute(input, into: polyphaseActivation) }
+            pEnd = try elapsed { _ = try tail.predict(sharedActivation: polyphaseShared) }
+        } else {
+            pFrontend = try elapsed { try polyphase.execute(input, into: polyphaseActivation) }
+            pEnd = try elapsed { _ = try tail.predict(sharedActivation: polyphaseShared) }
+            nFrontend = try elapsed { try native.execute(input, into: nativeActivation) }
+            nEnd = try elapsed { _ = try tail.predict(sharedActivation: nativeShared) }
+        }
+        if iteration >= warmups {
+            nativeFrontend.append(nFrontend); polyphaseFrontend.append(pFrontend); nativeEnd.append(nEnd); polyphaseEnd.append(pEnd)
+            let nativeFeatures = try native.readActivation(from: nativeActivation)
+            let polyphaseFeatures = try polyphase.readActivation(from: polyphaseActivation)
+            maxError = max(maxError, zip(nativeFeatures, polyphaseFeatures).map { abs(Double($0 - $1)) }.max() ?? 0)
+            let nativeOutput = try tail.predict(sharedActivation: nativeShared)
+            let polyphaseOutput = try tail.predict(sharedActivation: polyphaseShared)
+            if topLabel(nativeOutput) == topLabel(polyphaseOutput) { agreement += 1 }
+        }
+    }
+    let nativeFrontendStats = PolyphaseTiming(nativeFrontend); let polyphaseFrontendStats = PolyphaseTiming(polyphaseFrontend)
+    let nativeEndStats = PolyphaseTiming(nativeEnd); let polyphaseEndStats = PolyphaseTiming(polyphaseEnd)
+    let artifact = PolyphaseBenchmarkArtifact(
+        schemaVersion: 1,
+        status: maxError <= Double(FairABCBenchmark.featureParityTolerance) && Double(agreement) / Double(measured) >= 1.0 ? "r5_polyphase_measured" : "r5_polyphase_parity_failed",
+        commit: ProcessInfo.processInfo.environment["PF_GIT_COMMIT"],
+        environment: EnvironmentSnapshot(), warmupIterations: warmups, measuredIterations: measured,
+        validationCorpusSampleCount: frames.count, nativeFrontend: nativeFrontendStats, polyphaseFrontend: polyphaseFrontendStats,
+        nativeEndToEnd: nativeEndStats, polyphaseEndToEnd: polyphaseEndStats,
+        cVsPolyphaseFrontendPercentage: (nativeFrontendStats.p50Milliseconds - polyphaseFrontendStats.p50Milliseconds) / nativeFrontendStats.p50Milliseconds * 100,
+        cVsPolyphaseEndToEndPercentage: (nativeEndStats.p50Milliseconds - polyphaseEndStats.p50Milliseconds) / nativeEndStats.p50Milliseconds * 100,
+        maxActivationAbsoluteDifference: maxError, taskAgreement: Double(agreement) / Double(measured), uniqueChromaReads: 4,
+        generatedPlan: "Exact nearest-sited 4:2:0: nine luma taps, four aggregated chroma phases, per-tap source offsets for bottom/right padding."
+    )
+    let outputPath = ProcessInfo.processInfo.environment["PF_BENCHMARK_OUTPUT"] ?? (confirm ? "benchmarks/results/r5-polyphase-confirm.json" : "benchmarks/results/r5-polyphase-quick.json")
+    let url = URL(fileURLWithPath: outputPath)
+    try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+    try JSONEncoder.benchmark.encode(artifact).write(to: url, options: .atomic)
+    emit("PlaneFuse bench polyphase: \(artifact.status.uppercased())")
+    emit(String(format: "native_frontend_p50_ms: %.4f", nativeFrontendStats.p50Milliseconds))
+    emit(String(format: "polyphase_frontend_p50_ms: %.4f", polyphaseFrontendStats.p50Milliseconds))
+    emit(String(format: "native_e2e_p50_ms: %.4f", nativeEndStats.p50Milliseconds))
+    emit(String(format: "polyphase_e2e_p50_ms: %.4f", polyphaseEndStats.p50Milliseconds))
+    emit(String(format: "polyphase_vs_native_e2e_percent: %.2f", artifact.cVsPolyphaseEndToEndPercentage))
+    emit(String(format: "max_activation_abs_error: %.8f", maxError))
+    return artifact.status == "r5_polyphase_measured" ? 0 : 1
+}
+
 do {
     let arguments = Array(CommandLine.arguments.dropFirst())
     guard let command = arguments.first else { throw CommandError.usage }
@@ -641,6 +759,9 @@ do {
         exit(try runVerify())
     case "bench":
         let benchmarkArguments = Array(arguments.dropFirst())
+        if benchmarkArguments == ["polyphase"] {
+            exit(try runPolyphaseBench())
+        }
         if benchmarkArguments == ["quick"] {
             exit(try runBench())
         }

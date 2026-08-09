@@ -96,6 +96,18 @@ case "$command_name" in
     cat "$log_file"
     ;;
   bench)
+    if [ "$command_args" = "polyphase" ] || [ "$command_args" = "polyphase confirm" ]; then
+      if [ "$command_args" = "polyphase confirm" ]; then
+        benchmark_output="${PF_BENCHMARK_OUTPUT:-$ROOT/benchmarks/results/r5-polyphase-confirm.json}"
+        polyphase_confirm=1
+      else
+        benchmark_output="${PF_BENCHMARK_OUTPUT:-$ROOT/benchmarks/results/r5-polyphase-quick.json}"
+        polyphase_confirm=0
+      fi
+      PF_ARCHITECTURE="$(uname -m)" PF_SWIFT_VERSION="$(swift --version | head -n 1)" PF_XCODE_VERSION="$(xcodebuild -version | head -n 1)" PF_GIT_COMMIT="$(git rev-parse HEAD)" PF_BUILD_CONFIGURATION="release" PF_BENCHMARK_OUTPUT="$benchmark_output" PF_POLYPHASE_CONFIRM="$polyphase_confirm" run_logged swift run -c release planefuse bench polyphase
+      cat "$log_file"
+      exit 0
+    fi
     if [ "$command_args" = "quick" ]; then
       benchmark_output="${PF_BENCHMARK_OUTPUT:-$ROOT/benchmarks/results/quick.json}"
       PF_ARCHITECTURE="$(uname -m)" PF_SWIFT_VERSION="$(swift --version | head -n 1)" PF_XCODE_VERSION="$(xcodebuild -version | head -n 1)" PF_GIT_COMMIT="$(git rev-parse HEAD)" PF_BUILD_CONFIGURATION="release" PF_BENCHMARK_OUTPUT="$benchmark_output" run_logged swift run -c release planefuse bench quick

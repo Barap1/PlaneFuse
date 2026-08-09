@@ -32,3 +32,41 @@ kernel void nv12ToMobileNetV2Stem(
     }
     activation[(gid.z * 112 + gid.y) * 112 + gid.x] = clamp(value, 0.0f, 6.0f);
 }
+
+// R5 Experiment A: exact nearest-sited 4:2:0 polyphase form. It preserves
+// per-tap luma/offset work and aggregates only the repeated chroma phases.
+kernel void nv12ToMobileNetV2StemPolyphase(
+    texture2d<uint, access::read> yPlane [[texture(0)]],
+    texture2d<uint, access::read> uvPlane [[texture(1)]],
+    device float *activation [[buffer(0)]],
+    constant float *lumaWeights [[buffer(1)]],
+    constant float *chromaWeights [[buffer(2)]],
+    constant float *sourceOffsets [[buffer(3)]],
+    constant float *bias [[buffer(4)]],
+    uint3 gid [[thread_position_in_grid]]) {
+    if (gid.x >= 112 || gid.y >= 112 || gid.z >= 48) return;
+    float value = bias[gid.z];
+    for (uint ky = 0; ky < 3; ++ky) {
+        for (uint kx = 0; kx < 3; ++kx) {
+            const int x = int(gid.x * 2 + kx);
+            const int y = int(gid.y * 2 + ky);
+            if (x < 0 || x >= 224 || y < 0 || y >= 224) continue;
+            const float luma = (float(yPlane.read(uint2(x, y)).x) - 16.0f) / 219.0f;
+            const uint tap = gid.z * 9 + ky * 3 + kx;
+            value += sourceOffsets[tap] + lumaWeights[tap] * luma;
+        }
+    }
+    for (uint chromaY = 0; chromaY < 2; ++chromaY) {
+        for (uint chromaX = 0; chromaX < 2; ++chromaX) {
+            const int x = int(gid.x * 2 + chromaX * 2);
+            const int y = int(gid.y * 2 + chromaY * 2);
+            if (x < 0 || x >= 224 || y < 0 || y >= 224) continue;
+            const uint2 chroma = uvPlane.read(uint2(x / 2, y / 2)).xy;
+            const float cb = (float(chroma.x) - 128.0f) / 224.0f;
+            const float cr = (float(chroma.y) - 128.0f) / 224.0f;
+            const uint base = (gid.z * 4 + chromaY * 2 + chromaX) * 2;
+            value += chromaWeights[base] * cb + chromaWeights[base + 1] * cr;
+        }
+    }
+    activation[(gid.z * 112 + gid.y) * 112 + gid.x] = clamp(value, 0.0f, 6.0f);
+}
