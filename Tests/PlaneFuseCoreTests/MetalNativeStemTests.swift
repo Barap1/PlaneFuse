@@ -3,7 +3,7 @@ import XCTest
 @testable import PlaneFuseCore
 
 final class MetalNativeStemTests: XCTestCase {
-    func testNV12FixtureMatchesReferenceStemForAllFeatureChannels() throws {
+    func testNV12FixtureMatchesReferenceStemForAllFeatureChannelsAcrossMultipleUVRows() throws {
         guard let device = MTLCreateSystemDefaultDevice() else {
             throw XCTSkip("Metal-specific test skipped: no Metal device is available.")
         }
@@ -11,9 +11,17 @@ final class MetalNativeStemTests: XCTestCase {
         let inputFactory = try MetalRGBBaseline(device: device)
         let input = try inputFactory.makeNV12Textures(
             width: 4,
-            height: 2,
-            yPlaneBytes: [16, 81, 145, 235, 32, 96, 160, 224],
-            uvPlaneBytes: [90, 240, 166, 16]
+            height: 4,
+            yPlaneBytes: [
+                16, 81, 145, 235,
+                32, 96, 160, 224,
+                48, 112, 176, 208,
+                64, 128, 192, 220,
+            ],
+            uvPlaneBytes: [
+                90, 240, 166, 16,
+                54, 34, 202, 210,
+            ]
         )
         let nativeStem = try MetalNativeStem(device: device)
         let output = try nativeStem.makeFeatureTexture(width: input.width, height: input.height)
@@ -21,8 +29,16 @@ final class MetalNativeStemTests: XCTestCase {
         _ = try nativeStem.execute(input, into: output)
         let values = readRGBA32Float(from: output)
 
-        let yPlane: [UInt8] = [16, 81, 145, 235, 32, 96, 160, 224]
-        let uvPlane: [UInt8] = [90, 240, 166, 16]
+        let yPlane: [UInt8] = [
+            16, 81, 145, 235,
+            32, 96, 160, 224,
+            48, 112, 176, 208,
+            64, 128, 192, 220,
+        ]
+        let uvPlane: [UInt8] = [
+            90, 240, 166, 16,
+            54, 34, 202, 210,
+        ]
         var maximumAbsoluteError: Float = 0
         for y in 0..<input.height {
             for x in 0..<input.width {
@@ -55,6 +71,25 @@ final class MetalNativeStemTests: XCTestCase {
         let invalidStem = OneByOneStem(weights: [0.1, 0.2, 0.3], bias: [0])
         XCTAssertThrowsError(try MetalNativeStem(device: device, stem: invalidStem)) { error in
             XCTAssertEqual(error as? MetalNativeStem.Error, .unsupportedOutputChannelCount(1))
+        }
+    }
+
+    func testNativeStemRejectsUnsupportedSemanticsBeforeShaderUse() throws {
+        let unsupportedSemantics = NV12Semantics(
+            name: "nv12-unsupported-fixture",
+            yOffset: 0,
+            yScale: 255,
+            chromaOffset: 128,
+            chromaScale: 255,
+            rgbFromSource: [
+                [1, 0, 0],
+                [0, 1, 0],
+                [0, 0, 1],
+            ]
+        )
+
+        XCTAssertThrowsError(try MetalNativeStem(semantics: unsupportedSemantics)) { error in
+            XCTAssertEqual(error as? MetalNativeStem.Error, .unsupportedSemantics(unsupportedSemantics))
         }
     }
 

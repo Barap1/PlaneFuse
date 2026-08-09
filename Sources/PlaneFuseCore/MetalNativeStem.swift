@@ -18,6 +18,7 @@ public final class MetalNativeStem {
         case shaderResourceMissing
         case shaderSourceUnreadable
         case functionMissing
+        case unsupportedSemantics(NV12Semantics)
         case unsupportedOutputChannelCount(Int)
         case coefficientBufferUnavailable
         case invalidDimensions(width: Int, height: Int)
@@ -40,6 +41,8 @@ public final class MetalNativeStem {
                 return "The bundled NV12NativeStem Metal source could not be read."
             case .functionMissing:
                 return "The nv12ToNativeStemFeatures kernel is missing."
+            case let .unsupportedSemantics(semantics):
+                return "The native-plane Metal shader supports only NV12Semantics.bt601VideoRange; received \(semantics.name)."
             case let .unsupportedOutputChannelCount(count):
                 return "RGBA32Float native stem output requires exactly four channels; received \(count)."
             case .coefficientBufferUnavailable:
@@ -92,6 +95,12 @@ public final class MetalNativeStem {
         semantics: NV12Semantics = .bt601VideoRange,
         normalization: RGBNormalization = MetalNativeStem.m1FixtureNormalization
     ) throws {
+        // The Metal kernel has BT.601 video-range offsets and scales compiled into
+        // its source. Do not compile source coefficients for a different semantic
+        // contract that the shader cannot decode correctly.
+        guard semantics == .bt601VideoRange else {
+            throw Error.unsupportedSemantics(semantics)
+        }
         guard stem.outputChannels == 4 else {
             throw Error.unsupportedOutputChannelCount(stem.outputChannels)
         }
