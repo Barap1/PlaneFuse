@@ -60,7 +60,7 @@ case "$command_name" in
     if [ "$command_args" = "mobilenetv2" ]; then
       run_logged swift run -c debug planefuse verify mobilenetv2
     elif [ "$command_args" = "lineage" ]; then
-      run_logged swift run -c debug planefuse verify lineage
+      PF_ARCHITECTURE="$(uname -m)" PF_SWIFT_VERSION="$(swift --version | head -n 1)" PF_XCODE_VERSION="$(xcodebuild -version | head -n 1)" run_logged swift run -c debug planefuse verify lineage
     elif [ -z "$command_args" ]; then
       run_logged swift run -c debug planefuse verify
     else
