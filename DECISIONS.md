@@ -50,6 +50,18 @@ Evidence: M0 gate passed with `./pf build`, `./pf test quick`, `./pf doctor`, `.
 
 Revisit when: M9 if the live camera shell requires an Xcode app target.
 
+## D006 - M1 affine proof scope and tolerance
+
+Status: accepted
+
+Decision: M1 supports 8-bit bi-planar NV12 with BT.601 video-range decoding, one decoded Y/Cb/Cr sample per output pixel, per-channel normalization, and a 1x1 linear stem. The reference parity target is max absolute error <= 1e-12 in Double precision.
+
+Why: This proves the coefficient composition and bias handling without implying support for resize interpolation, nonlinear transfer functions, clipping policy, chroma siting, spatial convolution, or arbitrary model stems. Those semantics must be locked before GPU/native performance claims.
+
+Evidence: `proof/m1-reference-parity.json` records 512 deterministic samples with max absolute error 2.220446049250313e-15; the configured read-only Sol Advisor returned `proceed` and identified real NV12 plane semantics and GPU precision as M2/M3 risks.
+
+Revisit when: M2 locks source-plane sampling and M3 establishes GPU parity thresholds.
+
 ---
 
 New decision template:
