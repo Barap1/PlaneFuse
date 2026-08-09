@@ -111,6 +111,20 @@ Outcome: REJECT
 Lesson: The stable toolchain can compile a Float16-input copy, but the current tail's output sensitivity exceeds the predeclared Float16 quality contract. Do not accept an IOSurface Float16 path or silently relax the threshold; proceed to R4 feasibility with the accepted Float32 shared bridge as control.
 Accepted commit (if any): none; the verifier and preparation script are retained as a reproducible negative result.
 
+## E009 - R4 Metal 4 GPU-timeline tail feasibility
+
+Date: 2026-08-09
+Base commit: 41831b1
+Evidence/observation: Stable Xcode 26.6 provides `metal-package-builder`, `MTLTensor`, and `MTL4MachineLearningCommandEncoder`, but the unchanged derived tail compiles as an Espresso/neural-network model rather than an ML Program package.
+Hypothesis: The unchanged tail can be promoted or converted into a provenance-preserving ML Program and packaged for the Metal 4 ML encoder.
+Change: Attempted `coremlc upgrade`, forced ML Program compilation, normal compilation inspection, and coremltools 9.0 ML Program conversion in temporary paths.
+Correctness: No candidate execution was produced; no quality claim was made.
+Quick benchmark: Not applicable; the package prerequisite failed.
+Confirmation benchmark: Not applicable.
+Outcome: REJECT
+Lesson: The stable toolchain cannot convert this already-authored specification-version-1 neural-network tail without an unavailable source representation or a provenance-changing re-authoring. Retain R2 and continue to R5; do not install beta tooling or claim a GPU-timeline tail.
+Accepted commit (if any): none; infeasibility report committed in the Phase 2 state transition.
+
 Template:
 
 ## Exxx - short title

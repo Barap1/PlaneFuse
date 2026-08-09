@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "status": "INFEASIBLE_STABLE_TOOLCHAIN",
+  "environment": {
+    "macos": "26.6",
+    "xcode": "26.6",
+    "metal_package_builder": "installed",
+    "metal4_headers": "installed"
+  },
+  "source_model": {
+    "path": "models/derived/MobileNetV2Tail.mlmodel",
+    "format": "Core ML specification-version-1 neuralNetworkClassifier / Espresso"
+  },
+  "attempts": [
+    {"command": "coremlc upgrade <tail.mlmodel> <output>", "result": "failed: upgrade command failed"},
+    {"command": "coremlc compile <tail.mlmodel> <output> --add-mlprogram-if-eligible force", "result": "failed: unable to add an ML Program"},
+    {"command": "coremltools==9.0 ct.convert(<tail.mlmodel>, convert_to=mlprogram)", "result": "failed: source framework cannot be inferred"}
+  ],
+  "normal_compile_observation": ["model.espresso.weights", "model.espresso.shape", "model.espresso.net", "neural_network_optionals/coremldata.bin"],
+  "decision": "retain R2 Float32 shared bridge; continue to R5; no GPU-timeline claim"
+}
