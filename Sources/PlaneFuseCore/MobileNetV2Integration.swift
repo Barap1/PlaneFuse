@@ -325,6 +325,59 @@ public final class CoreMLMobileNetV2TailAdapter: MobileNetV2TailRunning {
     }
 }
 
+/// R3 feasibility adapter. The model graph is unchanged; only the declared
+/// activation input storage is Float16. It is intentionally separate from the
+/// accepted Float32 control path and is not a release dependency yet.
+public final class CoreMLMobileNetV2Float16TailAdapter {
+    private let model: MLModel
+    private let inputName: String
+    private let outputName: String
+    private let activationShape: [NSNumber]
+    private let activationCount: Int
+
+    public init(modelURL: URL) throws {
+        guard FileManager.default.fileExists(atPath: modelURL.path) else { throw MobileNetV2IntegrationError.tailModelMissing(modelURL) }
+        let configuration = MLModelConfiguration()
+        configuration.computeUnits = .cpuOnly
+        let loadedModel = try MLModel(contentsOf: CoreMLMobileNetV2TailAdapter.resolvedModelURL(modelURL), configuration: configuration)
+        self.model = loadedModel
+        let inputs = loadedModel.modelDescription.inputDescriptionsByName
+        guard inputs.count == 1, let input = inputs.first,
+              input.value.type == .multiArray,
+              let constraint = input.value.multiArrayConstraint,
+              constraint.dataType == .float16,
+              constraint.shape.map(\.intValue) == MobileNetV2AssetManifest.expectedActivationShape else {
+            throw MobileNetV2IntegrationError.invalidTailInput(name: inputs.first?.key ?? "unknown", shape: MobileNetV2AssetManifest.expectedActivationShape)
+        }
+        self.inputName = input.key
+        self.outputName = loadedModel.modelDescription.outputDescriptionsByName.keys.first(where: { name in
+            loadedModel.modelDescription.outputDescriptionsByName[name]?.type == .dictionary
+        }) ?? "classLabelProbs"
+        self.activationShape = MobileNetV2AssetManifest.expectedActivationShape.map { NSNumber(value: $0) }
+        self.activationCount = MobileNetV2AssetManifest.expectedActivationShape.reduce(1, *)
+    }
+
+    public func predict(stemActivation: [Float]) throws -> [String: Double] {
+        guard stemActivation.count == activationCount else {
+            throw MobileNetV2IntegrationError.invalidActivationCount(expected: activationCount, actual: stemActivation.count)
+        }
+        let array = try MLMultiArray(shape: activationShape, dataType: .float16)
+        for index in 0..<activationCount {
+            array[index] = NSNumber(value: Double(Float16(stemActivation[index])))
+        }
+        let output = try model.prediction(from: MLDictionaryFeatureProvider(dictionary: [inputName: array]))
+        guard let probabilities = output.featureValue(for: outputName)?.dictionaryValue else {
+            throw MobileNetV2IntegrationError.unexpectedTailOutput(outputName)
+        }
+        var extracted: [String: Double] = [:]
+        for (key, value) in probabilities {
+            guard let label = key as? String else { continue }
+            extracted[label] = value.doubleValue
+        }
+        return extracted
+    }
+}
+
 /// Direct adapter for the original Apple image-input model. This is used only
 /// for source-lineage evidence; production B/C timing continues to use the
 /// derived array/tail boundary.

@@ -215,6 +215,60 @@ func runVerifySourceLineage() throws -> Int32 {
     return artifact.status == "PASS" ? 0 : 1
 }
 
+func runVerifyFloat16() throws -> Int32 {
+    let root = URL(fileURLWithPath: FileManager.default.currentDirectoryPath, isDirectory: true)
+    let float16Path = ProcessInfo.processInfo.environment["PF_MOBILENET_FLOAT16_TAIL"] ?? "/private/tmp/planefuse-f16/MobileNetV2TailFloat16-v7.mlmodelc"
+    let manifest = MobileNetV2AssetManifest.inspected
+    try manifest.validate(at: root)
+    let lineage = try MobileNetV2DerivedArtifactManifest.load(from: root.appendingPathComponent(manifest.derivedManifest))
+    try lineage.validate(at: root)
+    let corpus = try MobileNetV2Corpus(manifestURL: root.appendingPathComponent(manifest.validationCorpusManifest), root: root)
+    let float32Path = URL(fileURLWithPath: ProcessInfo.processInfo.environment["PF_MOBILENET_TAIL"] ?? manifest.tailModelDirectory)
+    let float32 = try CoreMLMobileNetV2TailAdapter(modelURL: float32Path, manifest: manifest)
+    let float16 = try CoreMLMobileNetV2Float16TailAdapter(modelURL: URL(fileURLWithPath: float16Path))
+    let stemArrayPath = URL(fileURLWithPath: ProcessInfo.processInfo.environment["PF_MOBILENET_STEM_ARRAY"] ?? "models/derived/stem-array-compiled/MobileNetV2Stem.mlmodelc")
+    let stemArray = try CoreMLMobileNetV2StemArrayAdapter(modelURL: stemArrayPath, lineage: lineage, computeUnits: .cpuOnly)
+    let frames = try corpus.loadFrames()
+    var top1 = 0
+    var maxProbabilityError = 0.0
+    var totalL1 = 0.0
+    for frame in frames {
+        let features = try stemArray.predict(normalizedRGB: frame.normalizedRGB())
+        let reference = try float32.predict(stemActivation: features)
+        let candidate = try float16.predict(stemActivation: features)
+        if topLabels(reference, count: 1).first == topLabels(candidate, count: 1).first { top1 += 1 }
+        let labels = Set(reference.keys).union(candidate.keys)
+        maxProbabilityError = max(maxProbabilityError, labels.map { abs((reference[$0] ?? 0) - (candidate[$0] ?? 0)) }.max() ?? 0)
+        totalL1 += labels.reduce(0) { $0 + abs((reference[$1] ?? 0) - (candidate[$1] ?? 0)) }
+    }
+    let top1Agreement = Double(top1) / Double(frames.count)
+    let meanL1 = totalL1 / Double(frames.count)
+    let thresholds = ["top1_agreement": 0.995, "probability_max_abs_error": 0.005, "probability_mean_l1_distance": 0.05]
+    let pass = top1Agreement >= thresholds["top1_agreement"]! && maxProbabilityError <= thresholds["probability_max_abs_error"]! && meanL1 <= thresholds["probability_mean_l1_distance"]!
+    let artifact = Float16FeasibilityArtifact(
+        schemaVersion: 1,
+        status: pass ? "r3_float16_feasible" : "r3_float16_rejected",
+        commit: ProcessInfo.processInfo.environment["PF_GIT_COMMIT"],
+        environment: EnvironmentSnapshot(),
+        float16TailPath: relativeAssetPath(float16Path, root: root),
+        corpusSampleCount: frames.count,
+        top1Agreement: top1Agreement,
+        probabilityMaximumAbsoluteError: maxProbabilityError,
+        probabilityMeanL1Distance: meanL1,
+        declaredThresholds: thresholds,
+        sourceAndBoundary: "Float16 input declaration on an unchanged derived MobileNetV2 tail; Float32 CPU-only tail is the reference. This is tail feasibility only, before IOSurface/Metal bridge timing."
+    )
+    let outputPath = ProcessInfo.processInfo.environment["PF_FLOAT16_OUTPUT"] ?? "proof/r3-float16-feasibility.json"
+    let url = URL(fileURLWithPath: outputPath)
+    try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+    try JSONEncoder.benchmark.encode(artifact).write(to: url, options: .atomic)
+    emit("PlaneFuse verify Float16 tail: \(artifact.status.uppercased())")
+    emit(String(format: "top1_agreement: %.4f", top1Agreement))
+    emit(String(format: "probability_max_abs_error: %.8f", maxProbabilityError))
+    emit(String(format: "probability_mean_l1_distance: %.8f", meanL1))
+    return pass ? 0 : 1
+}
+
 private func topLabels(_ probabilities: [String: Double], count: Int) -> [String] {
     probabilities.sorted { lhs, rhs in
         lhs.value == rhs.value ? lhs.key < rhs.key : lhs.value > rhs.value
@@ -345,6 +399,20 @@ private struct MobileNetV2SharedBridgeConfirmationArtifact: Codable {
     let batches: [MobileNetV2SharedBridgeBenchmark.Measurement]
     let model: MobileNetV2AssetManifest
     let runtimeAssets: [String: String]
+}
+
+private struct Float16FeasibilityArtifact: Codable {
+    let schemaVersion: Int
+    let status: String
+    let commit: String?
+    let environment: EnvironmentSnapshot
+    let float16TailPath: String
+    let corpusSampleCount: Int
+    let top1Agreement: Double
+    let probabilityMaximumAbsoluteError: Double
+    let probabilityMeanL1Distance: Double
+    let declaredThresholds: [String: Double]
+    let sourceAndBoundary: String
 }
 
 func runFairBench(configuration: FairABCBenchmark.Configuration, label: String) throws -> Int32 {
@@ -565,6 +633,9 @@ do {
         }
         if arguments == ["verify", "mobilenetv2"] {
             exit(try runVerifyMobileNetV2())
+        }
+        if arguments == ["verify", "float16"] {
+            exit(try runVerifyFloat16())
         }
         guard arguments == ["verify"] else { throw CommandError.usage }
         exit(try runVerify())

@@ -59,12 +59,14 @@ case "$command_name" in
   verify)
     if [ "$command_args" = "mobilenetv2" ]; then
       run_logged swift run -c debug planefuse verify mobilenetv2
+    elif [ "$command_args" = "float16" ]; then
+      PF_ARCHITECTURE="$(uname -m)" PF_SWIFT_VERSION="$(swift --version | head -n 1)" PF_XCODE_VERSION="$(xcodebuild -version | head -n 1)" run_logged swift run -c debug planefuse verify float16
     elif [ "$command_args" = "lineage" ]; then
       PF_ARCHITECTURE="$(uname -m)" PF_SWIFT_VERSION="$(swift --version | head -n 1)" PF_XCODE_VERSION="$(xcodebuild -version | head -n 1)" run_logged swift run -c debug planefuse verify lineage
     elif [ -z "$command_args" ]; then
       run_logged swift run -c debug planefuse verify
     else
-      echo "usage: ./pf verify|verify mobilenetv2|verify lineage"
+      echo "usage: ./pf verify|verify mobilenetv2|verify lineage|verify float16"
       exit 2
     fi
     cat "$log_file"
