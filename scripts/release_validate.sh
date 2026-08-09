@@ -18,7 +18,8 @@ status=0
 trap 'rm -rf "$clone_root"' EXIT
 
 git clone --quiet --no-local --branch "$branch" "$ROOT" "$clone"
-(
+run_clean_clone() {
+  set -e
   cd "$clone"
   ./pf setup mobilenetv2
   python3 scripts/check_benchmark_index.py
@@ -31,7 +32,11 @@ git clone --quiet --no-local --branch "$branch" "$ROOT" "$clone"
   ./pf test quick
   ./pf bench quick
   ./pf live --sample
-) >"$clone_root/run.log" 2>&1 || status=$?
+}
+set +e
+run_clean_clone >"$clone_root/run.log" 2>&1
+status=$?
+set -e
 finished="$(date +%s)"
 elapsed=$((finished - started))
 
