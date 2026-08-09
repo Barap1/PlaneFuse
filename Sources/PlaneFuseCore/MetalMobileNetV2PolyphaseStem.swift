@@ -7,6 +7,7 @@ import Metal
 public final class MetalMobileNetV2PolyphaseStem {
     public let device: MTLDevice
     public let commandQueue: MTLCommandQueue
+    public let operatorMetadata: NativePlaneOperatorMetadata
     private let pipelineState: MTLComputePipelineState
     private let lumaWeights: MTLBuffer
     private let chromaWeights: MTLBuffer
@@ -30,6 +31,7 @@ public final class MetalMobileNetV2PolyphaseStem {
               let offsets = Self.makeBuffer(device: device, values: plan.sourceOffsets),
               let biases = Self.makeBuffer(device: device, values: plan.bias) else { throw MetalMobileNetV2NativeStem.Error.coefficientBufferUnavailable }
         self.device = device; self.commandQueue = queue
+        self.operatorMetadata = plan.operatorMetadata
         self.pipelineState = try device.makeComputePipelineState(function: function)
         self.lumaWeights = luma; self.chromaWeights = chroma; self.sourceOffsets = offsets; self.bias = biases
     }
@@ -42,6 +44,10 @@ public final class MetalMobileNetV2PolyphaseStem {
     }
 
     public func execute(_ input: MetalRGBBaseline.NV12Textures, into activation: MTLBuffer) throws {
+        _ = try executeTimed(input, into: activation)
+    }
+
+    public func executeTimed(_ input: MetalRGBBaseline.NV12Textures, into activation: MTLBuffer) throws -> MetalMobileNetV2NativeStem.ExecutionTiming {
         guard input.width == 224, input.height == 224, activation.length >= MetalMobileNetV2NativeStem.activationCount * MemoryLayout<Float>.stride else {
             throw MetalMobileNetV2NativeStem.Error.invalidInput
         }
@@ -53,8 +59,17 @@ public final class MetalMobileNetV2PolyphaseStem {
         encoder.setBuffer(activation, offset: 0, index: 0); encoder.setBuffer(lumaWeights, offset: 0, index: 1)
         encoder.setBuffer(chromaWeights, offset: 0, index: 2); encoder.setBuffer(sourceOffsets, offset: 0, index: 3); encoder.setBuffer(bias, offset: 0, index: 4)
         encoder.dispatchThreads(MTLSize(width: 112, height: 112, depth: 48), threadsPerThreadgroup: MTLSize(width: 8, height: 8, depth: 1))
-        encoder.endEncoding(); commandBuffer.commit(); commandBuffer.waitUntilCompleted()
+        let start = ProcessInfo.processInfo.systemUptime
+        encoder.endEncoding(); let encoded = ProcessInfo.processInfo.systemUptime
+        commandBuffer.commit(); let committed = ProcessInfo.processInfo.systemUptime
+        commandBuffer.waitUntilCompleted(); let completed = ProcessInfo.processInfo.systemUptime
         guard commandBuffer.status == .completed else { throw MetalMobileNetV2NativeStem.Error.executionFailed }
+        return MetalMobileNetV2NativeStem.ExecutionTiming(
+            encodeMilliseconds: (encoded - start) * 1_000,
+            gpuWaitMilliseconds: (completed - committed) * 1_000,
+            gpuExecutionMilliseconds: commandBuffer.gpuEndTime > commandBuffer.gpuStartTime ? (commandBuffer.gpuEndTime - commandBuffer.gpuStartTime) * 1_000 : nil,
+            totalMilliseconds: (completed - start) * 1_000
+        )
     }
 
     public func readActivation(from buffer: MTLBuffer) throws -> [Float] {

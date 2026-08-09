@@ -55,7 +55,7 @@ final class NativePlaneCompilerTests: XCTestCase {
         XCTAssertTrue(result.supportedSemantics.contains("NV12 8-bit bi-planar Y+UV input"))
     }
 
-    func testNearestSitedPolyphaseCompilerMatchesPerTapReference() {
+    func testNearestSitedPolyphaseCompilerMatchesIndependentReferenceAcrossPhasesAndEdges() {
         let stem = Conv3x3Stride2BatchNormReLU6Stem(
             outputChannels: 1,
             convolutionWeights: (0..<27).map { Double($0 + 1) },
@@ -63,15 +63,38 @@ final class NativePlaneCompilerTests: XCTestCase {
             batchNormMean: [0], batchNormVariance: [1], batchNormEpsilon: 0
         )
         let normalization = RGBNormalization(mean: [0.5, 0.5, 0.5], standardDeviation: [0.5, 0.5, 0.5])
-        let perTap = NativePlaneConv3x3Compiler.compile(semantics: .bt601VideoRange, normalization: normalization, stem: stem)
         let polyphase = NativePlaneConv3x3Compiler.compilePolyphase(semantics: .bt601VideoRange, normalization: normalization, stem: stem)
-        let y = [UInt8](repeating: 128, count: 16)
-        let uv: [UInt8] = [128, 128, 140, 110, 120, 145, 150, 100]
-        let reference = perTap.evaluate(yPlane: y, uvPlane: uv, width: 4, height: 4, semantics: .bt601VideoRange)
-        let candidate = polyphase.evaluate(yPlane: y, uvPlane: uv, width: 4, height: 4, semantics: .bt601VideoRange)
-        XCTAssertEqual(reference.count, candidate.count)
-        for (lhs, rhs) in zip(reference, candidate) { XCTAssertEqual(lhs, rhs, accuracy: 1e-9) }
+        let perTap = NativePlaneConv3x3Compiler.compile(semantics: .bt601VideoRange, normalization: normalization, stem: stem)
+        var flatY: [UInt8] = []; for index in 0..<24 { flatY.append(UInt8((index * 37 + 3) % 256)) }
+        var flatUV: [UInt8] = []; for index in 0..<6 {
+            flatUV.append(UInt8((index * 29 + 11) % 256)); flatUV.append(UInt8((index * 53 + 97) % 256))
+        }
+        var edgeY: [UInt8] = []; for index in 0..<36 {
+            edgeY.append(index % 3 == 0 ? 16 : (index % 3 == 1 ? 128 : 235))
+        }
+        var edgeUV: [UInt8] = []; for index in 0..<9 {
+            edgeUV.append(UInt8((index % 4) * 43 + 1)); edgeUV.append(UInt8(255 - (index % 4) * 31))
+        }
+        let cases: [(Int, Int, [UInt8], [UInt8])] = [
+            (4, 4, [UInt8](repeating: 128, count: 16), [128, 128, 140, 110, 120, 145, 150, 100]),
+            (6, 4, flatY, flatUV),
+            (6, 6, edgeY, edgeUV)
+        ]
+        for (width, height, y, uv) in cases {
+            let independent = ReferenceConv3x3Stem.evaluate(
+                yPlane: y, uvPlane: uv, width: width, height: height,
+                semantics: .bt601VideoRange, normalization: normalization, stem: stem
+            )
+            let compiled = polyphase.evaluate(yPlane: y, uvPlane: uv, width: width, height: height, semantics: .bt601VideoRange)
+            let perTapResult = perTap.evaluate(yPlane: y, uvPlane: uv, width: width, height: height, semantics: .bt601VideoRange)
+            XCTAssertEqual(independent.count, compiled.count)
+            for (lhs, rhs) in zip(independent, compiled) { XCTAssertEqual(lhs, rhs, accuracy: 1e-9) }
+            for (lhs, rhs) in zip(independent, perTapResult) { XCTAssertEqual(lhs, rhs, accuracy: 1e-9) }
+        }
         XCTAssertEqual(polyphase.chromaWeights.count, 1 * 4 * 2)
+        XCTAssertEqual(perTap.operatorMetadata.uvReadInstructions, 9)
+        XCTAssertEqual(polyphase.operatorMetadata.uvReadInstructions, 4)
+        XCTAssertEqual(polyphase.operatorMetadata.weightedMultiplications, 17)
     }
 }
 

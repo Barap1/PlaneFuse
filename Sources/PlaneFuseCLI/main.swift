@@ -455,6 +455,8 @@ private struct PolyphaseBenchmarkArtifact: Codable {
     let uniqueChromaCoordinates: Int
     let nativeWeightedMultiplications: Int
     let polyphaseWeightedMultiplications: Int
+    let nativeGPUExecution: PolyphaseTiming?
+    let polyphaseGPUExecution: PolyphaseTiming?
     let pairedFrontendDifferencesMilliseconds: [Double]
     let pairedEndToEndDifferencesMilliseconds: [Double]
     let generatedPlan: String
@@ -674,6 +676,10 @@ func runPolyphaseBench() throws -> Int32 {
     let factory = try MetalRGBBaseline()
     let native = try MetalMobileNetV2NativeStem(coefficients: coefficients)
     let polyphase = try MetalMobileNetV2PolyphaseStem(coefficients: coefficients)
+    let normalization = RGBNormalization(mean: [0.5, 0.5, 0.5], standardDeviation: [0.5, 0.5, 0.5])
+    let stem = coefficients.makeStem()
+    let nativePlan = NativePlaneConv3x3Compiler.compile(semantics: .bt601VideoRange, normalization: normalization, stem: stem)
+    let polyphasePlan = NativePlaneConv3x3Compiler.compilePolyphase(semantics: .bt601VideoRange, normalization: normalization, stem: stem)
     let tail = try CoreMLMobileNetV2TailAdapter(modelURL: URL(fileURLWithPath: tailPath), manifest: manifest)
     let nativeActivation = try native.makeActivationBuffer()
     let polyphaseActivation = try polyphase.makeActivationBuffer()
@@ -683,6 +689,7 @@ func runPolyphaseBench() throws -> Int32 {
     let warmups = confirm ? 20 : 5; let measured = confirm ? 200 : 20
     var nativeFrontend: [Double] = []; var polyphaseFrontend: [Double] = []
     var nativeEnd: [Double] = []; var polyphaseEnd: [Double] = []
+    var nativeGPU: [Double] = []; var polyphaseGPU: [Double] = []
     var pairedFrontendDifferences: [Double] = []; var pairedEndToEndDifferences: [Double] = []
     var maxError = 0.0; var agreement = 0
     func elapsed(_ operation: () throws -> Void) rethrows -> Double {
@@ -693,19 +700,35 @@ func runPolyphaseBench() throws -> Int32 {
         let frame = frames[iteration % frames.count]
         let input = try factory.makeNV12Textures(width: 224, height: 224, yPlaneBytes: frame.yPlaneBytes, uvPlaneBytes: frame.uvPlaneBytes)
         var nFrontend = 0.0; var pFrontend = 0.0; var nEnd = 0.0; var pEnd = 0.0
+        var nGPU: Double?; var pGPU: Double?
         if iteration.isMultiple(of: 2) {
-            nFrontend = try elapsed { try native.execute(input, into: nativeActivation) }
+            let nStart = ProcessInfo.processInfo.systemUptime
+            let nTiming = try native.executeTimed(input, into: nativeActivation)
+            nFrontend = (ProcessInfo.processInfo.systemUptime - nStart) * 1_000
+            nGPU = nTiming.gpuExecutionMilliseconds
             nEnd = try elapsed { _ = try tail.predict(sharedActivation: nativeShared) }
-            pFrontend = try elapsed { try polyphase.execute(input, into: polyphaseActivation) }
+            let pStart = ProcessInfo.processInfo.systemUptime
+            let pTiming = try polyphase.executeTimed(input, into: polyphaseActivation)
+            pFrontend = (ProcessInfo.processInfo.systemUptime - pStart) * 1_000
+            pGPU = pTiming.gpuExecutionMilliseconds
             pEnd = try elapsed { _ = try tail.predict(sharedActivation: polyphaseShared) }
         } else {
-            pFrontend = try elapsed { try polyphase.execute(input, into: polyphaseActivation) }
+            let pStart = ProcessInfo.processInfo.systemUptime
+            let pTiming = try polyphase.executeTimed(input, into: polyphaseActivation)
+            pFrontend = (ProcessInfo.processInfo.systemUptime - pStart) * 1_000
+            pGPU = pTiming.gpuExecutionMilliseconds
             pEnd = try elapsed { _ = try tail.predict(sharedActivation: polyphaseShared) }
-            nFrontend = try elapsed { try native.execute(input, into: nativeActivation) }
+            let nStart = ProcessInfo.processInfo.systemUptime
+            let nTiming = try native.executeTimed(input, into: nativeActivation)
+            nFrontend = (ProcessInfo.processInfo.systemUptime - nStart) * 1_000
+            nGPU = nTiming.gpuExecutionMilliseconds
             nEnd = try elapsed { _ = try tail.predict(sharedActivation: nativeShared) }
         }
         if iteration >= warmups {
-            nativeFrontend.append(nFrontend); polyphaseFrontend.append(pFrontend); nativeEnd.append(nEnd); polyphaseEnd.append(pEnd)
+            nativeFrontend.append(nFrontend); polyphaseFrontend.append(pFrontend)
+            nativeEnd.append(nFrontend + nEnd); polyphaseEnd.append(pFrontend + pEnd)
+            if let nGPU { nativeGPU.append(nGPU) }
+            if let pGPU { polyphaseGPU.append(pGPU) }
             pairedFrontendDifferences.append(nFrontend - pFrontend)
             pairedEndToEndDifferences.append(nEnd - pEnd)
             let nativeFeatures = try native.readActivation(from: nativeActivation)
@@ -728,10 +751,15 @@ func runPolyphaseBench() throws -> Int32 {
         cVsPolyphaseFrontendPercentage: (nativeFrontendStats.p50Milliseconds - polyphaseFrontendStats.p50Milliseconds) / nativeFrontendStats.p50Milliseconds * 100,
         cVsPolyphaseEndToEndPercentage: (nativeEndStats.p50Milliseconds - polyphaseEndStats.p50Milliseconds) / nativeEndStats.p50Milliseconds * 100,
         maxActivationAbsoluteDifference: maxError, taskAgreement: Double(agreement) / Double(measured),
-        nativeYReadInstructions: 9, polyphaseYReadInstructions: 9,
-        nativeUVReadInstructions: 9, polyphaseUVReadInstructions: 4,
-        uniqueChromaCoordinates: 4, nativeWeightedMultiplications: 27,
-        polyphaseWeightedMultiplications: 17,
+        nativeYReadInstructions: nativePlan.operatorMetadata.yReadInstructions,
+        polyphaseYReadInstructions: polyphasePlan.operatorMetadata.yReadInstructions,
+        nativeUVReadInstructions: nativePlan.operatorMetadata.uvReadInstructions,
+        polyphaseUVReadInstructions: polyphasePlan.operatorMetadata.uvReadInstructions,
+        uniqueChromaCoordinates: polyphasePlan.operatorMetadata.uniqueChromaCoordinates,
+        nativeWeightedMultiplications: nativePlan.operatorMetadata.weightedMultiplications,
+        polyphaseWeightedMultiplications: polyphasePlan.operatorMetadata.weightedMultiplications,
+        nativeGPUExecution: nativeGPU.count == measured ? PolyphaseTiming(nativeGPU) : nil,
+        polyphaseGPUExecution: polyphaseGPU.count == measured ? PolyphaseTiming(polyphaseGPU) : nil,
         pairedFrontendDifferencesMilliseconds: pairedFrontendDifferences,
         pairedEndToEndDifferencesMilliseconds: pairedEndToEndDifferences,
         generatedPlan: "Exact nearest-sited 4:2:0: nine luma taps, four aggregated chroma phases, per-tap source offsets for bottom/right padding."

@@ -74,6 +74,13 @@ public struct NativePlaneConv3x3Stride2Stem: Equatable {
     public let bias: [Double]
     public let paddingMode: Conv3x3Stride2PaddingMode
 
+    public var operatorMetadata: NativePlaneOperatorMetadata {
+        NativePlaneOperatorMetadata(
+            yReadInstructions: 9, uvReadInstructions: 9,
+            uniqueChromaCoordinates: 4, weightedMultiplications: 27
+        )
+    }
+
     public func evaluate(
         yPlane: [UInt8], uvPlane: [UInt8], width: Int, height: Int,
         semantics: NV12Semantics
@@ -179,6 +186,15 @@ public struct NativePlanePolyphaseConv3x3Stride2Stem: Equatable {
     public let bias: [Double]
     public let paddingMode: Conv3x3Stride2PaddingMode
 
+    public var operatorMetadata: NativePlaneOperatorMetadata {
+        NativePlaneOperatorMetadata(
+            yReadInstructions: lumaWeights.count / outputChannels,
+            uvReadInstructions: chromaWeights.count / (outputChannels * 2),
+            uniqueChromaCoordinates: chromaWeights.count / (outputChannels * 2),
+            weightedMultiplications: lumaWeights.count / outputChannels + chromaWeights.count / outputChannels
+        )
+    }
+
     public func evaluate(
         yPlane: [UInt8], uvPlane: [UInt8], width: Int, height: Int,
         semantics: NV12Semantics
@@ -220,6 +236,15 @@ public struct NativePlanePolyphaseConv3x3Stride2Stem: Equatable {
         }
         return values
     }
+}
+
+/// Operator counts generated from the source-domain coefficient representation.
+/// These are static instruction counts per output feature, not measured timing.
+public struct NativePlaneOperatorMetadata: Equatable {
+    public let yReadInstructions: Int
+    public let uvReadInstructions: Int
+    public let uniqueChromaCoordinates: Int
+    public let weightedMultiplications: Int
 }
 
 public enum ReferenceConv3x3Stem {
