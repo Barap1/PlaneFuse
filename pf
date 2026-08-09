@@ -56,7 +56,7 @@ case "$command_name" in
       echo "usage: ./pf bench quick"
       exit 2
     fi
-    PF_ARCHITECTURE="$(uname -m)" PF_BENCHMARK_OUTPUT="$ROOT/benchmarks/results/quick.json" run_logged swift run -c debug planefuse bench quick
+    PF_ARCHITECTURE="$(uname -m)" PF_SWIFT_VERSION="$(swift --version | head -n 1)" PF_XCODE_VERSION="$(xcodebuild -version | head -n 1)" PF_GIT_COMMIT="$(git rev-parse HEAD)" PF_BUILD_CONFIGURATION="release" PF_BENCHMARK_OUTPUT="$ROOT/benchmarks/results/quick.json" run_logged swift run -c release planefuse bench quick
     cat "$log_file"
     ;;
   *)

@@ -30,6 +30,7 @@ public struct BenchmarkResult: Codable, Equatable {
     public let pipelineB: PipelineMetrics?
     public let pipelineC: PipelineMetrics?
     public let correctness: CorrectnessMetrics?
+    public let measurement: MeasurementMetadata?
     public let evidence: [String]
 
     public init(
@@ -39,6 +40,7 @@ public struct BenchmarkResult: Codable, Equatable {
         pipelineB: PipelineMetrics? = nil,
         pipelineC: PipelineMetrics? = nil,
         correctness: CorrectnessMetrics? = nil,
+        measurement: MeasurementMetadata? = nil,
         evidence: [String] = []
     ) {
         self.schemaVersion = 1
@@ -48,6 +50,7 @@ public struct BenchmarkResult: Codable, Equatable {
         self.pipelineB = pipelineB
         self.pipelineC = pipelineC
         self.correctness = correctness
+        self.measurement = measurement
         self.evidence = evidence
     }
 }
@@ -83,10 +86,51 @@ public struct CorrectnessMetrics: Codable, Equatable {
     }
 }
 
+public struct MeasurementMetadata: Codable, Equatable {
+    public let frontendMeanMilliseconds: Double?
+    public let measuredIterations: Int
+    public let warmupIterations: Int
+    public let width: Int
+    public let height: Int
+    public let inputByteCount: Int
+    public let outputIntermediateByteCount: Int
+    public let outputAllocatedBytes: Int?
+    public let deviceName: String
+    public let deviceClass: String
+    public let percentileDefinition: String
+
+    public init(
+        frontendMeanMilliseconds: Double?,
+        measuredIterations: Int,
+        warmupIterations: Int,
+        width: Int,
+        height: Int,
+        inputByteCount: Int,
+        outputIntermediateByteCount: Int,
+        outputAllocatedBytes: Int?,
+        deviceName: String,
+        deviceClass: String,
+        percentileDefinition: String
+    ) {
+        self.frontendMeanMilliseconds = frontendMeanMilliseconds
+        self.measuredIterations = measuredIterations
+        self.warmupIterations = warmupIterations
+        self.width = width
+        self.height = height
+        self.inputByteCount = inputByteCount
+        self.outputIntermediateByteCount = outputIntermediateByteCount
+        self.outputAllocatedBytes = outputAllocatedBytes
+        self.deviceName = deviceName
+        self.deviceClass = deviceClass
+        self.percentileDefinition = percentileDefinition
+    }
+}
+
 public enum BenchmarkResultWriter {
     public static func write(_ result: BenchmarkResult, to url: URL) throws {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        encoder.keyEncodingStrategy = .convertToSnakeCase
         let data = try encoder.encode(result)
         try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
         try data.write(to: url, options: .atomic)

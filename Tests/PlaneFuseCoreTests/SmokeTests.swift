@@ -15,7 +15,9 @@ final class SmokeTests: XCTestCase {
         let result = BenchmarkResult(environment: EnvironmentSnapshot(architecture: "arm64", operatingSystem: "test"))
         let url = FileManager.default.temporaryDirectory.appendingPathComponent("planefuse-result.json")
         try BenchmarkResultWriter.write(result, to: url)
-        let decoded = try JSONDecoder().decode(BenchmarkResult.self, from: Data(contentsOf: url))
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        let decoded = try decoder.decode(BenchmarkResult.self, from: Data(contentsOf: url))
         XCTAssertEqual(decoded, result)
         try FileManager.default.removeItem(at: url)
     }

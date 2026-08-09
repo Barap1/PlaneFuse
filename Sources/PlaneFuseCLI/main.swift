@@ -59,11 +59,43 @@ func runVerify() throws -> Int32 {
 
 func runBench() throws -> Int32 {
     let outputPath = ProcessInfo.processInfo.environment["PF_BENCHMARK_OUTPUT"] ?? "benchmarks/results/quick.json"
-    let result = BenchmarkResult()
+    let measurement = try MetalBaselineBenchmark().run()
+    let pipeline = PipelineMetrics(
+        frontendP50Milliseconds: measurement.frontendP50Milliseconds,
+        frontendP95Milliseconds: measurement.frontendP95Milliseconds
+    )
+    let metadata = MeasurementMetadata(
+        frontendMeanMilliseconds: measurement.frontendMeanMilliseconds,
+        measuredIterations: measurement.measuredIterations,
+        warmupIterations: measurement.warmupIterations,
+        width: measurement.width,
+        height: measurement.height,
+        inputByteCount: measurement.inputByteCount,
+        outputIntermediateByteCount: measurement.outputIntermediateByteCount,
+        outputAllocatedBytes: measurement.outputAllocatedBytes,
+        deviceName: measurement.deviceName,
+        deviceClass: measurement.deviceClass,
+        percentileDefinition: "nearest-rank"
+    )
+    let result = BenchmarkResult(
+        status: "measured_pipeline_b_frontend",
+        commit: ProcessInfo.processInfo.environment["PF_GIT_COMMIT"],
+        environment: EnvironmentSnapshot(),
+        pipelineB: pipeline,
+        measurement: metadata,
+        evidence: [
+            "pipeline_b_materializes_rgba32float_intermediate",
+            "shader_compilation_and_texture_creation_excluded_from_timing",
+        ]
+    )
     try BenchmarkResultWriter.write(result, to: URL(fileURLWithPath: outputPath))
     emit("PlaneFuse bench quick: RECORDED")
     emit("result: \(outputPath)")
-    emit("status: no_verified_result")
+    emit("status: measured_pipeline_b_frontend")
+    emit(String(format: "frontend_p50_ms: %.4f", measurement.frontendP50Milliseconds))
+    emit(String(format: "frontend_p95_ms: %.4f", measurement.frontendP95Milliseconds))
+    emit("output_intermediate_bytes: \(measurement.outputIntermediateByteCount)")
+    emit("output_allocated_bytes: \(measurement.outputAllocatedBytes.map(String.init) ?? "unknown")")
     return 0
 }
 

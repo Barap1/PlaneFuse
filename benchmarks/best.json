@@ -7,5 +7,6 @@
   "pipeline_b": null,
   "pipeline_c": null,
   "correctness": null,
+  "measurement": null,
   "evidence": []
 }
