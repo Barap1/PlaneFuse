@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "status": "verified_negative_result",
-  "commit": "9c201dea653d8a775137bf6a4a49a56e5b9c34fd",
+  "commit": "32377ac0e3ad4ca102217aaaaecd0e9f3c10432c",
   "mode": "nearest_sited_nv12",
   "validation_corpus_sample_count": 32,
   "independent_double_reference_cases": 3,
@@ -19,33 +19,33 @@
   },
   "confirmation_batches": [
     {
-      "artifact": "benchmarks/results/r5-polyphase-confirm-1.json",
+      "artifact": "benchmarks/results/r5-polyphase-corrected-confirm-1.json",
       "measured_iterations": 200,
-      "native_end_to_end_p50_milliseconds": 2.082916646031663,
-      "polyphase_end_to_end_p50_milliseconds": 2.0682500035036355,
-      "polyphase_vs_native_end_to_end_percentage": 0.7041396762549251,
+      "native_end_to_end_p50_milliseconds": 2.0548333413898945,
+      "polyphase_end_to_end_p50_milliseconds": 2.0500833343248814,
+      "polyphase_vs_native_end_to_end_percentage": 0.23116264318546312,
       "native_gpu_p50_milliseconds": 0.2397499920334667,
-      "polyphase_gpu_p50_milliseconds": 0.2335416793357581,
+      "polyphase_gpu_p50_milliseconds": 0.23350000265054405,
       "paired_sample_count": 200
     },
     {
-      "artifact": "benchmarks/results/r5-polyphase-confirm-2.json",
+      "artifact": "benchmarks/results/r5-polyphase-corrected-confirm-2.json",
       "measured_iterations": 200,
-      "native_end_to_end_p50_milliseconds": 2.044374996330589,
-      "polyphase_end_to_end_p50_milliseconds": 2.0517083175946027,
-      "polyphase_vs_native_end_to_end_percentage": -0.3587072468199861,
-      "native_gpu_p50_milliseconds": 0.24004167062230408,
-      "polyphase_gpu_p50_milliseconds": 0.23379165213555098,
+      "native_end_to_end_p50_milliseconds": 2.08116666181013,
+      "polyphase_end_to_end_p50_milliseconds": 2.094541705446318,
+      "polyphase_vs_native_end_to_end_percentage": -0.6426704733274337,
+      "native_gpu_p50_milliseconds": 0.23975002113729715,
+      "polyphase_gpu_p50_milliseconds": 0.23337500169873238,
       "paired_sample_count": 200
     },
     {
-      "artifact": "benchmarks/results/r5-polyphase-confirm-3.json",
+      "artifact": "benchmarks/results/r5-polyphase-corrected-confirm-3.json",
       "measured_iterations": 200,
-      "native_end_to_end_p50_milliseconds": 2.078249992337078,
-      "polyphase_end_to_end_p50_milliseconds": 2.0851250155828893,
-      "polyphase_vs_native_end_to_end_percentage": -0.3308082892414793,
+      "native_end_to_end_p50_milliseconds": 2.090624999254942,
+      "polyphase_end_to_end_p50_milliseconds": 2.0825416722800583,
+      "polyphase_vs_native_end_to_end_percentage": 0.3866464324192247,
       "native_gpu_p50_milliseconds": 0.23999999393709004,
-      "polyphase_gpu_p50_milliseconds": 0.23358335602097213,
+      "polyphase_gpu_p50_milliseconds": 0.2333333541173488,
       "paired_sample_count": 200
     }
   ],

@@ -32,9 +32,13 @@
     "r1-mobilenetv2-components.json": "ACCEPTED",
     "r2-mobilenetv2-shared-bridge-confirm.json": "ACCEPTED",
     "r2-mobilenetv2-shared-bridge.json": "ACCEPTED",
-    "r5-polyphase-quick.json": "ACCEPTED",
-    "r5-polyphase-confirm-1.json": "ACCEPTED",
-    "r5-polyphase-confirm-2.json": "ACCEPTED",
-    "r5-polyphase-confirm-3.json": "ACCEPTED"
+    "r5-polyphase-quick.json": "SUPERSEDED",
+    "r5-polyphase-confirm-1.json": "SUPERSEDED",
+    "r5-polyphase-confirm-2.json": "SUPERSEDED",
+    "r5-polyphase-confirm-3.json": "SUPERSEDED",
+    "r5-polyphase-corrected-quick.json": "ACCEPTED",
+    "r5-polyphase-corrected-confirm-1.json": "ACCEPTED",
+    "r5-polyphase-corrected-confirm-2.json": "ACCEPTED",
+    "r5-polyphase-corrected-confirm-3.json": "ACCEPTED"
   }
 }

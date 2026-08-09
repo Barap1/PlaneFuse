@@ -133,8 +133,8 @@ Evidence/observation: The native 3x3/stride-2 stem issues nine luma and nine UV 
 Hypothesis: Compile repeated UV contributions into four phase-specific chroma coefficients while preserving per-tap offsets and bottom/right padding, reducing source-domain work without retraining.
 Change: Added a Double-reference polyphase compiler, generated Metal coefficients/kernel, procedural phase/edge parity cases, generated operator metadata, and the strongest shared Float32 bridge/tail benchmark.
 Correctness: PASS; independent Double reference and compiled polyphase output agree across three procedural cases at 1e-9, and all 32 real/procedural benchmark inputs retain task agreement 1.0 with maximum confirmation activation error 6.198883e-6.
-Quick benchmark: Corrected frontend-inclusive e2e p50 was 2.0395 ms native versus 2.0797 ms polyphase (-1.97%).
-Confirmation benchmark: Three 200-pair batches measured polyphase e2e deltas of +0.70%, -0.36%, and -0.33%; GPU p50 was consistently about 0.234 ms polyphase versus 0.240 ms native, but the application boundary was mixed.
+Quick benchmark: Corrected frontend-inclusive e2e p50 was 2.0317 ms native versus 2.0418 ms polyphase (-0.49%).
+Confirmation benchmark: Three corrected 200-pair batches measured polyphase e2e deltas of +0.23%, -0.64%, and +0.39%; GPU p50 was consistently about 0.233 ms polyphase versus 0.240 ms native, but the application boundary was mixed.
 Outcome: ACCEPT as a rigorous documented negative result; do not claim a runtime speedup.
 Lesson: Reducing generated UV instructions and weighted multiplications can improve GPU duration without producing a stable user-level latency gain when the fixed Core ML tail and scheduling noise dominate this small stem.
 Accepted commit: 9c201de (implementation/evidence correction); milestone proof committed separately.

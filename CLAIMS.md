@@ -207,4 +207,4 @@ Status: VERIFIED
 
 Claim wording: "Under the declared nearest-sited NV12 contract, PlaneFuse's R5 compiler preserves exact Double-reference behavior across procedural chroma-phase and edge cases and reduces generated per-output UV read instructions from 9 to 4 and weighted multiplications from 27 to 17. Three 200-pair confirmation batches did not establish a consistent end-to-end latency improvement, so this is not a runtime speedup claim."
 
-Evidence files: `proof/r5-polyphase.md`, `proof/r5-polyphase.json`, `benchmarks/results/r5-polyphase-confirm-1.json`, `benchmarks/results/r5-polyphase-confirm-2.json`, `benchmarks/results/r5-polyphase-confirm-3.json`, `Sources/PlaneFuseCore/NativePlaneConv3x3.swift`, `Tests/PlaneFuseCoreTests/NativePlaneCompilerTests.swift`
+Evidence files: `proof/r5-polyphase.md`, `proof/r5-polyphase.json`, `benchmarks/results/r5-polyphase-corrected-confirm-1.json`, `benchmarks/results/r5-polyphase-corrected-confirm-2.json`, `benchmarks/results/r5-polyphase-corrected-confirm-3.json`, `Sources/PlaneFuseCore/NativePlaneConv3x3.swift`, `Tests/PlaneFuseCoreTests/NativePlaneCompilerTests.swift`

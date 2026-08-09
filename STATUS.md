@@ -26,7 +26,7 @@ Next highest-leverage action: implement the R6 camera-plane texture bridge with 
 
 Human decision currently required: no; camera authorization may become a one-time R0 permission boundary.
 
-Last milestone summary: R5 passed after hostile review correction: the exact compiler reduced generated UV instructions 9→4 and weighted multiplications 27→17, preserved independent Double/Metal parity, and recorded three corrected 200-pair batches without a consistent e2e win. R2 remains the strongest accepted bridge result; R3 Float16 and R4 Metal 4 were rejected on documented quality/format gates.
+Last milestone summary: R5 passed after two hostile review corrections: the exact compiler reduced generated UV instructions 9→4 and weighted multiplications 27→17, preserved independent Double/Metal parity, and recorded three corrected 200-pair batches (+0.23%, -0.64%, +0.39%) without a consistent e2e win. R2 remains the strongest accepted bridge result; R3 Float16 and R4 Metal 4 were rejected on documented quality/format gates.
 
 Notes:
 - Keep this file short.
