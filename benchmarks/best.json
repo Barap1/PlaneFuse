@@ -1,12 +1,49 @@
 {
   "schema_version": 1,
-  "status": "no_verified_result",
-  "commit": null,
-  "environment": null,
-  "model": null,
-  "pipeline_b": null,
-  "pipeline_c": null,
-  "correctness": null,
-  "measurement": null,
-  "evidence": []
+  "status": "verified_fair_ab_c",
+  "commit": "06f1c8350a8c93fbbb1f5449a2ac9ed02160e020",
+  "device_name": "Apple M5 Pro",
+  "device_class": "AGXG17SDevice",
+  "model": "M1 four-output 1x1 stem fixture",
+  "input": "8-bit bi-planar NV12, 640x480, BT.601 video range",
+  "build_configuration": "release",
+  "pipeline_b": {
+    "frontend_p50_ms": 0.17412500164937228,
+    "frontend_p95_ms": 0.24445833696518093,
+    "e2e_p50_ms": 0.3620416682679206,
+    "e2e_p95_ms": 0.4704166640294716,
+    "rgb_intermediate_bytes": 4915200,
+    "rgb_intermediate_allocated_bytes": 4947968
+  },
+  "pipeline_c": {
+    "frontend_p50_ms": 0.17541665874887258,
+    "frontend_p95_ms": 0.2545416646171361,
+    "e2e_p50_ms": 0.17541665874887258,
+    "e2e_p95_ms": 0.2545416646171361,
+    "rgb_intermediate_bytes": 0,
+    "feature_allocated_bytes": 4947968
+  },
+  "correctness": {
+    "pass": true,
+    "metric": "max_feature_absolute_difference",
+    "value": 0.0000014305115,
+    "threshold": 0.00001
+  },
+  "delta": {
+    "frontend_percent": -0.7417987579412924,
+    "e2e_percent": 51.547936570919916,
+    "formula": "(B - C) / B * 100"
+  },
+  "measurement": {
+    "warmup_iterations": 30,
+    "measured_iterations": 100,
+    "percentile_definition": "nearest-rank: sorted[ceil(p * n) - 1]",
+    "confirmation_batches": 2
+  },
+  "evidence": [
+    "benchmarks/results/m4-fair-abc-confirm.json",
+    "benchmarks/results/m4-fair-abc-confirm2.json",
+    "proof/m1-reference-parity.json",
+    "Sources/PlaneFuseCore/Shaders/NV12NativeStem.metal"
+  ]
 }

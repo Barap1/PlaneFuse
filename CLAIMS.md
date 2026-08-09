@@ -11,9 +11,9 @@ Nothing quantitative may be presented in README, Devpost, screenshots, or video 
 
 ## C001 - No full RGB intermediate in PlaneFuse Pipeline C
 
-Status: PROPOSED
+Status: VERIFIED
 
-Claim wording target: "PlaneFuse's native path produces the first model features directly from Y and UV planes without materializing a full RGB intermediate."
+Claim wording: "For the supported four-output stem, PlaneFuse's native path produces the first model features directly from Y and UV planes without materializing a full RGB intermediate."
 
 Required evidence:
 
@@ -21,13 +21,13 @@ Required evidence:
 - allocation/buffer graph or profiler capture;
 - supported format/model scope documented.
 
-Evidence files: TBD
+Evidence files: `Sources/PlaneFuseCore/Shaders/NV12NativeStem.metal`, `Sources/PlaneFuseCore/MetalNativeStem.swift`, `Tests/PlaneFuseCoreTests/MetalNativeStemTests.swift`, `benchmarks/results/m4-fair-abc-confirm.json`
 
 ## C002 - PlaneFuse improves frontend latency vs optimized RGB
 
-Status: PROPOSED
+Status: REJECTED
 
-Claim wording: TBD from actual measurements.
+Claim wording: "PlaneFuse improves isolated frontend latency vs optimized RGB." This is not supported by confirmation data: C was 0.74% and 1.03% slower in the two 100-iteration confirmation batches.
 
 Required evidence:
 
@@ -36,13 +36,13 @@ Required evidence:
 - commit/system metadata;
 - correctness pass.
 
-Evidence files: TBD
+Evidence files: `benchmarks/results/m4-fair-abc-confirm.json`, `benchmarks/results/m4-fair-abc-confirm2.json`
 
 ## C003 - PlaneFuse improves end-to-end inference latency
 
-Status: PROPOSED
+Status: VERIFIED
 
-Claim wording: TBD.
+Claim wording: "On the supported 640x480 M1 four-output stem fixture, Pipeline C reduced end-to-end frontend-plus-stem p50 latency by 51.55% versus Pipeline B in confirmation batch 1; the second batch measured 50.93%."
 
 Required evidence:
 
@@ -51,13 +51,13 @@ Required evidence:
 - quality agreement;
 - final repeated results.
 
-Evidence files: TBD
+Evidence files: `benchmarks/results/m4-fair-abc-confirm.json`, `benchmarks/results/m4-fair-abc-confirm2.json`, `benchmarks/best.json`
 
 ## C004 - Model behavior is preserved
 
-Status: PROPOSED
+Status: QUALIFIED
 
-Claim wording: TBD by selected model/task.
+Claim wording: "The supported four-output stem produced max absolute feature error 1.4305115e-6 against the paired B output in both 100-iteration confirmation batches, below the 1e-5 GPU parity threshold." This is a fixed-stem equivalence result, not real-model/task quality.
 
 Required evidence:
 
@@ -65,7 +65,7 @@ Required evidence:
 - fixed validation corpus;
 - task/output agreement report.
 
-Evidence files: TBD
+Evidence files: `benchmarks/results/m4-fair-abc-confirm.json`, `benchmarks/results/m4-fair-abc-confirm2.json`
 
 ## C005 - Fully local Mobile AI experience
 
