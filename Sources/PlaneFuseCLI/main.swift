@@ -142,15 +142,31 @@ func runFairBench(configuration: FairABCBenchmark.Configuration, label: String) 
 }
 
 func runMobileNetV2Bench(configuration: MobileNetV2Benchmark.Configuration, label: String) throws -> Int32 {
+    let root = URL(fileURLWithPath: FileManager.default.currentDirectoryPath, isDirectory: true)
     let coefficientPath = ProcessInfo.processInfo.environment["PF_MOBILENET_COEFFICIENTS"] ?? "models/derived/MobileNetV2StemCoefficients.json"
-    let tailPath = ProcessInfo.processInfo.environment["PF_MOBILENET_TAIL"] ?? "models/MobileNetV2Tail.mlmodelc"
+    let tailPath = ProcessInfo.processInfo.environment["PF_MOBILENET_TAIL"] ?? "models/derived/tail-compiled/MobileNetV2Tail.mlmodelc"
+    let stemArrayPath = ProcessInfo.processInfo.environment["PF_MOBILENET_STEM_ARRAY"] ?? "models/derived/stem-array-compiled/MobileNetV2Stem.mlmodelc"
+    let fullArrayPath = ProcessInfo.processInfo.environment["PF_MOBILENET_FULL_ARRAY"] ?? "models/derived/full-array-compiled/MobileNetV2FullArray.mlmodelc"
+    let manifest = MobileNetV2AssetManifest.inspected
+    try manifest.validate(at: root)
+    let lineage = try MobileNetV2DerivedArtifactManifest.load(from: root.appendingPathComponent(manifest.derivedManifest))
+    try lineage.validate(at: root)
+    let corpus = try MobileNetV2Corpus(
+        manifestURL: root.appendingPathComponent(manifest.validationCorpusManifest), root: root
+    )
     let tail = try CoreMLMobileNetV2TailAdapter(
-        modelURL: URL(fileURLWithPath: tailPath), manifest: .inspected
+        modelURL: URL(fileURLWithPath: tailPath), manifest: manifest
+    )
+    let independentReference = try MobileNetV2Benchmark.IndependentReference(
+        stemArray: CoreMLMobileNetV2StemArrayAdapter(modelURL: URL(fileURLWithPath: stemArrayPath), lineage: lineage, computeUnits: .cpuOnly),
+        fullArray: CoreMLMobileNetV2FullArrayAdapter(modelURL: URL(fileURLWithPath: fullArrayPath), lineage: lineage, computeUnits: .cpuOnly)
     )
     let benchmark = try MobileNetV2Benchmark(
         configuration: configuration,
         coefficientsURL: URL(fileURLWithPath: coefficientPath),
-        tail: tail
+        tail: tail,
+        corpus: corpus,
+        independentReference: independentReference
     )
     let measurement = try benchmark.run()
     let artifact = MobileNetV2BenchmarkArtifact(
@@ -159,7 +175,7 @@ func runMobileNetV2Bench(configuration: MobileNetV2Benchmark.Configuration, labe
         commit: ProcessInfo.processInfo.environment["PF_GIT_COMMIT"],
         environment: EnvironmentSnapshot(),
         measurement: measurement,
-        model: .inspected
+        model: manifest
     )
     let outputPath = ProcessInfo.processInfo.environment["PF_BENCHMARK_OUTPUT"] ?? "benchmarks/results/m5-mobilenetv2-\(label).json"
     let data = try JSONEncoder.benchmark.encode(artifact)
@@ -173,6 +189,9 @@ func runMobileNetV2Bench(configuration: MobileNetV2Benchmark.Configuration, labe
     emit(String(format: "c_vs_b_e2e_percent: %.2f", measurement.cVsBEndToEndPercentageDelta))
     emit(String(format: "top1_agreement: %.4f", measurement.top1Agreement))
     emit(String(format: "max_activation_abs_error: %.8f", measurement.maxActivationAbsoluteDifference))
+    emit(String(format: "stem_array_vs_b_max_abs_error: %.8f", measurement.independentStemArrayVsBMaxAbsoluteDifference))
+    emit(String(format: "stem_array_vs_c_max_abs_error: %.8f", measurement.independentStemArrayVsCMaxAbsoluteDifference))
+    emit(String(format: "full_array_vs_split_tail_top1_agreement: %.4f", measurement.fullArrayVsSplitTailTop1Agreement))
     emit("c_rgb_intermediate_bytes: \(measurement.pipelineCRGBIntermediateBytes)")
     return 0
 }

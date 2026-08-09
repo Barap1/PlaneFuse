@@ -1,27 +1,43 @@
 {
   "schema_version": 1,
-  "model": "Apple MobileNetV2 ImageNet",
-  "source_model_sha256": "cb5a35f593582232140556bbfa4618e66b37b8ff2fc33ba17db909e1050fd144",
   "input": {
-    "format": "8-bit bi-planar NV12",
-    "semantics": "BT.601 video range",
     "width": 224,
-    "height": 224
+    "height": 224,
+    "rgb_decode": "ImageIO decode into sRGB RGBA8; CGContext high-quality deterministic stretch to 224x224",
+    "nv12_conversion": "BT.601 video-range, 8-bit, 2x2 chroma from arithmetic mean of source RGB samples, round-to-nearest-away-from-zero"
   },
-  "generation": {
-    "kind": "deterministic NV12 fixture variants",
-    "implementation": "MetalBaselineBenchmark.deterministicNV12Fixture plus per-sample byte offsets",
-    "sample_ids": [500, 501, 502, 503, 504, 505, 506, 507]
-  },
-  "purpose": "B/C stem and unchanged-tail equivalence, not an ImageNet accuracy corpus",
-  "acceptance": {
-    "minimum_top1_agreement": 0.995,
-    "maximum_native_stem_absolute_error": 0.00001
-  },
-  "observed_in_m5_confirmations": {
-    "sample_count": 8,
-    "top1_agreement": 1.0,
-    "max_activation_absolute_difference": 0.000009059906005859375,
-    "pass": true
-  }
+  "samples": [
+    {
+      "id": "cat-dog",
+      "relative_path": "proof/m5-corpus/cat-dog.png",
+      "sha256": "7de12b11168f49380d51d5a54f4ce6b588bbabd41e5e7d56b887acaa063f3c3e",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Cat_and_Dog.png",
+      "license": "CC0 1.0 / public domain dedication",
+      "attribution": "Kingofthewetcats"
+    },
+    {
+      "id": "flower",
+      "relative_path": "proof/m5-corpus/flower.jpg",
+      "sha256": "e465a97edb377726ab38516ea493524abae2a0be814fd7c26a400cfd9a69c9f0",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Flower_%F0%9F%8C%BC.jpg",
+      "license": "CC0 1.0 / public domain dedication",
+      "attribution": "E.Prabha"
+    },
+    {
+      "id": "cat-flower-pot",
+      "relative_path": "proof/m5-corpus/cat-flower-pot.jpg",
+      "sha256": "4cb9b3f6d703baacee3f6c01ec0f8ffa73cafaa367f28e2d7127b37e139027a7",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Cat_and_flower_pot.jpg",
+      "license": "CC0 1.0 / public domain dedication",
+      "attribution": "Momoodar"
+    },
+    {
+      "id": "closeup-cat",
+      "relative_path": "proof/m5-corpus/closeup-cat.jpg",
+      "sha256": "4029f57a1c7ef727042ea9f156a59757739f23ca3db58b10716ca6091fe0f799",
+      "source_url": "https://commons.wikimedia.org/wiki/File:Closeup_photo_of_a_cat.jpg",
+      "license": "CC0 1.0 / public domain dedication",
+      "attribution": "kallerna"
+    }
+  ]
 }

@@ -13,7 +13,7 @@ public final class MobileNetV2Benchmark {
         public let width: Int
         public let height: Int
 
-        public init(warmupIterations: Int = 3, measuredIterations: Int = 20, validationSamples: Int = 8, width: Int = 224, height: Int = 224) {
+        public init(warmupIterations: Int = 3, measuredIterations: Int = 20, validationSamples: Int = 4, width: Int = 224, height: Int = 224) {
             self.warmupIterations = warmupIterations
             self.measuredIterations = measuredIterations
             self.validationSamples = validationSamples
@@ -21,8 +21,9 @@ public final class MobileNetV2Benchmark {
             self.height = height
         }
 
-        public static let quick = Configuration(warmupIterations: 2, measuredIterations: 5, validationSamples: 4)
-        public static let confirm = Configuration(warmupIterations: 5, measuredIterations: 20, validationSamples: 8)
+        public static let quick = Configuration(warmupIterations: 5, measuredIterations: 20, validationSamples: 4)
+        /// Confirmation is never allowed to reuse the rejected pre-fix 20-run tier.
+        public static let confirm = Configuration(warmupIterations: 10, measuredIterations: 100, validationSamples: 4)
     }
 
     public struct Statistics: Codable, Equatable {
@@ -59,6 +60,11 @@ public final class MobileNetV2Benchmark {
         public let deviceName: String
         public let deviceClass: String
         public let commandBufferMethodology: String
+        public let validationCorpusSampleIDs: [String]
+        public let independentStemArrayVsBMaxAbsoluteDifference: Double
+        public let independentStemArrayVsCMaxAbsoluteDifference: Double
+        public let fullArrayVsSplitTailTop1Agreement: Double
+        public let independentParityPass: Bool
 
     }
 
@@ -67,6 +73,7 @@ public final class MobileNetV2Benchmark {
         case invalidConfiguration
         case parityFailed(maxError: Double)
         case outputAgreementFailed(agreement: Double)
+        case independentParityFailed(maxError: Double, agreement: Double)
 
         public var errorDescription: String? {
             switch self {
@@ -74,6 +81,7 @@ public final class MobileNetV2Benchmark {
             case .invalidConfiguration: return "MobileNetV2 benchmark configuration is invalid."
             case let .parityFailed(maxError): return "MobileNetV2 B/C activation parity failed with max error \(maxError)."
             case let .outputAgreementFailed(agreement): return "MobileNetV2 B/C output agreement was \(agreement), below 0.995."
+            case let .independentParityFailed(maxError, agreement): return "Original-derived Core ML parity failed: max stem error \(maxError), FullArray/split-tail top-1 agreement \(agreement)."
             }
         }
     }
@@ -81,14 +89,35 @@ public final class MobileNetV2Benchmark {
     public let configuration: Configuration
     private let coefficients: MobileNetV2StemCoefficients
     private let tail: MobileNetV2TailRunning
+    private let corpus: MobileNetV2Corpus
+    private let independentReference: IndependentReference
 
-    public init(configuration: Configuration = .quick, coefficientsURL: URL, tail: MobileNetV2TailRunning) throws {
+    public struct IndependentReference {
+        public let stemArray: CoreMLMobileNetV2StemArrayAdapter
+        public let fullArray: CoreMLMobileNetV2FullArrayAdapter
+
+        public init(stemArray: CoreMLMobileNetV2StemArrayAdapter, fullArray: CoreMLMobileNetV2FullArrayAdapter) {
+            self.stemArray = stemArray
+            self.fullArray = fullArray
+        }
+    }
+
+    public init(
+        configuration: Configuration = .quick,
+        coefficientsURL: URL,
+        tail: MobileNetV2TailRunning,
+        corpus: MobileNetV2Corpus,
+        independentReference: IndependentReference
+    ) throws {
         self.configuration = configuration
         self.coefficients = try MobileNetV2StemCoefficients.load(from: coefficientsURL)
         self.tail = tail
+        self.corpus = corpus
+        self.independentReference = independentReference
         guard configuration.width == 224, configuration.height == 224,
               configuration.warmupIterations >= 0, configuration.measuredIterations > 0,
-              configuration.validationSamples > 0 else { throw Error.invalidConfiguration }
+              configuration.validationSamples > 0,
+              configuration.validationSamples == corpus.manifest.samples.count else { throw Error.invalidConfiguration }
     }
 
     public func run(device: MTLDevice? = MTLCreateSystemDefaultDevice()) throws -> Measurement {
@@ -99,6 +128,7 @@ public final class MobileNetV2Benchmark {
         let normalizedRGB = try rgb.makeNormalizedRGBTexture()
         let bActivation = try rgb.makeActivationBuffer()
         let cActivation = try native.makeActivationBuffer()
+        let corpusFrames = try corpus.loadFrames()
 
         var bFrontend: [Double] = []
         var cFrontend: [Double] = []
@@ -110,11 +140,11 @@ public final class MobileNetV2Benchmark {
         cEndToEnd.reserveCapacity(configuration.measuredIterations)
 
         for iteration in 0..<configuration.warmupIterations {
-            let input = try makeInput(factory: factory, iteration: iteration)
+            let input = try makeInput(factory: factory, frame: corpusFrames[iteration % corpusFrames.count])
             try interleave(iteration: iteration, b: { try rgb.execute(input, normalizedRGB: normalizedRGB, into: bActivation) }, c: { try native.execute(input, into: cActivation) })
         }
         for iteration in 0..<configuration.measuredIterations {
-            let input = try makeInput(factory: factory, iteration: iteration)
+            let input = try makeInput(factory: factory, frame: corpusFrames[iteration % corpusFrames.count])
             try interleave(iteration: iteration, b: {
                 bFrontend.append(try elapsed { try rgb.execute(input, normalizedRGB: normalizedRGB, into: bActivation) })
             }, c: {
@@ -123,7 +153,7 @@ public final class MobileNetV2Benchmark {
         }
 
         for iteration in 0..<configuration.warmupIterations {
-            let input = try makeInput(factory: factory, iteration: iteration + 100)
+            let input = try makeInput(factory: factory, frame: corpusFrames[iteration % corpusFrames.count])
             try interleave(iteration: iteration, b: {
                 _ = try elapsed {
                     try rgb.execute(input, normalizedRGB: normalizedRGB, into: bActivation)
@@ -137,7 +167,7 @@ public final class MobileNetV2Benchmark {
             })
         }
         for iteration in 0..<configuration.measuredIterations {
-            let input = try makeInput(factory: factory, iteration: iteration + 200)
+            let input = try makeInput(factory: factory, frame: corpusFrames[iteration % corpusFrames.count])
             try interleave(iteration: iteration, b: {
                 bEndToEnd.append(try elapsed {
                     try rgb.execute(input, normalizedRGB: normalizedRGB, into: bActivation)
@@ -153,8 +183,11 @@ public final class MobileNetV2Benchmark {
 
         var agreementMatches = 0
         var maxActivationError = 0.0
-        for sample in 0..<configuration.validationSamples {
-            let input = try makeInput(factory: factory, iteration: sample + 500)
+        var stemArrayVsBMaxError = 0.0
+        var stemArrayVsCMaxError = 0.0
+        var fullArraySplitTailMatches = 0
+        for frame in corpusFrames {
+            let input = try makeInput(factory: factory, frame: frame)
             try rgb.execute(input, normalizedRGB: normalizedRGB, into: bActivation)
             try native.execute(input, into: cActivation)
             let bFeatures = try rgb.readActivation(from: bActivation)
@@ -163,12 +196,29 @@ public final class MobileNetV2Benchmark {
             let bOutput = try tail.predict(stemActivation: bFeatures)
             let cOutput = try tail.predict(stemActivation: cFeatures)
             if Self.topLabel(bOutput) == Self.topLabel(cOutput) { agreementMatches += 1 }
+            let sourcePreprocessed = try rgb.readNormalizedRGB(from: normalizedRGB)
+            let stemArrayFeatures = try independentReference.stemArray.predict(normalizedRGB: sourcePreprocessed)
+            // Run the independent original-derived graphs CPU-only so their
+            // Float32 reference is not perturbed by the asset's default
+            // accelerator precision. Retain raw Float32 B/C parity above.
+            stemArrayVsBMaxError = max(stemArrayVsBMaxError, Self.maxAbsoluteDifference(stemArrayFeatures, bFeatures))
+            stemArrayVsCMaxError = max(stemArrayVsCMaxError, Self.maxAbsoluteDifference(stemArrayFeatures, cFeatures))
+            let fullArrayOutput = try independentReference.fullArray.predict(normalizedRGB: sourcePreprocessed)
+            let splitTailOutput = try tail.predict(stemActivation: stemArrayFeatures)
+            if Self.topLabel(fullArrayOutput) == Self.topLabel(splitTailOutput) { fullArraySplitTailMatches += 1 }
         }
         let agreement = Double(agreementMatches) / Double(configuration.validationSamples)
         let pass = maxActivationError <= Double(FairABCBenchmark.featureParityTolerance) && agreement >= MobileNetV2OutputAgreement.requiredTop1Agreement
         if !pass {
             if maxActivationError > Double(FairABCBenchmark.featureParityTolerance) { throw Error.parityFailed(maxError: maxActivationError) }
             throw Error.outputAgreementFailed(agreement: agreement)
+        }
+        let fullArraySplitTailAgreement = Double(fullArraySplitTailMatches) / Double(corpusFrames.count)
+        let independentPass = stemArrayVsBMaxError <= MobileNetV2OutputAgreement.referenceStemParityTolerance
+            && stemArrayVsCMaxError <= MobileNetV2OutputAgreement.referenceStemParityTolerance
+            && fullArraySplitTailAgreement >= MobileNetV2OutputAgreement.requiredTop1Agreement
+        guard independentPass else {
+            throw Error.independentParityFailed(maxError: max(stemArrayVsBMaxError, stemArrayVsCMaxError), agreement: fullArraySplitTailAgreement)
         }
 
         return Measurement(
@@ -183,15 +233,17 @@ public final class MobileNetV2Benchmark {
             cVsBFrontendPercentageDelta: (Statistics(bFrontend).p50Milliseconds - Statistics(cFrontend).p50Milliseconds) / Statistics(bFrontend).p50Milliseconds * 100,
             cVsBEndToEndPercentageDelta: (Statistics(bEndToEnd).p50Milliseconds - Statistics(cEndToEnd).p50Milliseconds) / Statistics(bEndToEnd).p50Milliseconds * 100,
             deviceName: device.name, deviceClass: String(describing: type(of: device)),
-            commandBufferMethodology: "Frontend: one command buffer / one submission per B RGB conversion+stem and C native stem. End-to-end: same one-submission B/C Metal boundary, followed by the same Core ML tail and explicit MLMultiArray handoff."
+            commandBufferMethodology: "Frontend: one command buffer / one submission per B RGB conversion+stem and C native stem. End-to-end: same one-submission B/C Metal boundary, followed by the same Core ML tail and explicit MLMultiArray handoff.",
+            validationCorpusSampleIDs: corpusFrames.map(\.id),
+            independentStemArrayVsBMaxAbsoluteDifference: stemArrayVsBMaxError,
+            independentStemArrayVsCMaxAbsoluteDifference: stemArrayVsCMaxError,
+            fullArrayVsSplitTailTop1Agreement: fullArraySplitTailAgreement,
+            independentParityPass: independentPass
         )
     }
 
-    private func makeInput(factory: MetalRGBBaseline, iteration: Int) throws -> MetalRGBBaseline.NV12Textures {
-        let fixture = MetalBaselineBenchmark.deterministicNV12Fixture(width: configuration.width, height: configuration.height)
-        let y = fixture.yPlaneBytes.enumerated().map { UInt8(($0.element &+ UInt8(iteration % 17)) & 0xFF) }
-        let uv = fixture.uvPlaneBytes.enumerated().map { UInt8(($0.element &+ UInt8((iteration * 3) % 23)) & 0xFF) }
-        return try factory.makeNV12Textures(width: configuration.width, height: configuration.height, yPlaneBytes: y, uvPlaneBytes: uv)
+    private func makeInput(factory: MetalRGBBaseline, frame: MobileNetV2CorpusFrame) throws -> MetalRGBBaseline.NV12Textures {
+        try factory.makeNV12Textures(width: configuration.width, height: configuration.height, yPlaneBytes: frame.yPlaneBytes, uvPlaneBytes: frame.uvPlaneBytes)
     }
 
     private func interleave(iteration: Int, b: () throws -> Void, c: () throws -> Void) rethrows {
@@ -207,4 +259,10 @@ public final class MobileNetV2Benchmark {
     private static func topLabel(_ probabilities: [String: Double]) -> String? {
         probabilities.max { $0.value < $1.value }?.key
     }
+
+    private static func maxAbsoluteDifference(_ lhs: [Float], _ rhs: [Float]) -> Double {
+        guard lhs.count == rhs.count else { return .infinity }
+        return zip(lhs, rhs).map { abs(Double($0 - $1)) }.max() ?? 0
+    }
+
 }

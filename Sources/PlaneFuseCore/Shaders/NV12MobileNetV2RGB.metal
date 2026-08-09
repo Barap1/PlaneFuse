@@ -27,8 +27,9 @@ kernel void mobileNetV2RGBStem(
     if (gid.x >= 112 || gid.y >= 112 || gid.z >= 48) return;
     float value = bias[gid.z];
     for (uint ky = 0; ky < 3; ++ky) for (uint kx = 0; kx < 3; ++kx) {
-        const int x = int(gid.x * 2 + kx) - 1;
-        const int y = int(gid.y * 2 + ky) - 1;
+        // Core ML SAME placement is bottom/right-heavy for this 224/3/2 stem.
+        const int x = int(gid.x * 2 + kx);
+        const int y = int(gid.y * 2 + ky);
         if (x < 0 || x >= 224 || y < 0 || y >= 224) continue;
         const float3 rgb = normalizedRGBA.read(uint2(x, y)).xyz;
         const uint tap = ky * 3 + kx;

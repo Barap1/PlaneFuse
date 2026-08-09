@@ -71,6 +71,30 @@ public final class MetalMobileNetV2RGBPipeline {
         return Array(UnsafeBufferPointer(start: buffer.contents().assumingMemoryBound(to: Float.self), count: MetalMobileNetV2NativeStem.activationCount))
     }
 
+    /// Reads the exact Float32 RGB values produced by Pipeline B's conversion,
+    /// reordered to the CHW input expected by the independent Core ML reference.
+    /// This avoids introducing a second CPU YUV conversion into the parity proof.
+    public func readNormalizedRGB(from texture: MTLTexture) throws -> [Float] {
+        try validate(input: nil, normalizedRGB: texture, activation: nil)
+        let width = texture.width
+        let height = texture.height
+        var rgba = [Float](repeating: 0, count: width * height * 4)
+        rgba.withUnsafeMutableBytes { bytes in
+            texture.getBytes(bytes.baseAddress!, bytesPerRow: width * 4 * MemoryLayout<Float>.stride,
+                              from: MTLRegionMake2D(0, 0, width, height), mipmapLevel: 0)
+        }
+        var chw = [Float](repeating: 0, count: width * height * 3)
+        let pixels = width * height
+        for y in 0..<height { for x in 0..<width {
+            let pixel = (y * width + x) * 4
+            let planar = y * width + x
+            chw[planar] = rgba[pixel]
+            chw[pixels + planar] = rgba[pixel + 1]
+            chw[2 * pixels + planar] = rgba[pixel + 2]
+        }}
+        return chw
+    }
+
     private func validate(input: NV12Textures?, normalizedRGB: MTLTexture, activation: MTLBuffer?) throws {
         if let input, (input.width != 224 || input.height != 224 || input.yPlane.pixelFormat != .r8Uint || input.uvPlane.pixelFormat != .rg8Uint) { throw MetalMobileNetV2NativeStem.Error.invalidInput }
         guard normalizedRGB.pixelFormat == .rgba32Float, normalizedRGB.width == 224, normalizedRGB.height == 224 else { throw MetalMobileNetV2NativeStem.Error.invalidOutput }

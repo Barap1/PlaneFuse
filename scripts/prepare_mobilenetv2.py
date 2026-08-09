@@ -20,6 +20,11 @@ from coremltools.proto import FeatureTypes_pb2
 STEM_LAYER_COUNT = 6
 STEM_OUTPUT = "planefuse_mobilenetv2_stem_features"
 STEM_SHAPE = [48, 112, 112]
+ARRAY_INPUT = "planefuse_mobilenetv2_normalized_rgb"
+ARRAY_INPUT_SHAPE = [3, 224, 224]
+# Core ML `same` for this 224x224, kernel-3, stride-2 convolution is SAME_UPPER:
+# the one padding pixel is on the bottom/right, so source = 2 * output + tap.
+STEM_PADDING_MODE = "same_bottom_right"
 
 
 def sha256(path: Path) -> str:
@@ -48,6 +53,9 @@ def validate_source(spec) -> list:
         raise ValueError("expected MobileNetV2 first convolution to be 3 -> 48 channels")
     if list(conv.kernelSize) != [3, 3] or list(conv.stride) != [2, 2] or not conv.HasField("same"):
         raise ValueError("expected a same-padded 3x3 stride-2 first convolution")
+    expected_output = (224 + 2 - 1) // 2
+    if expected_output != STEM_SHAPE[1] or STEM_PADDING_MODE != "same_bottom_right":
+        raise ValueError("unsupported MobileNetV2 SAME padding contract")
     if layers[1].batchnorm.channels != 48:
         raise ValueError("expected 48-channel first batch normalization")
     return layers
@@ -68,6 +76,7 @@ def make_stem(source: Path, output: Path) -> None:
     output_description.shortDescription = "MobileNetV2 Conv+BatchNorm+ReLU6 activation"
     output_description.type.multiArrayType.dataType = FeatureTypes_pb2.ArrayFeatureType.FLOAT32
     output_description.type.multiArrayType.shape[:] = STEM_SHAPE
+    make_array_input(spec)
     ct.utils.save_spec(spec, str(output))
 
 
@@ -85,6 +94,36 @@ def make_tail(source: Path, output: Path) -> None:
     input_description.type.ClearField("imageType")
     input_description.type.multiArrayType.dataType = FeatureTypes_pb2.ArrayFeatureType.FLOAT32
     input_description.type.multiArrayType.shape[:] = STEM_SHAPE
+    ct.utils.save_spec(spec, str(output))
+
+
+def make_array_input(spec) -> None:
+    """Replace the source image input and its scaler with preprocessed CHW floats.
+
+    The original model's image scaler is exactly `pixel / 127.5 - 1`.  Keeping
+    the learned graph unchanged while accepting those values directly eliminates
+    Core ML image decoding, orientation, and resize behavior from parity proof.
+    """
+    if spec.HasField("neuralNetworkClassifier"):
+        network = spec.neuralNetworkClassifier
+    elif spec.HasField("neuralNetwork"):
+        network = spec.neuralNetwork
+    else:
+        raise ValueError("array-input conversion requires a neural-network model")
+    network.preprocessing.clear()
+    for layer in network.layers:
+        layer.input[:] = [ARRAY_INPUT if name == "image" else name for name in layer.input]
+    input_description = spec.description.input[0]
+    input_description.name = ARRAY_INPUT
+    input_description.type.ClearField("imageType")
+    input_description.type.multiArrayType.dataType = FeatureTypes_pb2.ArrayFeatureType.FLOAT32
+    input_description.type.multiArrayType.shape[:] = ARRAY_INPUT_SHAPE
+
+
+def make_full_array(source: Path, output: Path) -> None:
+    spec = ct.utils.load_spec(str(source))
+    validate_source(spec)
+    make_array_input(spec)
     ct.utils.save_spec(spec, str(output))
 
 
@@ -112,9 +151,11 @@ def main() -> int:
     args.output_dir.mkdir(parents=True, exist_ok=True)
     source = args.source.resolve()
     stem = args.output_dir / "MobileNetV2Stem.mlmodel"
+    full_array = args.output_dir / "MobileNetV2FullArray.mlmodel"
     tail = args.output_dir / "MobileNetV2Tail.mlmodel"
     coefficients = args.output_dir / "MobileNetV2StemCoefficients.json"
     make_stem(source, stem)
+    make_full_array(source, full_array)
     make_tail(source, tail)
     export_coefficients(source, coefficients)
     manifest = {
@@ -123,19 +164,42 @@ def main() -> int:
         "source_sha256": sha256(source),
         "stem": {
             "path": str(stem),
+            "sha256": sha256(stem),
             "layer_count": STEM_LAYER_COUNT,
+            "input": ARRAY_INPUT,
+            "input_shape": ARRAY_INPUT_SHAPE,
             "output": STEM_OUTPUT,
             "shape": STEM_SHAPE,
-            "operations": ["Conv2D 3x3 stride 2 same", "BatchNorm", "ReLU6"],
+            "padding_mode": STEM_PADDING_MODE,
+            "input_coordinate": "2 * output + tap",
+            "operations": ["Conv2D 3x3 stride 2 SAME(bottom/right)", "BatchNorm", "ReLU6"],
             "coefficients": str(coefficients),
+        },
+        "full_array": {
+            "path": str(full_array),
+            "sha256": sha256(full_array),
+            "input": ARRAY_INPUT,
+            "input_shape": ARRAY_INPUT_SHAPE,
+            "output": "classLabelProbs",
+            "derived_from_source_classifier": True,
         },
         "tail": {
             "path": str(tail),
+            "sha256": sha256(tail),
             "input": STEM_OUTPUT,
             "shape": STEM_SHAPE,
+            "output": "classLabelProbs",
+            "source_layer_start": STEM_LAYER_COUNT,
             "preserves_source_classifier": True,
         },
     }
+    if (manifest["stem"]["padding_mode"] != STEM_PADDING_MODE
+            or manifest["stem"]["input_coordinate"] != "2 * output + tap"
+            or manifest["stem"]["input"] != manifest["full_array"]["input"]
+            or manifest["stem"]["input_shape"] != manifest["full_array"]["input_shape"]
+            or manifest["tail"]["input"] != manifest["stem"]["output"]
+            or manifest["tail"]["shape"] != manifest["stem"]["shape"]):
+        raise ValueError("invalid preparation manifest padding contract")
     (args.output_dir / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
     print(json.dumps(manifest, indent=2))
     return 0

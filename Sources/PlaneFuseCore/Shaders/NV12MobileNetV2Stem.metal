@@ -2,8 +2,8 @@
 using namespace metal;
 
 // The source weights and offsets are generated from the exact pretrained 3x3
-// Conv + BatchNorm parameters. Offsets are per tap so SAME zero padding does
-// not accidentally add RGB preprocessing bias outside the source image.
+// Conv + BatchNorm parameters. Core ML SAME is bottom/right-heavy here: source
+// coordinates are `2 * output + tap`, with only the final row/column padded.
 kernel void nv12ToMobileNetV2Stem(
     texture2d<uint, access::read> yPlane [[texture(0)]],
     texture2d<uint, access::read> uvPlane [[texture(1)]],
@@ -17,8 +17,8 @@ kernel void nv12ToMobileNetV2Stem(
     float value = bias[gid.z];
     for (uint ky = 0; ky < 3; ++ky) {
         for (uint kx = 0; kx < 3; ++kx) {
-            const int x = int(gid.x * 2 + kx) - 1;
-            const int y = int(gid.y * 2 + ky) - 1;
+            const int x = int(gid.x * 2 + kx);
+            const int y = int(gid.y * 2 + ky);
             if (x < 0 || x >= 224 || y < 0 || y >= 224) continue;
             const float luma = (float(yPlane.read(uint2(x, y)).x) - 16.0f) / 219.0f;
             const uint2 chroma = uvPlane.read(uint2(x / 2, y / 2)).xy;

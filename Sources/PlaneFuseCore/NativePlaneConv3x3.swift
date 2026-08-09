@@ -1,5 +1,16 @@
 import Foundation
 
+/// Core ML's `same` convolution placement for the inspected MobileNetV2 stem.
+/// For 224 input, 3x3 kernel, and stride 2, total padding is one pixel; it is
+/// applied after the final row/column, so the first tap samples `2 * output`.
+public enum Conv3x3Stride2PaddingMode: String, Codable, Equatable {
+    case sameBottomRight
+
+    public func inputCoordinate(output: Int, kernelTap: Int) -> Int {
+        output * 2 + kernelTap
+    }
+}
+
 /// The first MobileNetV2 learned operation after image preprocessing: a 3x3,
 /// stride-2 RGB convolution, followed by channel-wise batch normalization and
 /// ReLU6. This type intentionally supports only `same` zero padding; changing
@@ -14,6 +25,7 @@ public struct Conv3x3Stride2BatchNormReLU6Stem: Equatable {
     public let batchNormMean: [Double]
     public let batchNormVariance: [Double]
     public let batchNormEpsilon: Double
+    public let paddingMode: Conv3x3Stride2PaddingMode
 
     public init(
         outputChannels: Int,
@@ -23,7 +35,8 @@ public struct Conv3x3Stride2BatchNormReLU6Stem: Equatable {
         batchNormBias: [Double],
         batchNormMean: [Double],
         batchNormVariance: [Double],
-        batchNormEpsilon: Double
+        batchNormEpsilon: Double,
+        paddingMode: Conv3x3Stride2PaddingMode = .sameBottomRight
     ) {
         precondition(outputChannels > 0)
         precondition(convolutionWeights.count == outputChannels * 3 * 3 * 3)
@@ -40,6 +53,7 @@ public struct Conv3x3Stride2BatchNormReLU6Stem: Equatable {
         self.batchNormMean = batchNormMean
         self.batchNormVariance = batchNormVariance
         self.batchNormEpsilon = batchNormEpsilon
+        self.paddingMode = paddingMode
     }
 
     public func outputSize(inputWidth: Int, inputHeight: Int) -> (width: Int, height: Int) {
@@ -58,6 +72,7 @@ public struct NativePlaneConv3x3Stride2Stem: Equatable {
     public let sourceOffsets: [Double]
     /// BatchNorm-folded convolution bias, applied once per output feature.
     public let bias: [Double]
+    public let paddingMode: Conv3x3Stride2PaddingMode
 
     public func evaluate(
         yPlane: [UInt8], uvPlane: [UInt8], width: Int, height: Int,
@@ -73,8 +88,8 @@ public struct NativePlaneConv3x3Stride2Stem: Equatable {
                     var value = bias[channel]
                     for ky in 0..<3 {
                         for kx in 0..<3 {
-                            let inputX = ox * 2 + kx - 1
-                            let inputY = oy * 2 + ky - 1
+                            let inputX = paddingMode.inputCoordinate(output: ox, kernelTap: kx)
+                            let inputY = paddingMode.inputCoordinate(output: oy, kernelTap: ky)
                             guard inputX >= 0, inputX < width, inputY >= 0, inputY < height else { continue }
                             let inputIndex = inputY * width + inputX
                             let uvIndex = (inputY / 2) * (width / 2) + (inputX / 2)
@@ -120,7 +135,7 @@ public enum NativePlaneConv3x3Compiler {
         }
         return NativePlaneConv3x3Stride2Stem(
             outputChannels: stem.outputChannels, sourceWeights: sourceWeights,
-            sourceOffsets: sourceOffsets, bias: bias
+            sourceOffsets: sourceOffsets, bias: bias, paddingMode: stem.paddingMode
         )
     }
 }
@@ -139,7 +154,8 @@ public enum ReferenceConv3x3Stem {
                 for ox in 0..<output.width {
                     var value = stem.convolutionBias[channel]
                     for ky in 0..<3 { for kx in 0..<3 {
-                        let x = ox * 2 + kx - 1; let y = oy * 2 + ky - 1
+                        let x = stem.paddingMode.inputCoordinate(output: ox, kernelTap: kx)
+                        let y = stem.paddingMode.inputCoordinate(output: oy, kernelTap: ky)
                         guard x >= 0, x < width, y >= 0, y < height else { continue }
                         let pixel = y * width + x; let uv = (y / 2) * (width / 2) + (x / 2)
                         let normalized = normalization.apply(to: semantics.decodeRGB(y: yPlane[pixel], cb: uvPlane[uv * 2], cr: uvPlane[uv * 2 + 1]))

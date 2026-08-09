@@ -16,12 +16,12 @@ final class MobileNetV2IntegrationTests: XCTestCase {
     }
 
     func testManifestRejectsWrongStemShape() throws {
-        let manifest = MobileNetV2AssetManifest(modelIdentifier: "Apple MobileNetV2 ImageNet", sourceURL: URL(string: "https://example.invalid")!, sourceModelFile: "x", sourceSHA256: nil, tailModelDirectory: "x", tailInputName: "x", tailOutputName: "x", activationShape: [3, 224, 224], validationCorpusManifest: "x")
+        let manifest = MobileNetV2AssetManifest(modelIdentifier: "Apple MobileNetV2 ImageNet", sourceURL: URL(string: "https://example.invalid")!, sourceModelFile: "x", sourceSHA256: nil, tailModelDirectory: "x", tailInputName: "x", tailOutputName: "x", activationShape: [3, 224, 224], paddingMode: .sameBottomRight, validationCorpusManifest: "x", derivedManifest: "x")
         XCTAssertThrowsError(try manifest.validate(at: URL(fileURLWithPath: "/tmp")))
     }
 
     func testCompiledTailAcceptsTheInspectedThreeDimensionalStemBoundary() throws {
-        let url = URL(fileURLWithPath: "models/MobileNetV2Tail.mlmodelc")
+        let url = URL(fileURLWithPath: "models/derived/tail-compiled/MobileNetV2Tail.mlmodelc")
         guard FileManager.default.fileExists(atPath: url.path) else {
             throw XCTSkip("Local MobileNetV2 tail artifact is not installed.")
         }
