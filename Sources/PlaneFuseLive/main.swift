@@ -4,7 +4,7 @@ import CoreVideo
 import Foundation
 import PlaneFuseCore
 
-private enum LiveError: Error, LocalizedError {
+enum LiveError: Error, LocalizedError {
     case usage
     case cameraUnavailable
     case cameraPermissionDenied
@@ -13,7 +13,6 @@ private enum LiveError: Error, LocalizedError {
     case cameraTimedOut
     case cameraFrameUnavailable
     case unsupportedCameraFrame
-    case cameraPlaneLockFailed
     case inferenceOutputUnavailable
 
     var errorDescription: String? {
@@ -34,8 +33,6 @@ private enum LiveError: Error, LocalizedError {
             return "The camera delivered no usable pixel buffer."
         case .unsupportedCameraFrame:
             return "The camera frame is not a two-plane, even-dimension NV12 video-range buffer."
-        case .cameraPlaneLockFailed:
-            return "The captured camera frame's native planes could not be locked for reading."
         case .inferenceOutputUnavailable:
             return "The MobileNetV2 tail returned no top-1 label."
         }
@@ -58,43 +55,48 @@ private struct MobileNetV2AssetPaths {
 
 private final class CameraFrameDelegate: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     private let semaphore = DispatchSemaphore(value: 0)
-    private(set) var pixelBuffer: CVPixelBuffer?
-    private(set) var width = 0
-    private(set) var height = 0
-    private(set) var pixelFormat = 0
-    private(set) var timestamp: CMTime = .invalid
+    private let lock = NSLock()
+    private var latestPixelBuffer: CVPixelBuffer?
+    private var latestTimestamp: CMTime = .invalid
+    private var sequence = 0
+    private var deliveredSequence = 0
+
+    struct Frame {
+        let pixelBuffer: CVPixelBuffer
+        let timestamp: CMTime
+        let sequence: Int
+    }
 
     func captureOutput(
         _ output: AVCaptureOutput,
         didOutput sampleBuffer: CMSampleBuffer,
         from connection: AVCaptureConnection
     ) {
-        guard pixelBuffer == nil, let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
-        self.pixelBuffer = pixelBuffer
-        width = CVPixelBufferGetWidth(pixelBuffer)
-        height = CVPixelBufferGetHeight(pixelBuffer)
-        pixelFormat = Int(CVPixelBufferGetPixelFormatType(pixelBuffer))
-        timestamp = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
+        guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
+        lock.lock()
+        latestPixelBuffer = pixelBuffer
+        latestTimestamp = CMSampleBufferGetPresentationTimeStamp(sampleBuffer)
+        sequence += 1
+        lock.unlock()
         semaphore.signal()
     }
 
-    func waitForFrame(timeout: TimeInterval) -> Bool {
-        semaphore.wait(timeout: .now() + timeout) == .success
+    func nextFrame(timeout: TimeInterval) -> Frame? {
+        let deadline = Date().addingTimeInterval(timeout)
+        while Date() < deadline {
+            let remaining = max(0, deadline.timeIntervalSinceNow)
+            guard semaphore.wait(timeout: .now() + remaining) == .success else { return nil }
+            lock.lock()
+            if sequence > deliveredSequence, let pixelBuffer = latestPixelBuffer {
+                deliveredSequence = sequence
+                let frame = Frame(pixelBuffer: pixelBuffer, timestamp: latestTimestamp, sequence: sequence)
+                lock.unlock()
+                return frame
+            }
+            lock.unlock()
+        }
+        return nil
     }
-}
-
-private struct CameraNV12Resize {
-    static let outputWidth = 224
-    static let outputHeight = 224
-
-    let cameraWidth: Int
-    let cameraHeight: Int
-    let pixelFormat: Int
-    let cropOriginX: Int
-    let cropOriginY: Int
-    let cropSide: Int
-    let yPlaneBytes: [UInt8]
-    let uvPlaneBytes: [UInt8]
 }
 
 private struct CameraInferenceMeasurement {
@@ -110,18 +112,84 @@ private struct CameraInferenceMeasurement {
     let cTop1Confidence: Double
 }
 
+private final class CameraInferenceRunner {
+    private let baseline: MetalMobileNetV2RGBPipeline
+    private let native: MetalMobileNetV2NativeStem
+    private let tail: CoreMLMobileNetV2TailAdapter
+    private let bNormalizedRGB: MTLTexture
+    private let bActivation: MTLBuffer
+    private let cActivation: MTLBuffer
+    private let bShared: BufferBackedMultiArray
+    private let cShared: BufferBackedMultiArray
+
+    init() throws {
+        let root = URL(fileURLWithPath: FileManager.default.currentDirectoryPath, isDirectory: true)
+        let manifest = MobileNetV2AssetManifest.inspected
+        let paths = MobileNetV2AssetPaths(environment: ProcessInfo.processInfo.environment)
+        try manifest.validate(at: root)
+        let lineage = try MobileNetV2DerivedArtifactManifest.load(from: root.appendingPathComponent(manifest.derivedManifest))
+        try lineage.validate(at: root)
+        let coefficients = try MobileNetV2StemCoefficients.load(from: URL(fileURLWithPath: paths.coefficient))
+        let factory = try MetalRGBBaseline()
+        let baseline = try MetalMobileNetV2RGBPipeline(device: factory.device, coefficients: coefficients)
+        let native = try MetalMobileNetV2NativeStem(device: factory.device, coefficients: coefficients)
+        self.baseline = baseline
+        self.native = native
+        self.tail = try CoreMLMobileNetV2TailAdapter(modelURL: URL(fileURLWithPath: paths.tail), manifest: manifest)
+        self.bNormalizedRGB = try baseline.makeNormalizedRGBTexture()
+        self.bActivation = try baseline.makeActivationBuffer()
+        self.cActivation = try native.makeActivationBuffer()
+        self.bShared = try BufferBackedMultiArray(buffer: bActivation, shape: MetalMobileNetV2NativeStem.activationShape)
+        self.cShared = try BufferBackedMultiArray(buffer: cActivation, shape: MetalMobileNetV2NativeStem.activationShape)
+    }
+
+    func infer(output: CameraNV12MetalBridge.OutputTextures, verifyParity: Bool) throws -> CameraInferenceMeasurement {
+        let input = MetalRGBBaseline.NV12Textures(yPlane: output.yPlane, uvPlane: output.uvPlane)
+        let bStart = ProcessInfo.processInfo.systemUptime
+        try baseline.execute(input, normalizedRGB: bNormalizedRGB, into: bActivation)
+        let bFrontendMilliseconds = (ProcessInfo.processInfo.systemUptime - bStart) * 1_000
+        let bOutput = try tail.predict(sharedActivation: bShared)
+        let bEndToEndMilliseconds = (ProcessInfo.processInfo.systemUptime - bStart) * 1_000
+
+        let cStart = ProcessInfo.processInfo.systemUptime
+        try native.execute(input, into: cActivation)
+        let cFrontendMilliseconds = (ProcessInfo.processInfo.systemUptime - cStart) * 1_000
+        let cOutput = try tail.predict(sharedActivation: cShared)
+        let cEndToEndMilliseconds = (ProcessInfo.processInfo.systemUptime - cStart) * 1_000
+        guard let bPrediction = topPrediction(bOutput), let cPrediction = topPrediction(cOutput) else {
+            throw LiveError.inferenceOutputUnavailable
+        }
+
+        var maxActivationAbsoluteDifference = 0.0
+        if verifyParity {
+            let bFeatures = try baseline.readActivation(from: bActivation)
+            let cFeatures = try native.readActivation(from: cActivation)
+            maxActivationAbsoluteDifference = zip(bFeatures, cFeatures)
+                .map { abs(Double($0 - $1)) }.max() ?? 0
+        }
+        return CameraInferenceMeasurement(
+            bFrontendMilliseconds: bFrontendMilliseconds, cFrontendMilliseconds: cFrontendMilliseconds,
+            bEndToEndMilliseconds: bEndToEndMilliseconds, cEndToEndMilliseconds: cEndToEndMilliseconds,
+            maxActivationAbsoluteDifference: maxActivationAbsoluteDifference,
+            top1Agreement: bPrediction.label == cPrediction.label ? 1 : 0,
+            bTop1Label: bPrediction.label, cTop1Label: cPrediction.label,
+            bTop1Confidence: bPrediction.confidence, cTop1Confidence: cPrediction.confidence
+        )
+    }
+}
+
 private func printHelp() {
     print("""
     planefuse-live — honest local camera proof for PlaneFuse
 
     Usage:
       planefuse-live --sample   Run the local M5 MobileNetV2 B/C workload on the real corpus.
-      planefuse-live --camera   Capture, native-plane resize, and infer on one camera NV12 frame.
+      planefuse-live --camera   Run 300 continuous camera frames through the native-plane path.
       planefuse-live --help     Show this help.
 
-    --camera crops the captured NV12 frame to an even-aligned center square, then uses
-    nearest source-grid sampling directly on Y and interleaved UV planes to make 224x224
-    NV12. It does not use an RGB intermediate during resize.
+    --camera maps camera Y/UV planes with CVMetalTextureCache, performs an even-aligned
+    center-square crop and nearest source-grid resize on the GPU, then runs persistent
+    B/C inference. It does not use an RGB intermediate during camera resize.
     """)
 }
 
@@ -191,163 +259,68 @@ private func runCamera() throws {
     guard session.canAddOutput(output) else { throw LiveError.cameraOutputUnavailable }
     session.addOutput(output)
 
+    guard let metalDevice = MTLCreateSystemDefaultDevice() else { throw LiveError.cameraOutputUnavailable }
+    let firstFrame: CameraFrameDelegate.Frame
     session.startRunning()
     defer { session.stopRunning() }
-    guard delegate.waitForFrame(timeout: 10) else { throw LiveError.cameraTimedOut }
+    guard let captured = delegate.nextFrame(timeout: 10) else { throw LiveError.cameraTimedOut }
+    firstFrame = captured
+    let geometry = try CameraResizeGeometry.make(
+        width: CVPixelBufferGetWidth(firstFrame.pixelBuffer), height: CVPixelBufferGetHeight(firstFrame.pixelBuffer)
+    )
+    let bridge = try CameraNV12MetalBridge(device: metalDevice)
+    let outputRing = try bridge.makeOutputRing(count: 3, geometry: geometry)
+    let runner = try CameraInferenceRunner()
+    var bFrontend: [Double] = []; var cFrontend: [Double] = []
+    var bEndToEnd: [Double] = []; var cEndToEnd: [Double] = []
+    var resizeGPU: [Double] = []
+    var agreements = 0
+    var maxActivationError = 0.0
+    var firstMeasurement: CameraInferenceMeasurement?
+    var lastSequence = firstFrame.sequence - 1
+    for frameIndex in 0..<300 {
+        let frame: CameraFrameDelegate.Frame
+        if frameIndex == 0 {
+            frame = firstFrame
+        } else {
+            guard let next = delegate.nextFrame(timeout: 2) else { throw LiveError.cameraTimedOut }
+            frame = next
+        }
+        if frame.sequence <= lastSequence { throw LiveError.cameraFrameUnavailable }
+        lastSequence = frame.sequence
+        let resize = try bridge.execute(pixelBuffer: frame.pixelBuffer, into: outputRing[frameIndex % outputRing.count])
+        if let gpuMilliseconds = resize.gpuMilliseconds { resizeGPU.append(gpuMilliseconds) }
+        let measurement = try runner.infer(
+            output: outputRing[frameIndex % outputRing.count], verifyParity: frameIndex == 0
+        )
+        firstMeasurement = firstMeasurement ?? measurement
+        maxActivationError = max(maxActivationError, measurement.maxActivationAbsoluteDifference)
+        agreements += measurement.top1Agreement == 1 ? 1 : 0
+        bFrontend.append(measurement.bFrontendMilliseconds); cFrontend.append(measurement.cFrontendMilliseconds)
+        bEndToEnd.append(measurement.bEndToEndMilliseconds); cEndToEnd.append(measurement.cEndToEndMilliseconds)
+    }
 
-    guard let pixelBuffer = delegate.pixelBuffer else { throw LiveError.cameraFrameUnavailable }
-    let resized = try resizeCameraNV12(pixelBuffer)
-    let measurement = try runCameraInference(resized)
-
-    let format = String(format: "0x%08X", resized.pixelFormat)
-    print("PlaneFuse Live camera: one actual frame, native-plane B/C MobileNetV2 inference")
-    print("camera_dimensions: \(resized.cameraWidth)x\(resized.cameraHeight)")
+    guard let firstMeasurement else { throw LiveError.cameraFrameUnavailable }
+    let format = String(format: "0x%08X", CVPixelBufferGetPixelFormatType(firstFrame.pixelBuffer))
+    print("PlaneFuse Live camera: 300 continuous native-plane frames, local MobileNetV2 B/C inference")
+    print("camera_dimensions: \(geometry.cameraWidth)x\(geometry.cameraHeight)")
     print("camera_pixel_format: NV12 video-range (\(format))")
-    print("camera_timestamp: \(delegate.timestamp.seconds)")
-    print("resize_policy: even-aligned center-square crop origin=(\(resized.cropOriginX),\(resized.cropOriginY)) side=\(resized.cropSide); nearest source-grid resize Y=224x224, UV=112x112 interleaved; output=224x224 NV12; no RGB intermediate during resize")
-    print(String(format: "b_frontend_elapsed_ms: %.4f", measurement.bFrontendMilliseconds))
-    print(String(format: "c_frontend_elapsed_ms: %.4f", measurement.cFrontendMilliseconds))
-    print(String(format: "b_end_to_end_elapsed_ms: %.4f", measurement.bEndToEndMilliseconds))
-    print(String(format: "c_end_to_end_elapsed_ms: %.4f", measurement.cEndToEndMilliseconds))
-    print(String(format: "bc_activation_max_abs_error: %.8f", measurement.maxActivationAbsoluteDifference))
-    print("b_top1_label: \(measurement.bTop1Label)")
-    print(String(format: "b_top1_confidence: %.8f", measurement.bTop1Confidence))
-    print("c_top1_label: \(measurement.cTop1Label)")
-    print(String(format: "c_top1_confidence: %.8f", measurement.cTop1Confidence))
-    print(String(format: "top1_agreement: %.4f", measurement.top1Agreement))
+    print("camera_first_timestamp: \(firstFrame.timestamp.seconds)")
+    print("camera_last_sequence: \(lastSequence)")
+    print("resize_policy: CVMetalTextureCache Y/UV mapping -> GPU even-aligned center-square crop and nearest source-grid resize; output=224x224 NV12; no Swift Y/UV array copy or RGB resize")
+    print(String(format: "resize_gpu_p50_ms: %.4f", median(resizeGPU)))
+    print(String(format: "b_frontend_p50_ms: %.4f", median(bFrontend)))
+    print(String(format: "c_frontend_p50_ms: %.4f", median(cFrontend)))
+    print(String(format: "b_end_to_end_p50_ms: %.4f", median(bEndToEnd)))
+    print(String(format: "c_end_to_end_p50_ms: %.4f", median(cEndToEnd)))
+    print(String(format: "bc_activation_max_abs_error_first_frame: %.8f", maxActivationError))
+    print("b_top1_label_first_frame: \(firstMeasurement.bTop1Label)")
+    print(String(format: "b_top1_confidence_first_frame: %.8f", firstMeasurement.bTop1Confidence))
+    print("c_top1_label_first_frame: \(firstMeasurement.cTop1Label)")
+    print(String(format: "c_top1_confidence_first_frame: %.8f", firstMeasurement.cTop1Confidence))
+    print(String(format: "top1_agreement_300_frames: %.4f", Double(agreements) / 300.0))
     print("c_rgb_intermediate_bytes: 0")
-}
-
-/// Resizes the camera's native NV12 planes without reconstructing RGB. The Y grid
-/// is sampled at 224x224 and the interleaved UV grid at 112x112, each using
-/// `floor(destinationCoordinate * sourceExtent / destinationExtent)`.
-private func resizeCameraNV12(_ pixelBuffer: CVPixelBuffer) throws -> CameraNV12Resize {
-    let width = CVPixelBufferGetWidth(pixelBuffer)
-    let height = CVPixelBufferGetHeight(pixelBuffer)
-    let pixelFormat = Int(CVPixelBufferGetPixelFormatType(pixelBuffer))
-    guard pixelFormat == Int(kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange),
-          CVPixelBufferGetPlaneCount(pixelBuffer) == 2,
-          width.isMultiple(of: 2), height.isMultiple(of: 2) else {
-        throw LiveError.unsupportedCameraFrame
-    }
-
-    let cropSide = min(width, height) & ~1
-    guard cropSide >= 2 else { throw LiveError.unsupportedCameraFrame }
-    // NV12 chroma samples represent 2x2 luma blocks, so origins must be even.
-    let cropOriginX = ((width - cropSide) / 2) & ~1
-    let cropOriginY = ((height - cropSide) / 2) & ~1
-    let yWidth = CVPixelBufferGetWidthOfPlane(pixelBuffer, 0)
-    let yHeight = CVPixelBufferGetHeightOfPlane(pixelBuffer, 0)
-    let uvWidth = CVPixelBufferGetWidthOfPlane(pixelBuffer, 1)
-    let uvHeight = CVPixelBufferGetHeightOfPlane(pixelBuffer, 1)
-    let yBytesPerRow = CVPixelBufferGetBytesPerRowOfPlane(pixelBuffer, 0)
-    let uvBytesPerRow = CVPixelBufferGetBytesPerRowOfPlane(pixelBuffer, 1)
-    guard yWidth == width, yHeight == height,
-          uvWidth == width / 2, uvHeight == height / 2,
-          yBytesPerRow >= width, uvBytesPerRow >= width else {
-        throw LiveError.unsupportedCameraFrame
-    }
-
-    guard CVPixelBufferLockBaseAddress(pixelBuffer, .readOnly) == kCVReturnSuccess else {
-        throw LiveError.cameraPlaneLockFailed
-    }
-    defer { CVPixelBufferUnlockBaseAddress(pixelBuffer, .readOnly) }
-    guard let yBaseAddress = CVPixelBufferGetBaseAddressOfPlane(pixelBuffer, 0),
-          let uvBaseAddress = CVPixelBufferGetBaseAddressOfPlane(pixelBuffer, 1) else {
-        throw LiveError.cameraPlaneLockFailed
-    }
-
-    let yBase = yBaseAddress.assumingMemoryBound(to: UInt8.self)
-    let uvBase = uvBaseAddress.assumingMemoryBound(to: UInt8.self)
-    let outputWidth = CameraNV12Resize.outputWidth
-    let outputHeight = CameraNV12Resize.outputHeight
-    var yPlaneBytes = [UInt8](repeating: 0, count: outputWidth * outputHeight)
-    var uvPlaneBytes = [UInt8](repeating: 0, count: outputWidth * outputHeight / 2)
-
-    for destinationY in 0..<outputHeight {
-        let sourceY = cropOriginY + destinationY * cropSide / outputHeight
-        let sourceRow = yBase.advanced(by: sourceY * yBytesPerRow)
-        for destinationX in 0..<outputWidth {
-            let sourceX = cropOriginX + destinationX * cropSide / outputWidth
-            yPlaneBytes[destinationY * outputWidth + destinationX] = sourceRow[sourceX]
-        }
-    }
-
-    let sourceUVSide = cropSide / 2
-    let outputUVWidth = outputWidth / 2
-    let outputUVHeight = outputHeight / 2
-    for destinationY in 0..<outputUVHeight {
-        let sourceY = cropOriginY / 2 + destinationY * sourceUVSide / outputUVHeight
-        let sourceRow = uvBase.advanced(by: sourceY * uvBytesPerRow)
-        for destinationX in 0..<outputUVWidth {
-            let sourceX = cropOriginX / 2 + destinationX * sourceUVSide / outputUVWidth
-            let sourceOffset = sourceX * 2
-            let destinationOffset = (destinationY * outputUVWidth + destinationX) * 2
-            uvPlaneBytes[destinationOffset] = sourceRow[sourceOffset]
-            uvPlaneBytes[destinationOffset + 1] = sourceRow[sourceOffset + 1]
-        }
-    }
-
-    return CameraNV12Resize(
-        cameraWidth: width, cameraHeight: height, pixelFormat: pixelFormat,
-        cropOriginX: cropOriginX, cropOriginY: cropOriginY, cropSide: cropSide,
-        yPlaneBytes: yPlaneBytes, uvPlaneBytes: uvPlaneBytes
-    )
-}
-
-/// Runs exactly one input-ready B path and one input-ready C path. Each elapsed
-/// end-to-end interval includes that path's same unchanged compiled Core ML tail.
-private func runCameraInference(_ frame: CameraNV12Resize) throws -> CameraInferenceMeasurement {
-    let root = URL(fileURLWithPath: FileManager.default.currentDirectoryPath, isDirectory: true)
-    let manifest = MobileNetV2AssetManifest.inspected
-    let paths = MobileNetV2AssetPaths(environment: ProcessInfo.processInfo.environment)
-    try manifest.validate(at: root)
-    let lineage = try MobileNetV2DerivedArtifactManifest.load(from: root.appendingPathComponent(manifest.derivedManifest))
-    try lineage.validate(at: root)
-
-    let tail = try CoreMLMobileNetV2TailAdapter(modelURL: URL(fileURLWithPath: paths.tail), manifest: manifest)
-    let coefficients = try MobileNetV2StemCoefficients.load(from: URL(fileURLWithPath: paths.coefficient))
-    let factory = try MetalRGBBaseline()
-    let baseline = try MetalMobileNetV2RGBPipeline(device: factory.device, coefficients: coefficients)
-    let native = try MetalMobileNetV2NativeStem(device: factory.device, coefficients: coefficients)
-    let input = try factory.makeNV12Textures(
-        width: CameraNV12Resize.outputWidth, height: CameraNV12Resize.outputHeight,
-        yPlaneBytes: frame.yPlaneBytes, uvPlaneBytes: frame.uvPlaneBytes
-    )
-    let normalizedRGB = try baseline.makeNormalizedRGBTexture()
-    let bActivation = try baseline.makeActivationBuffer()
-    let cActivation = try native.makeActivationBuffer()
-
-    let bStart = ProcessInfo.processInfo.systemUptime
-    try baseline.execute(input, normalizedRGB: normalizedRGB, into: bActivation)
-    let bFrontendMilliseconds = (ProcessInfo.processInfo.systemUptime - bStart) * 1_000
-    let bFeatures = try baseline.readActivation(from: bActivation)
-    let bOutput = try tail.predict(stemActivation: bFeatures)
-    let bEndToEndMilliseconds = (ProcessInfo.processInfo.systemUptime - bStart) * 1_000
-
-    let cStart = ProcessInfo.processInfo.systemUptime
-    try native.execute(input, into: cActivation)
-    let cFrontendMilliseconds = (ProcessInfo.processInfo.systemUptime - cStart) * 1_000
-    let cFeatures = try native.readActivation(from: cActivation)
-    let cOutput = try tail.predict(stemActivation: cFeatures)
-    let cEndToEndMilliseconds = (ProcessInfo.processInfo.systemUptime - cStart) * 1_000
-
-    guard let bPrediction = topPrediction(bOutput), let cPrediction = topPrediction(cOutput) else {
-        throw LiveError.inferenceOutputUnavailable
-    }
-    let maxActivationAbsoluteDifference = zip(bFeatures, cFeatures)
-        .map { abs(Double($0 - $1)) }
-        .max() ?? 0
-    return CameraInferenceMeasurement(
-        bFrontendMilliseconds: bFrontendMilliseconds, cFrontendMilliseconds: cFrontendMilliseconds,
-        bEndToEndMilliseconds: bEndToEndMilliseconds, cEndToEndMilliseconds: cEndToEndMilliseconds,
-        maxActivationAbsoluteDifference: maxActivationAbsoluteDifference,
-        top1Agreement: bPrediction.label == cPrediction.label ? 1 : 0,
-        bTop1Label: bPrediction.label,
-        cTop1Label: cPrediction.label,
-        bTop1Confidence: bPrediction.confidence,
-        cTop1Confidence: cPrediction.confidence
-    )
+    print("c_cpu_activation_population: 0 (persistent buffer-backed MLMultiArray view)")
 }
 
 private func topPrediction(_ probabilities: [String: Double]) -> (label: String, confidence: Double)? {
@@ -362,6 +335,12 @@ private func topLabel(_ probabilities: [String: Double]) -> String? {
     }?.key
 }
 
+private func median(_ values: [Double]) -> Double {
+    guard !values.isEmpty else { return 0 }
+    let sorted = values.sorted()
+    return sorted[(sorted.count - 1) / 2]
+}
+
 private func awaitCameraAccess() -> Bool {
     let semaphore = DispatchSemaphore(value: 0)
     var granted = false
@@ -373,24 +352,23 @@ private func awaitCameraAccess() -> Bool {
     return granted
 }
 
-@main
-private struct PlaneFuseLive {
-    static func main() {
-        do {
-            let arguments = Array(CommandLine.arguments.dropFirst())
-            switch arguments {
-            case ["--help"], []:
-                printHelp()
-            case ["--sample"]:
-                try runSample()
-            case ["--camera"]:
-                try runCamera()
-            default:
-                throw LiveError.usage
-            }
-        } catch {
-            fputs("planefuse-live: \(error.localizedDescription)\n", stderr)
-            exit(1)
+private func planeFuseLiveMain() {
+    do {
+        let arguments = Array(CommandLine.arguments.dropFirst())
+        switch arguments {
+        case ["--help"], []:
+            printHelp()
+        case ["--sample"]:
+            try runSample()
+        case ["--camera"]:
+            try runCamera()
+        default:
+            throw LiveError.usage
         }
+    } catch {
+        fputs("planefuse-live: \(error.localizedDescription)\n", stderr)
+        exit(1)
     }
 }
+
+planeFuseLiveMain()

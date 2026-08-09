@@ -15,7 +15,7 @@ let package = Package(
             resources: [.process("Shaders")]
         ),
         .executableTarget(name: "PlaneFuseCLI", dependencies: ["PlaneFuseCore"]),
-        .executableTarget(name: "PlaneFuseLive", dependencies: ["PlaneFuseCore"]),
+        .executableTarget(name: "PlaneFuseLive", dependencies: ["PlaneFuseCore"], resources: [.process("Shaders")]),
         .testTarget(name: "PlaneFuseCoreTests", dependencies: ["PlaneFuseCore"]),
     ]
 )

@@ -11,6 +11,11 @@ public final class MetalRGBBaseline {
         public let yPlane: MTLTexture
         public let uvPlane: MTLTexture
 
+        public init(yPlane: MTLTexture, uvPlane: MTLTexture) {
+            self.yPlane = yPlane
+            self.uvPlane = uvPlane
+        }
+
         public var width: Int { yPlane.width }
         public var height: Int { yPlane.height }
     }
