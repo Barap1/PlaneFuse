@@ -2,6 +2,7 @@
   "schema_version": 1,
   "status": "no_verified_result",
   "commit": null,
+  "environment": null,
   "model": null,
   "pipeline_b": null,
   "pipeline_c": null,

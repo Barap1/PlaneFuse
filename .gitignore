@@ -9,6 +9,7 @@ xcuserdata/
 
 # SwiftPM
 .build/
+.pf-cache/
 .swiftpm/xcode/package.xcworkspace/xcuserdata/
 
 # Local artifacts/logs - keep directories, ignore generated contents
@@ -17,6 +18,11 @@ artifacts/logs/*
 
 # Local/private benchmark scratch; committed final evidence should be copied explicitly
 benchmarks/tmp/
+benchmarks/results/*
+!benchmarks/results/.gitkeep
+
+# Generated local environment snapshot; final proof metadata is copied explicitly.
+artifacts/environment.json
 
 # Model downloads/caches
 models/
