@@ -4,8 +4,8 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd -P)"
 cd "$ROOT"
 
-if [ -n "$(git status --short)" ]; then
-  echo "FAIL release validation: commit the working tree before clean-clone validation"
+if ! git diff --quiet || ! git diff --cached --quiet; then
+  echo "FAIL release validation: tracked changes must be committed before clean-clone validation"
   exit 1
 fi
 

@@ -51,8 +51,8 @@ xcrun coremlc compile models/derived/MobileNetV2Tail.mlmodel \
 ./pf bench mobilenetv2 confirm
 ```
 
-The benchmark consumes the four tracked, hashed CC0/public-domain images in
-`proof/m5-corpus/`, decodes them with ImageIO, deterministically resizes them,
+The benchmark consumes the tracked, hashed corpus in `proof/m5-corpus/`, decodes
+each image with ImageIO, deterministically resizes it,
 and converts them to BT.601 video-range NV12. It does not generate synthetic
 byte-offset fixtures for M5 acceptance.
 
@@ -71,8 +71,8 @@ measured iterations per batch, four real corpus samples, commit `df5f573`.
 | C frontend reduction | 61.29% | 51.65% |
 | B e2e p95 | 55.1639 ms | 54.6733 ms |
 | C e2e p95 | 53.5133 ms | 53.7329 ms |
-| B RGBA32Float intermediate | 802,816 bytes | 802,816 bytes |
-| C RGBA32Float intermediate | 0 bytes | 0 bytes |
+| B RGBA32Float intermediate logical payload | 802,816 bytes | 802,816 bytes |
+| C RGBA32Float intermediate logical payload | 0 bytes | 0 bytes |
 | B/C top-1 agreement | 100% | 100% |
 | raw B/C max activation error | 9.298325e-6 | 9.298325e-6 |
 | FullArray vs split StemArray+tail | 100% | 100% |
