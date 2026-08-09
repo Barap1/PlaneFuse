@@ -183,13 +183,17 @@ public struct FairABCBenchmark {
             height: configuration.height
         )
 
+        var pipelineBFrontendDurations: [Double] = []
+        var pipelineBEndToEndDurations: [Double] = []
+        var pipelineCDurations: [Double] = []
+        pipelineBFrontendDurations.reserveCapacity(configuration.measuredIterations)
+        pipelineBEndToEndDurations.reserveCapacity(configuration.measuredIterations)
+        pipelineCDurations.reserveCapacity(configuration.measuredIterations)
+
         for iteration in 0..<configuration.warmupIterations {
             try executeInterleaved(
                 iteration: iteration,
-                pipelineBFrontend: {
-                    _ = try baseline.execute(input, into: pipelineBRGBIntermediate)
-                },
-                pipelineBEndToEnd: {
+                pipelineB: {
                     _ = try baseline.execute(input, into: pipelineBRGBIntermediate)
                     _ = try rgbStem.execute(normalizedRGB: pipelineBRGBIntermediate, into: pipelineBFeatures)
                 },
@@ -199,26 +203,19 @@ public struct FairABCBenchmark {
             )
         }
 
-        var pipelineBFrontendDurations: [Double] = []
-        var pipelineBEndToEndDurations: [Double] = []
-        var pipelineCDurations: [Double] = []
-        pipelineBFrontendDurations.reserveCapacity(configuration.measuredIterations)
-        pipelineBEndToEndDurations.reserveCapacity(configuration.measuredIterations)
-        pipelineCDurations.reserveCapacity(configuration.measuredIterations)
-
         for iteration in 0..<configuration.measuredIterations {
             try executeInterleaved(
                 iteration: iteration,
-                pipelineBFrontend: {
-                    pipelineBFrontendDurations.append(try measure {
-                        _ = try baseline.execute(input, into: pipelineBRGBIntermediate)
-                    })
-                },
-                pipelineBEndToEnd: {
-                    pipelineBEndToEndDurations.append(try measure {
-                        _ = try baseline.execute(input, into: pipelineBRGBIntermediate)
-                        _ = try rgbStem.execute(normalizedRGB: pipelineBRGBIntermediate, into: pipelineBFeatures)
-                    })
+                pipelineB: {
+                    // A single B sequence supplies both boundaries: NV12-to-RGBA
+                    // frontend latency and NV12-through-normal-RGB-stem latency.
+                    let start = ProcessInfo.processInfo.systemUptime
+                    _ = try baseline.execute(input, into: pipelineBRGBIntermediate)
+                    let frontendEnd = ProcessInfo.processInfo.systemUptime
+                    _ = try rgbStem.execute(normalizedRGB: pipelineBRGBIntermediate, into: pipelineBFeatures)
+                    let end = ProcessInfo.processInfo.systemUptime
+                    pipelineBFrontendDurations.append((frontendEnd - start) * 1_000.0)
+                    pipelineBEndToEndDurations.append((end - start) * 1_000.0)
                 },
                 pipelineC: {
                     pipelineCDurations.append(try measure {
@@ -280,22 +277,19 @@ public struct FairABCBenchmark {
         }
     }
 
-    /// Runs B as frontend-only followed by B end-to-end when B owns this iteration;
-    /// odd-numbered iterations run C first, so no path is always measured first.
+    /// Runs exactly one B sequence and one C sequence per iteration. Odd-numbered
+    /// iterations run C first, so no path is always measured first.
     private func executeInterleaved(
         iteration: Int,
-        pipelineBFrontend: () throws -> Void,
-        pipelineBEndToEnd: () throws -> Void,
+        pipelineB: () throws -> Void,
         pipelineC: () throws -> Void
     ) throws {
         if iteration.isMultiple(of: 2) {
-            try pipelineBFrontend()
-            try pipelineBEndToEnd()
+            try pipelineB()
             try pipelineC()
         } else {
             try pipelineC()
-            try pipelineBFrontend()
-            try pipelineBEndToEnd()
+            try pipelineB()
         }
     }
 
