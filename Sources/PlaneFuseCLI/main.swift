@@ -8,9 +8,9 @@ enum CommandError: Error, CustomStringConvertible {
     var description: String {
         switch self {
         case .usage:
-            return "usage: planefuse <doctor|verify|bench> [quick]"
+            return "usage: planefuse <doctor|verify|bench> [quick|fair|mobilenetv2]"
         case let .unknownCommand(command):
-            return "error: unknown command '\(command)'\nusage: planefuse <doctor|verify|bench> [quick]"
+            return "error: unknown command '\(command)'\nusage: planefuse <doctor|verify|bench> [quick|fair|mobilenetv2]"
         }
     }
 }
@@ -107,6 +107,15 @@ private struct FairBenchmarkArtifact: Codable {
     let measurement: FairABCBenchmark.Measurement
 }
 
+private struct MobileNetV2BenchmarkArtifact: Codable {
+    let schemaVersion: Int
+    let status: String
+    let commit: String?
+    let environment: EnvironmentSnapshot
+    let measurement: MobileNetV2Benchmark.Measurement
+    let model: MobileNetV2AssetManifest
+}
+
 func runFairBench(configuration: FairABCBenchmark.Configuration, label: String) throws -> Int32 {
     let outputPath = ProcessInfo.processInfo.environment["PF_BENCHMARK_OUTPUT"] ?? "benchmarks/results/fair-\(label).json"
     let measurement = try FairABCBenchmark(configuration: configuration).run()
@@ -132,6 +141,42 @@ func runFairBench(configuration: FairABCBenchmark.Configuration, label: String) 
     return measurement.featureParityPass ? 0 : 1
 }
 
+func runMobileNetV2Bench(configuration: MobileNetV2Benchmark.Configuration, label: String) throws -> Int32 {
+    let coefficientPath = ProcessInfo.processInfo.environment["PF_MOBILENET_COEFFICIENTS"] ?? "models/derived/MobileNetV2StemCoefficients.json"
+    let tailPath = ProcessInfo.processInfo.environment["PF_MOBILENET_TAIL"] ?? "models/MobileNetV2Tail.mlmodelc"
+    let tail = try CoreMLMobileNetV2TailAdapter(
+        modelURL: URL(fileURLWithPath: tailPath), manifest: .inspected
+    )
+    let benchmark = try MobileNetV2Benchmark(
+        configuration: configuration,
+        coefficientsURL: URL(fileURLWithPath: coefficientPath),
+        tail: tail
+    )
+    let measurement = try benchmark.run()
+    let artifact = MobileNetV2BenchmarkArtifact(
+        schemaVersion: 1,
+        status: "mobilenetv2_\(label)",
+        commit: ProcessInfo.processInfo.environment["PF_GIT_COMMIT"],
+        environment: EnvironmentSnapshot(),
+        measurement: measurement,
+        model: .inspected
+    )
+    let outputPath = ProcessInfo.processInfo.environment["PF_BENCHMARK_OUTPUT"] ?? "benchmarks/results/m5-mobilenetv2-\(label).json"
+    let data = try JSONEncoder.benchmark.encode(artifact)
+    let url = URL(fileURLWithPath: outputPath)
+    try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+    try data.write(to: url, options: .atomic)
+    emit("PlaneFuse bench MobileNetV2 \(label): RECORDED")
+    emit("result: \(outputPath)")
+    emit(String(format: "b_e2e_p50_ms: %.4f", measurement.pipelineBEndToEnd.p50Milliseconds))
+    emit(String(format: "c_e2e_p50_ms: %.4f", measurement.pipelineCEndToEnd.p50Milliseconds))
+    emit(String(format: "c_vs_b_e2e_percent: %.2f", measurement.cVsBEndToEndPercentageDelta))
+    emit(String(format: "top1_agreement: %.4f", measurement.top1Agreement))
+    emit(String(format: "max_activation_abs_error: %.8f", measurement.maxActivationAbsoluteDifference))
+    emit("c_rgb_intermediate_bytes: \(measurement.pipelineCRGBIntermediateBytes)")
+    return 0
+}
+
 do {
     let arguments = Array(CommandLine.arguments.dropFirst())
     guard let command = arguments.first else { throw CommandError.usage }
@@ -150,6 +195,12 @@ do {
         }
         if benchmarkArguments == ["fair", "confirm"] {
             exit(try runFairBench(configuration: .confirm, label: "confirm"))
+        }
+        if benchmarkArguments == ["mobilenetv2", "quick"] {
+            exit(try runMobileNetV2Bench(configuration: .quick, label: "quick"))
+        }
+        if benchmarkArguments == ["mobilenetv2", "confirm"] {
+            exit(try runMobileNetV2Bench(configuration: .confirm, label: "confirm"))
         }
         throw CommandError.usage
     default:
