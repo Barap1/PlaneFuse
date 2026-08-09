@@ -1,6 +1,6 @@
 # PlaneFuse status
 
-Current milestone: R2 - Persistent shared-buffer Core ML bridge (IN PROGRESS)
+Current milestone: R3 - IOSurface-backed Float16 activation bridge (IN PROGRESS)
 
 Overall status: PHASE 2 FRONTIER READY
 
@@ -20,13 +20,13 @@ Real model: Apple MobileNetV2 ImageNet integrated; unchanged 252-layer Core ML t
 
 PlaneFuse Live: CLI sample and camera NV12 inference path built; physical camera run permission-qualified
 
-Known blockers: R2 must implement and measure a lifetime-safe buffer-backed MLMultiArray bridge against the accepted B2/C0 boxed baseline. Public push/submission and any continuous-video capture remain human-controlled.
+Known blockers: R3 must establish whether an IOSurface-backed Float16 activation and matched Float16 tail can beat the accepted Float32 shared bridge without a quality regression. Public push/submission and any continuous-video capture remain human-controlled.
 
-Next highest-leverage action: implement the matched B2/C1 and C0/C1 bridge ablations, preserving the boxed bridge as the control.
+Next highest-leverage action: inspect and prototype the IOSurface/Float16 bridge with predeclared quality thresholds; retain the accepted Float32 shared bridge as the control.
 
 Human decision currently required: no; camera authorization may become a one-time R0 permission boundary.
 
-Last milestone summary: R1 passed with reproducible component timings, actual command-buffer GPU durations, committed resource evidence, Pipeline A lineage coverage, and a parity-clean planar Float32 B2 baseline; R2 is now active.
+Last milestone summary: R2 passed hostile review with lifetime-safe buffer-backed views, three 200-iteration confirmation batches, ~97.3% handoff reduction, ~95.6%-95.8% end-to-end reduction, and preserved parity; R3 is now active.
 
 Notes:
 - Keep this file short.

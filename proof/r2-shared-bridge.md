@@ -1,6 +1,6 @@
 # R2 persistent shared-buffer Core ML bridge
 
-Status: EXPERIMENTAL pending hostile R2 review.
+Status: VERIFIED; hostile R2 review: SHIP.
 
 Command:
 
@@ -55,6 +55,7 @@ This evidence supports “buffer-backed multiarray view” and “no
 element-by-element CPU copy in PlaneFuse.” It does not claim that Core ML
 performs no internal copy.
 
-The raw artifacts were generated from commit `3cd0313` and are indexed as
-`EXPERIMENTAL` until the R2 hostile review accepts the lifetime and fairness
-methodology.
+The raw artifacts were generated from commit `3cd0313`, committed at
+`452186a`, and accepted after hostile review. The result is a
+“buffer-backed multiarray view” claim, not a claim that Core ML performs no
+internal copy.

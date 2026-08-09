@@ -184,3 +184,19 @@ Status: VERIFIED
 Claim wording: "The R1 B2 baseline materializes planar Float32 RGB without an alpha channel, preserves the same Float32 stem and Core ML tail, passes 32-sample top-1 parity with maximum activation error 9.2983e-6, and records a 51.3243 ms p50 versus C0 at 51.3800 ms in the quick paired run; the near-tie is not claimed as an optimization win."
 
 Evidence files: `proof/r1-bottleneck-profile.md`, `benchmarks/results/r1-mobilenetv2-b2.json`, `Sources/PlaneFuseCore/Shaders/NV12MobileNetV2RGB.metal`
+
+## C018 - R2 persistent buffer-backed Core ML view
+
+Status: VERIFIED
+
+Claim wording: "Across three independent 200-iteration R2 confirmation batches, the persistent buffer-backed MLMultiArray view reduced the matched handoff-to-result p50 by approximately 97.3% for both B2 and C0, reduced end-to-end p50 by approximately 95.6%-95.8%, and preserved 100% boxed/shared top-1 agreement with maximum B/C activation error below 1e-5."
+
+Evidence files: `proof/r2-shared-bridge.md`, `benchmarks/results/r2-mobilenetv2-shared-bridge-confirm.json`, `Sources/PlaneFuseCore/MobileNetV2Integration.swift`, `Tests/PlaneFuseCoreTests/MobileNetV2IntegrationTests.swift`
+
+## C019 - R2 bridge terminology and lifetime boundary
+
+Status: VERIFIED
+
+Claim wording: "PlaneFuse retains each shared MTLBuffer through the buffer-backed MLMultiArray deallocator closure, validates canonical `[48,112,112]` / `[12544,112,1]` layout, awaits GPU completion before Core ML prediction, and reports view construction separately; it does not claim hidden Core ML copies are absent."
+
+Evidence files: `proof/r2-shared-bridge.md`, `proof/r1-gpu-evidence.json`, `Sources/PlaneFuseCore/MobileNetV2SharedBridgeBenchmark.swift`
