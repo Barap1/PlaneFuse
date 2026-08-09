@@ -12,6 +12,7 @@ public final class MobileNetV2SharedBridgeBenchmark {
             self.measuredIterations = measuredIterations
         }
         public static let quick = Configuration()
+        public static let confirm = Configuration(warmupIterations: 20, measuredIterations: 200)
     }
 
     public struct Statistics: Codable, Equatable {

@@ -137,12 +137,18 @@ case "$command_name" in
     cat "$log_file"
     ;;
   bridge)
-    if [ "$command_args" != "mobilenetv2" ]; then
-      echo "usage: ./pf bridge mobilenetv2"
+    if [ "$command_args" = "mobilenetv2" ]; then
+      bridge_args="mobilenetv2"
+      default_output="$ROOT/benchmarks/results/r2-mobilenetv2-shared-bridge.json"
+    elif [ "$command_args" = "mobilenetv2 confirm" ]; then
+      bridge_args="mobilenetv2 confirm"
+      default_output="$ROOT/benchmarks/results/r2-mobilenetv2-shared-bridge-confirm.json"
+    else
+      echo "usage: ./pf bridge mobilenetv2|mobilenetv2 confirm"
       exit 2
     fi
-    benchmark_output="${PF_BENCHMARK_OUTPUT:-$ROOT/benchmarks/results/r2-mobilenetv2-shared-bridge.json}"
-    PF_ARCHITECTURE="$(uname -m)" PF_SWIFT_VERSION="$(swift --version | head -n 1)" PF_XCODE_VERSION="$(xcodebuild -version | head -n 1)" PF_GIT_COMMIT="$(git rev-parse HEAD)" PF_BUILD_CONFIGURATION="release" PF_BENCHMARK_OUTPUT="$benchmark_output" run_logged swift run -c release planefuse bridge mobilenetv2
+    benchmark_output="${PF_BENCHMARK_OUTPUT:-$default_output}"
+    PF_ARCHITECTURE="$(uname -m)" PF_SWIFT_VERSION="$(swift --version | head -n 1)" PF_XCODE_VERSION="$(xcodebuild -version | head -n 1)" PF_GIT_COMMIT="$(git rev-parse HEAD)" PF_BUILD_CONFIGURATION="release" PF_BENCHMARK_OUTPUT="$benchmark_output" run_logged swift run -c release planefuse bridge $bridge_args
     cat "$log_file"
     ;;
   release)

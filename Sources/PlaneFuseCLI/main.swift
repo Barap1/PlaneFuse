@@ -337,6 +337,16 @@ private struct MobileNetV2SharedBridgeArtifact: Codable {
     let runtimeAssets: [String: String]
 }
 
+private struct MobileNetV2SharedBridgeConfirmationArtifact: Codable {
+    let schemaVersion: Int
+    let status: String
+    let commit: String?
+    let environment: EnvironmentSnapshot
+    let batches: [MobileNetV2SharedBridgeBenchmark.Measurement]
+    let model: MobileNetV2AssetManifest
+    let runtimeAssets: [String: String]
+}
+
 func runFairBench(configuration: FairABCBenchmark.Configuration, label: String) throws -> Int32 {
     let outputPath = ProcessInfo.processInfo.environment["PF_BENCHMARK_OUTPUT"] ?? "benchmarks/results/fair-\(label).json"
     let measurement = try FairABCBenchmark(configuration: configuration).run()
@@ -487,6 +497,46 @@ func runMobileNetV2SharedBridge() throws -> Int32 {
     return measurement.sharedTop1Agreement >= 1.0 && measurement.maxActivationAbsoluteDifference <= Double(FairABCBenchmark.featureParityTolerance) ? 0 : 1
 }
 
+func runMobileNetV2SharedBridgeConfirm() throws -> Int32 {
+    let root = URL(fileURLWithPath: FileManager.default.currentDirectoryPath, isDirectory: true)
+    let coefficientPath = ProcessInfo.processInfo.environment["PF_MOBILENET_COEFFICIENTS"] ?? "models/derived/MobileNetV2StemCoefficients.json"
+    let tailPath = ProcessInfo.processInfo.environment["PF_MOBILENET_TAIL"] ?? "models/derived/tail-compiled/MobileNetV2Tail.mlmodelc"
+    let manifest = MobileNetV2AssetManifest.inspected
+    try manifest.validate(at: root)
+    let lineage = try MobileNetV2DerivedArtifactManifest.load(from: root.appendingPathComponent(manifest.derivedManifest))
+    try lineage.validate(at: root)
+    let corpus = try MobileNetV2Corpus(manifestURL: root.appendingPathComponent(manifest.validationCorpusManifest), root: root)
+    let tail = try CoreMLMobileNetV2TailAdapter(modelURL: URL(fileURLWithPath: tailPath), manifest: manifest)
+    let batches = try (0..<3).map { _ in
+        try MobileNetV2SharedBridgeBenchmark(configuration: .confirm, coefficientsURL: URL(fileURLWithPath: coefficientPath), tail: tail, corpus: corpus).run()
+    }
+    let artifact = MobileNetV2SharedBridgeConfirmationArtifact(
+        schemaVersion: 1,
+        status: "mobilenetv2_shared_bridge_confirm",
+        commit: ProcessInfo.processInfo.environment["PF_GIT_COMMIT"],
+        environment: EnvironmentSnapshot(),
+        batches: batches,
+        model: manifest,
+        runtimeAssets: [
+            "coefficients": relativeAssetPath(coefficientPath, root: root),
+            "tail": relativeAssetPath(tailPath, root: root),
+            "derived_manifest": manifest.derivedManifest
+        ]
+    )
+    let outputPath = ProcessInfo.processInfo.environment["PF_BENCHMARK_OUTPUT"] ?? "benchmarks/results/r2-mobilenetv2-shared-bridge-confirm.json"
+    let url = URL(fileURLWithPath: outputPath)
+    try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+    try JSONEncoder.benchmark.encode(artifact).write(to: url, options: .atomic)
+    emit("PlaneFuse bench MobileNetV2 shared bridge confirm: RECORDED")
+    emit("result: \(outputPath)")
+    for (index, batch) in batches.enumerated() {
+        emit(String(format: "batch_%d_b_handoff_reduction_percent: %.2f", index + 1, batch.bHandoffToResultReductionPercentage))
+        emit(String(format: "batch_%d_c_handoff_reduction_percent: %.2f", index + 1, batch.cHandoffToResultReductionPercentage))
+        emit(String(format: "batch_%d_shared_top1_agreement: %.4f", index + 1, batch.sharedTop1Agreement))
+    }
+    return batches.allSatisfy { $0.sharedTop1Agreement >= 1.0 && $0.maxActivationAbsoluteDifference <= Double(FairABCBenchmark.featureParityTolerance) } ? 0 : 1
+}
+
 private func relativeAssetPath(_ path: String, root: URL) -> String {
     let absolute = URL(fileURLWithPath: path).standardizedFileURL.path
     let rootPath = root.standardizedFileURL.path
@@ -541,8 +591,13 @@ do {
         guard arguments == ["profile", "mobilenetv2"] else { throw CommandError.usage }
         exit(try runMobileNetV2Profile())
     case "bridge":
-        guard arguments == ["bridge", "mobilenetv2"] else { throw CommandError.usage }
-        exit(try runMobileNetV2SharedBridge())
+        if arguments == ["bridge", "mobilenetv2"] {
+            exit(try runMobileNetV2SharedBridge())
+        }
+        if arguments == ["bridge", "mobilenetv2", "confirm"] {
+            exit(try runMobileNetV2SharedBridgeConfirm())
+        }
+        throw CommandError.usage
     default:
         throw CommandError.unknownCommand(command)
     }
