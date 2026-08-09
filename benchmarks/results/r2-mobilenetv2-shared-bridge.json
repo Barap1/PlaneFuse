@@ -1,0 +1,202 @@
+{
+  "commit" : "9ea359d5ce12e1d8117226fcf5e1e95066a16900",
+  "environment" : {
+    "architecture" : "arm64",
+    "build_configuration" : "release",
+    "operating_system" : "Version 26.6 (Build 25G72)",
+    "swift_version" : "Apple Swift version 6.3.3 (swiftlang-6.3.3.1.3 clang-2100.1.1.101)",
+    "xcode_version" : "Xcode 26.6"
+  },
+  "measurement" : {
+    "b_activation_allocated_bytes" : 2408448,
+    "b_end_to_end_reduction_percentage" : 95.59790918969787,
+    "b_handoff_to_result_reduction_percentage" : 97.31547409639447,
+    "b_view_construction_milliseconds" : 0.011291645932942629,
+    "boxed_top1_agreement" : 1,
+    "buffer_backed_shape" : [
+      48,
+      112,
+      112
+    ],
+    "buffer_backed_stride" : [
+      12544,
+      112,
+      1
+    ],
+    "c_activation_allocated_bytes" : 2408448,
+    "c_end_to_end_reduction_percentage" : 95.76089407221673,
+    "c_handoff_to_result_reduction_percentage" : 97.29640735327294,
+    "c_view_construction_milliseconds" : 0.001500011421740055,
+    "configuration" : {
+      "measured_iterations" : 20,
+      "warmup_iterations" : 5
+    },
+    "device_class" : "AGXG17SDevice",
+    "device_name" : "Apple M5 Pro",
+    "max_activation_absolute_difference" : 4.76837158203125e-06,
+    "methodology" : "Matched B2\/C0 boxed controls and B2\/C1 persistent buffer-backed MLMultiArray views. Each path reuses one activation buffer and one view; GPU completion is awaited before Core ML prediction. Bridge timings include the current Swift-array read plus boxed allocation\/population for controls, versus the shared-view prediction call for candidates. No hidden Core ML copy is inferred.",
+    "paired_b_end_to_end_differences_milliseconds" : [
+      48.917416657786816,
+      49.00300002191216,
+      48.24604166788049,
+      46.328041644301265,
+      47.910333349136636,
+      48.17720834398642,
+      46.7534166527912,
+      48.55529169435613,
+      48.7087499932386,
+      48.770916648209095,
+      49.23262499505654,
+      48.54429166880436,
+      48.16483333706856,
+      47.62241666321643,
+      46.62091669160873,
+      49.00304166949354,
+      48.73770830454305,
+      48.4344583528582,
+      47.27325000567362,
+      47.90974999195896
+    ],
+    "paired_b_handoff_to_result_differences_milliseconds" : [
+      49.08966665971093,
+      48.945375019684434,
+      48.08762500761077,
+      46.37691666721366,
+      47.77591666788794,
+      48.15325004165061,
+      46.644708316307515,
+      48.38129167910665,
+      48.60508331330493,
+      48.65245832479559,
+      49.18716667452827,
+      48.49162502796389,
+      48.07458331924863,
+      47.6957916689571,
+      46.803958364762366,
+      49.096500006271526,
+      48.755791649455205,
+      48.32708335015923,
+      47.250291652744636,
+      47.79895831597969
+    ],
+    "paired_c_end_to_end_differences_milliseconds" : [
+      48.5016249876935,
+      49.324999999953434,
+      48.58950001653284,
+      45.99983332445845,
+      46.9698749948293,
+      48.196125018876046,
+      46.92204168532044,
+      47.36950001097284,
+      48.2870833366178,
+      48.97579166572541,
+      48.857874993700534,
+      48.8115000189282,
+      48.38620836380869,
+      47.466999967582524,
+      47.0238333218731,
+      48.17762502352707,
+      48.13591667334549,
+      47.505624999757856,
+      46.5238333272282,
+      47.50779169262387
+    ],
+    "paired_c_handoff_to_result_differences_milliseconds" : [
+      48.52466666488908,
+      49.23495833645575,
+      48.790333326905966,
+      45.97249999642372,
+      47.01012498117052,
+      48.169208341278136,
+      46.972000011010095,
+      48.396875004982576,
+      48.46279168850742,
+      48.9297500171233,
+      49.04149999492802,
+      48.7752916815225,
+      48.34970834781416,
+      47.275374992750585,
+      47.162458329694346,
+      47.990333347115666,
+      48.29833333496936,
+      47.28650001925416,
+      46.52229166822508,
+      47.03887499636039
+    ],
+    "pipeline_b_boxed_end_to_end" : {
+      "mean_milliseconds" : 50.38505417032866,
+      "median_absolute_deviation_milliseconds" : 0.548749987501651,
+      "p50_milliseconds" : 50.443833344615996,
+      "p95_milliseconds" : 51.308499998413026
+    },
+    "pipeline_b_boxed_handoff_to_result" : {
+      "mean_milliseconds" : 49.442254172754474,
+      "median_absolute_deviation_milliseconds" : 0.47641663695685565,
+      "p50_milliseconds" : 49.46404168731533,
+      "p95_milliseconds" : 50.42941664578393
+    },
+    "pipeline_b_shared_end_to_end" : {
+      "mean_milliseconds" : 2.2393687526346184,
+      "median_absolute_deviation_milliseconds" : 0.052083341870456934,
+      "p50_milliseconds" : 2.220583352027461,
+      "p95_milliseconds" : 2.4024583399295807
+    },
+    "pipeline_b_shared_handoff_to_result" : {
+      "mean_milliseconds" : 1.3325520863872953,
+      "median_absolute_deviation_milliseconds" : 0.011874974006786942,
+      "p50_milliseconds" : 1.3278750120662153,
+      "p95_milliseconds" : 1.3615416537504643
+    },
+    "pipeline_c_boxed_end_to_end" : {
+      "mean_milliseconds" : 50.08307916868944,
+      "median_absolute_deviation_milliseconds" : 0.7355833367910236,
+      "p50_milliseconds" : 50.3103333467152,
+      "p95_milliseconds" : 51.15666665369645
+    },
+    "pipeline_c_boxed_handoff_to_result" : {
+      "mean_milliseconds" : 49.25672917015618,
+      "median_absolute_deviation_milliseconds" : 0.8409583533648401,
+      "p50_milliseconds" : 49.47891665506177,
+      "p95_milliseconds" : 50.38641666760668
+    },
+    "pipeline_c_shared_end_to_end" : {
+      "mean_milliseconds" : 2.2063999975216575,
+      "median_absolute_deviation_milliseconds" : 0.06145832594484091,
+      "p50_milliseconds" : 2.132708323188126,
+      "p95_milliseconds" : 2.3720833123661578
+    },
+    "pipeline_c_shared_handoff_to_result" : {
+      "mean_milliseconds" : 1.3465354160871357,
+      "median_absolute_deviation_milliseconds" : 0.02237502485513687,
+      "p50_milliseconds" : 1.3377083523664623,
+      "p95_milliseconds" : 1.3901249913033098
+    },
+    "schema_version" : 1,
+    "shared_top1_agreement" : 1,
+    "shared_vs_boxed_top1_agreement" : 1
+  },
+  "model" : {
+    "activation_shape" : [
+      48,
+      112,
+      112
+    ],
+    "derived_manifest" : "models\/derived\/manifest.json",
+    "model_identifier" : "Apple MobileNetV2 ImageNet",
+    "padding_mode" : "sameBottomRight",
+    "source_model_file" : "MobileNetV2.mlmodel",
+    "source_sha256" : "cb5a35f593582232140556bbfa4618e66b37b8ff2fc33ba17db909e1050fd144",
+    "source_url" : "https:\/\/developer.apple.com\/machine-learning\/models\/?q=MobileNetV2",
+    "tail_input_name" : "planefuse_mobilenetv2_stem_features",
+    "tail_model_directory" : "models\/derived\/tail-compiled\/MobileNetV2Tail.mlmodelc",
+    "tail_output_name" : "classLabelProbs",
+    "validation_corpus_manifest" : "proof\/m5-validation-corpus.json"
+  },
+  "runtime_assets" : {
+    "coefficients" : "models\/derived\/MobileNetV2StemCoefficients.json",
+    "derived_manifest" : "models\/derived\/manifest.json",
+    "tail" : "models\/derived\/tail-compiled\/MobileNetV2Tail.mlmodelc"
+  },
+  "schema_version" : 1,
+  "status" : "mobilenetv2_shared_bridge"
+}
