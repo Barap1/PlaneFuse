@@ -1,0 +1,300 @@
+{
+  "cadenceHz" : 30,
+  "frames" : [
+    {
+      "callbackSequence" : 2,
+      "frameID" : 0,
+      "presentationTimestampSeconds" : 9413.479796666667,
+      "uvLength" : 1036800,
+      "uvOffset" : 2073600,
+      "yLength" : 2073600,
+      "yOffset" : 0
+    },
+    {
+      "callbackSequence" : 3,
+      "frameID" : 1,
+      "presentationTimestampSeconds" : 9413.5298,
+      "uvLength" : 1036800,
+      "uvOffset" : 5184000,
+      "yLength" : 2073600,
+      "yOffset" : 3110400
+    },
+    {
+      "callbackSequence" : 4,
+      "frameID" : 2,
+      "presentationTimestampSeconds" : 9413.56314,
+      "uvLength" : 1036800,
+      "uvOffset" : 8294400,
+      "yLength" : 2073600,
+      "yOffset" : 6220800
+    },
+    {
+      "callbackSequence" : 5,
+      "frameID" : 3,
+      "presentationTimestampSeconds" : 9413.59648,
+      "uvLength" : 1036800,
+      "uvOffset" : 11404800,
+      "yLength" : 2073600,
+      "yOffset" : 9331200
+    },
+    {
+      "callbackSequence" : 6,
+      "frameID" : 4,
+      "presentationTimestampSeconds" : 9413.62982,
+      "uvLength" : 1036800,
+      "uvOffset" : 14515200,
+      "yLength" : 2073600,
+      "yOffset" : 12441600
+    },
+    {
+      "callbackSequence" : 7,
+      "frameID" : 5,
+      "presentationTimestampSeconds" : 9413.66315,
+      "uvLength" : 1036800,
+      "uvOffset" : 17625600,
+      "yLength" : 2073600,
+      "yOffset" : 15552000
+    },
+    {
+      "callbackSequence" : 8,
+      "frameID" : 6,
+      "presentationTimestampSeconds" : 9413.69649,
+      "uvLength" : 1036800,
+      "uvOffset" : 20736000,
+      "yLength" : 2073600,
+      "yOffset" : 18662400
+    },
+    {
+      "callbackSequence" : 9,
+      "frameID" : 7,
+      "presentationTimestampSeconds" : 9413.73,
+      "uvLength" : 1036800,
+      "uvOffset" : 23846400,
+      "yLength" : 2073600,
+      "yOffset" : 21772800
+    },
+    {
+      "callbackSequence" : 10,
+      "frameID" : 8,
+      "presentationTimestampSeconds" : 9413.76351,
+      "uvLength" : 1036800,
+      "uvOffset" : 26956800,
+      "yLength" : 2073600,
+      "yOffset" : 24883200
+    },
+    {
+      "callbackSequence" : 11,
+      "frameID" : 9,
+      "presentationTimestampSeconds" : 9413.79702,
+      "uvLength" : 1036800,
+      "uvOffset" : 30067200,
+      "yLength" : 2073600,
+      "yOffset" : 27993600
+    },
+    {
+      "callbackSequence" : 12,
+      "frameID" : 10,
+      "presentationTimestampSeconds" : 9413.83053,
+      "uvLength" : 1036800,
+      "uvOffset" : 33177600,
+      "yLength" : 2073600,
+      "yOffset" : 31104000
+    },
+    {
+      "callbackSequence" : 13,
+      "frameID" : 11,
+      "presentationTimestampSeconds" : 9413.86404,
+      "uvLength" : 1036800,
+      "uvOffset" : 36288000,
+      "yLength" : 2073600,
+      "yOffset" : 34214400
+    },
+    {
+      "callbackSequence" : 14,
+      "frameID" : 12,
+      "presentationTimestampSeconds" : 9413.9142,
+      "uvLength" : 1036800,
+      "uvOffset" : 39398400,
+      "yLength" : 2073600,
+      "yOffset" : 37324800
+    },
+    {
+      "callbackSequence" : 15,
+      "frameID" : 13,
+      "presentationTimestampSeconds" : 9413.95604,
+      "uvLength" : 1036800,
+      "uvOffset" : 42508800,
+      "yLength" : 2073600,
+      "yOffset" : 40435200
+    },
+    {
+      "callbackSequence" : 16,
+      "frameID" : 14,
+      "presentationTimestampSeconds" : 9413.99788,
+      "uvLength" : 1036800,
+      "uvOffset" : 45619200,
+      "yLength" : 2073600,
+      "yOffset" : 43545600
+    },
+    {
+      "callbackSequence" : 17,
+      "frameID" : 15,
+      "presentationTimestampSeconds" : 9414.03972,
+      "uvLength" : 1036800,
+      "uvOffset" : 48729600,
+      "yLength" : 2073600,
+      "yOffset" : 46656000
+    },
+    {
+      "callbackSequence" : 18,
+      "frameID" : 16,
+      "presentationTimestampSeconds" : 9414.08155,
+      "uvLength" : 1036800,
+      "uvOffset" : 51840000,
+      "yLength" : 2073600,
+      "yOffset" : 49766400
+    },
+    {
+      "callbackSequence" : 19,
+      "frameID" : 17,
+      "presentationTimestampSeconds" : 9414.12339,
+      "uvLength" : 1036800,
+      "uvOffset" : 54950400,
+      "yLength" : 2073600,
+      "yOffset" : 52876800
+    },
+    {
+      "callbackSequence" : 20,
+      "frameID" : 18,
+      "presentationTimestampSeconds" : 9414.16523,
+      "uvLength" : 1036800,
+      "uvOffset" : 58060800,
+      "yLength" : 2073600,
+      "yOffset" : 55987200
+    },
+    {
+      "callbackSequence" : 21,
+      "frameID" : 19,
+      "presentationTimestampSeconds" : 9414.20707,
+      "uvLength" : 1036800,
+      "uvOffset" : 61171200,
+      "yLength" : 2073600,
+      "yOffset" : 59097600
+    },
+    {
+      "callbackSequence" : 22,
+      "frameID" : 20,
+      "presentationTimestampSeconds" : 9414.24891,
+      "uvLength" : 1036800,
+      "uvOffset" : 64281600,
+      "yLength" : 2073600,
+      "yOffset" : 62208000
+    },
+    {
+      "callbackSequence" : 23,
+      "frameID" : 21,
+      "presentationTimestampSeconds" : 9414.29074,
+      "uvLength" : 1036800,
+      "uvOffset" : 67392000,
+      "yLength" : 2073600,
+      "yOffset" : 65318400
+    },
+    {
+      "callbackSequence" : 24,
+      "frameID" : 22,
+      "presentationTimestampSeconds" : 9414.33258,
+      "uvLength" : 1036800,
+      "uvOffset" : 70502400,
+      "yLength" : 2073600,
+      "yOffset" : 68428800
+    },
+    {
+      "callbackSequence" : 25,
+      "frameID" : 23,
+      "presentationTimestampSeconds" : 9414.37442,
+      "uvLength" : 1036800,
+      "uvOffset" : 73612800,
+      "yLength" : 2073600,
+      "yOffset" : 71539200
+    },
+    {
+      "callbackSequence" : 26,
+      "frameID" : 24,
+      "presentationTimestampSeconds" : 9414.41626,
+      "uvLength" : 1036800,
+      "uvOffset" : 76723200,
+      "yLength" : 2073600,
+      "yOffset" : 74649600
+    },
+    {
+      "callbackSequence" : 27,
+      "frameID" : 25,
+      "presentationTimestampSeconds" : 9414.4581,
+      "uvLength" : 1036800,
+      "uvOffset" : 79833600,
+      "yLength" : 2073600,
+      "yOffset" : 77760000
+    },
+    {
+      "callbackSequence" : 28,
+      "frameID" : 26,
+      "presentationTimestampSeconds" : 9414.49993,
+      "uvLength" : 1036800,
+      "uvOffset" : 82944000,
+      "yLength" : 2073600,
+      "yOffset" : 80870400
+    },
+    {
+      "callbackSequence" : 29,
+      "frameID" : 27,
+      "presentationTimestampSeconds" : 9414.54177,
+      "uvLength" : 1036800,
+      "uvOffset" : 86054400,
+      "yLength" : 2073600,
+      "yOffset" : 83980800
+    },
+    {
+      "callbackSequence" : 30,
+      "frameID" : 28,
+      "presentationTimestampSeconds" : 9414.58361,
+      "uvLength" : 1036800,
+      "uvOffset" : 89164800,
+      "yLength" : 2073600,
+      "yOffset" : 87091200
+    },
+    {
+      "callbackSequence" : 31,
+      "frameID" : 29,
+      "presentationTimestampSeconds" : 9414.62545,
+      "uvLength" : 1036800,
+      "uvOffset" : 92275200,
+      "yLength" : 2073600,
+      "yOffset" : 90201600
+    },
+    {
+      "callbackSequence" : 32,
+      "frameID" : 30,
+      "presentationTimestampSeconds" : 9414.66729,
+      "uvLength" : 1036800,
+      "uvOffset" : 95385600,
+      "yLength" : 2073600,
+      "yOffset" : 93312000
+    },
+    {
+      "callbackSequence" : 33,
+      "frameID" : 31,
+      "presentationTimestampSeconds" : 9414.70912,
+      "uvLength" : 1036800,
+      "uvOffset" : 98496000,
+      "yLength" : 2073600,
+      "yOffset" : 96422400
+    }
+  ],
+  "height" : 1080,
+  "payloadSHA256" : "fabc08678eb174d70a8dcd2c74fd089195e88c098c8ca914c26c5a1bb4437a2e",
+  "pixelFormat" : "420YpCbCr8BiPlanarVideoRange",
+  "schemaVersion" : "r6.5-camera-source-replay-v1",
+  "uvRowBytes" : 1920,
+  "width" : 1920,
+  "yRowBytes" : 1920
+}

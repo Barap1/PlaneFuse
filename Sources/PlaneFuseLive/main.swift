@@ -20,7 +20,7 @@ enum LiveError: Error, LocalizedError {
     var errorDescription: String? {
         switch self {
         case .usage:
-            return "usage: planefuse-live <--help|--sample|--camera|--camera-bench>"
+            return "usage: planefuse-live <--help|--sample|--camera|--camera-bench|--camera-space-bench>"
         case .cameraUnavailable:
             return "No local camera is available."
         case .cameraPermissionDenied:
@@ -164,12 +164,19 @@ private final class CameraInferenceRunner {
     private let baseline: MetalMobileNetV2RGBPipeline
     private let inputFactory: MetalRGBBaseline
     private let native: MetalMobileNetV2NativeStem
+    private let cameraBPreprocessor: MetalMobileNetV2CameraSpaceRGBPreprocessor
+    private let cameraCStem: MetalMobileNetV2CameraSpaceStem
     private let tail: CoreMLMobileNetV2TailAdapter
     private let bNormalizedRGBCHW: MTLBuffer
     private let bActivation: MTLBuffer
     private let cActivation: MTLBuffer
+    private let cameraBNormalizedRGBCHW: MTLBuffer
+    private let cameraBActivation: MTLBuffer
+    private let cameraCActivation: MTLBuffer
     private let bShared: BufferBackedMultiArray
     private let cShared: BufferBackedMultiArray
+    private let cameraBShared: BufferBackedMultiArray
+    private let cameraCShared: BufferBackedMultiArray
 
     var deviceName: String { baseline.device.name }
     var computeUnitsPolicyLabel: String { tail.computeUnitsPolicyLabel }
@@ -187,6 +194,23 @@ private final class CameraInferenceRunner {
         let activationMaxAbsoluteDifference: Double
     }
 
+    struct CameraSpaceResult {
+        let startUptime: Double
+        let sourceSetupEndUptime: Double
+        let frontendEndUptime: Double
+        let resultEndUptime: Double
+        let sourceSetupMilliseconds: Double
+        let frontendMilliseconds: Double
+        let tailMilliseconds: Double
+        let postInputToResultMilliseconds: Double
+        let frameDeliveryToResultMilliseconds: Double?
+        let gpuExecutionMilliseconds: Double?
+        let synchronizationMilliseconds: Double
+        let commandBufferCount: Int
+        let prediction: (label: String, confidence: Double)
+        let activation: [Float]
+    }
+
     init() throws {
         let root = URL(fileURLWithPath: FileManager.default.currentDirectoryPath, isDirectory: true)
         let manifest = MobileNetV2AssetManifest.inspected
@@ -199,15 +223,122 @@ private final class CameraInferenceRunner {
         let baseline = try MetalMobileNetV2RGBPipeline(device: factory.device, coefficients: coefficients)
         let inputFactory = try MetalRGBBaseline(device: factory.device)
         let native = try MetalMobileNetV2NativeStem(device: factory.device, coefficients: coefficients)
+        let cameraBPreprocessor = try MetalMobileNetV2CameraSpaceRGBPreprocessor(device: factory.device)
+        let cameraCStem = try MetalMobileNetV2CameraSpaceStem(device: factory.device, coefficients: coefficients)
         self.baseline = baseline
         self.inputFactory = inputFactory
         self.native = native
+        self.cameraBPreprocessor = cameraBPreprocessor
+        self.cameraCStem = cameraCStem
         self.tail = try CoreMLMobileNetV2TailAdapter(modelURL: URL(fileURLWithPath: paths.tail), manifest: manifest, computeUnits: .all)
         self.bNormalizedRGBCHW = try baseline.makeNormalizedRGBCHWBuffer()
         self.bActivation = try baseline.makeActivationBuffer()
         self.cActivation = try native.makeActivationBuffer()
+        self.cameraBNormalizedRGBCHW = try cameraBPreprocessor.makeNormalizedRGBCHWBuffer()
+        self.cameraBActivation = try baseline.makeActivationBuffer()
+        self.cameraCActivation = try cameraCStem.makeActivationBuffer()
         self.bShared = try BufferBackedMultiArray(buffer: bActivation, shape: MetalMobileNetV2NativeStem.activationShape)
         self.cShared = try BufferBackedMultiArray(buffer: cActivation, shape: MetalMobileNetV2NativeStem.activationShape)
+        self.cameraBShared = try BufferBackedMultiArray(buffer: cameraBActivation, shape: MetalMobileNetV2NativeStem.activationShape)
+        self.cameraCShared = try BufferBackedMultiArray(buffer: cameraCActivation, shape: MetalMobileNetV2NativeStem.activationShape)
+    }
+
+    func makeSourceTextures(width: Int, height: Int, y: Data, uv: Data) throws -> MetalCameraNV12SourceTextures {
+        guard y.count == width * height, uv.count == width * height / 2 else {
+            throw LiveError.unsupportedCameraFrame
+        }
+        let yDescriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .r8Unorm, width: width, height: height, mipmapped: false)
+        yDescriptor.usage = [.shaderRead]; yDescriptor.storageMode = .shared
+        let uvDescriptor = MTLTextureDescriptor.texture2DDescriptor(pixelFormat: .rg8Unorm, width: width / 2, height: height / 2, mipmapped: false)
+        uvDescriptor.usage = [.shaderRead]; uvDescriptor.storageMode = .shared
+        guard let yTexture = cameraBPreprocessor.device.makeTexture(descriptor: yDescriptor),
+              let uvTexture = cameraBPreprocessor.device.makeTexture(descriptor: uvDescriptor) else {
+            throw LiveError.cameraOutputUnavailable
+        }
+        y.withUnsafeBytes { yTexture.replace(region: MTLRegionMake2D(0, 0, width, height), mipmapLevel: 0, withBytes: $0.baseAddress!, bytesPerRow: width) }
+        uv.withUnsafeBytes { uvTexture.replace(region: MTLRegionMake2D(0, 0, width / 2, height / 2), mipmapLevel: 0, withBytes: $0.baseAddress!, bytesPerRow: width) }
+        return try MetalCameraNV12SourceTextures(yPlane: yTexture, uvPlane: uvTexture)
+    }
+
+    func inferCameraSpaceB(
+        source: MetalCameraNV12SourceTextures,
+        mapping: CameraSpaceMapping,
+        frameDeliveryUptime: Double?
+    ) throws -> CameraSpaceResult {
+        let start = ProcessInfo.processInfo.systemUptime
+        guard let commandBuffer = cameraBPreprocessor.commandQueue.makeCommandBuffer(),
+              let conversion = commandBuffer.makeComputeCommandEncoder() else {
+            throw LiveError.cameraOutputUnavailable
+        }
+        let sourceSetupEnd = ProcessInfo.processInfo.systemUptime
+        try cameraBPreprocessor.encode(source, mapping: mapping, into: cameraBNormalizedRGBCHW, using: conversion)
+        conversion.endEncoding()
+        guard let stem = commandBuffer.makeComputeCommandEncoder() else { throw LiveError.cameraOutputUnavailable }
+        try baseline.encodeCHWStem(cameraBNormalizedRGBCHW, into: cameraBActivation, using: stem)
+        stem.endEncoding()
+        commandBuffer.commit()
+        let committed = ProcessInfo.processInfo.systemUptime
+        commandBuffer.waitUntilCompleted()
+        let resultEnd = ProcessInfo.processInfo.systemUptime
+        guard commandBuffer.status == .completed else { throw LiveError.inferenceOutputUnavailable }
+        let output = try tail.predict(sharedActivation: cameraBShared)
+        let tailEnd = ProcessInfo.processInfo.systemUptime
+        guard let prediction = topPrediction(output) else { throw LiveError.inferenceOutputUnavailable }
+        return CameraSpaceResult(
+            startUptime: start,
+            sourceSetupEndUptime: sourceSetupEnd,
+            frontendEndUptime: resultEnd,
+            resultEndUptime: tailEnd,
+            sourceSetupMilliseconds: (sourceSetupEnd - start) * 1_000,
+            frontendMilliseconds: (resultEnd - start) * 1_000,
+            tailMilliseconds: (tailEnd - resultEnd) * 1_000,
+            postInputToResultMilliseconds: (tailEnd - start) * 1_000,
+            frameDeliveryToResultMilliseconds: frameDeliveryUptime.map { (tailEnd - $0) * 1_000 },
+            gpuExecutionMilliseconds: commandBuffer.gpuEndTime > commandBuffer.gpuStartTime ? (commandBuffer.gpuEndTime - commandBuffer.gpuStartTime) * 1_000 : nil,
+            synchronizationMilliseconds: (resultEnd - committed) * 1_000,
+            commandBufferCount: 1,
+            prediction: prediction,
+            activation: try baseline.readActivation(from: cameraBActivation)
+        )
+    }
+
+    func inferCameraSpaceC(
+        source: MetalCameraNV12SourceTextures,
+        mapping: CameraSpaceMapping,
+        frameDeliveryUptime: Double?
+    ) throws -> CameraSpaceResult {
+        let start = ProcessInfo.processInfo.systemUptime
+        guard let commandBuffer = cameraCStem.commandQueue.makeCommandBuffer(),
+              let encoder = commandBuffer.makeComputeCommandEncoder() else {
+            throw LiveError.cameraOutputUnavailable
+        }
+        let sourceSetupEnd = ProcessInfo.processInfo.systemUptime
+        try cameraCStem.encode(source, mapping: mapping, into: cameraCActivation, using: encoder)
+        encoder.endEncoding()
+        commandBuffer.commit()
+        let committed = ProcessInfo.processInfo.systemUptime
+        commandBuffer.waitUntilCompleted()
+        let frontendEnd = ProcessInfo.processInfo.systemUptime
+        guard commandBuffer.status == .completed else { throw LiveError.inferenceOutputUnavailable }
+        let output = try tail.predict(sharedActivation: cameraCShared)
+        let resultEnd = ProcessInfo.processInfo.systemUptime
+        guard let prediction = topPrediction(output) else { throw LiveError.inferenceOutputUnavailable }
+        return CameraSpaceResult(
+            startUptime: start,
+            sourceSetupEndUptime: sourceSetupEnd,
+            frontendEndUptime: frontendEnd,
+            resultEndUptime: resultEnd,
+            sourceSetupMilliseconds: (sourceSetupEnd - start) * 1_000,
+            frontendMilliseconds: (frontendEnd - start) * 1_000,
+            tailMilliseconds: (resultEnd - frontendEnd) * 1_000,
+            postInputToResultMilliseconds: (resultEnd - start) * 1_000,
+            frameDeliveryToResultMilliseconds: frameDeliveryUptime.map { (resultEnd - $0) * 1_000 },
+            gpuExecutionMilliseconds: commandBuffer.gpuEndTime > commandBuffer.gpuStartTime ? (commandBuffer.gpuEndTime - commandBuffer.gpuStartTime) * 1_000 : nil,
+            synchronizationMilliseconds: (frontendEnd - committed) * 1_000,
+            commandBufferCount: 1,
+            prediction: prediction,
+            activation: try cameraCStem.readActivation(from: cameraCActivation)
+        )
     }
 
     func makeInputTextures(for replay: CameraReplayBuffer) throws -> [MetalRGBBaseline.NV12Textures] {
@@ -287,6 +418,14 @@ private final class CameraInferenceRunner {
             .map { abs(Double($0 - $1)) }.max() ?? 0
     }
 
+    func currentC1Activation() throws -> [Float] {
+        try native.readActivation(from: cActivation)
+    }
+
+    func currentB2Activation() throws -> [Float] {
+        try baseline.readActivation(from: bActivation)
+    }
+
     func infer(output: CameraNV12MetalBridge.OutputTextures, verifyParity: Bool) throws -> CameraInferenceMeasurement {
         let input = MetalRGBBaseline.NV12Textures(yPlane: output.yPlane, uvPlane: output.uvPlane)
         let bStart = ProcessInfo.processInfo.systemUptime
@@ -330,6 +469,7 @@ private func printHelp() {
       planefuse-live --sample   Run the local M5 MobileNetV2 B/C workload on the real corpus.
       planefuse-live --camera   Run 300 continuous camera frames through the native-plane path.
       planefuse-live --camera-bench   Run the Release-grade paired/replay/live camera benchmark and write JSON.
+      planefuse-live --camera-space-bench   Run the bounded R6.5 source-resolution camera-space benchmark and write JSON.
       planefuse-live --help     Show this help.
 
     --camera maps camera Y/UV planes with CVMetalTextureCache, performs an even-aligned
@@ -587,6 +727,85 @@ private func captureReplay(_ capture: LiveCameraCapture, frameCount: Int = 300) 
     )
 }
 
+private func canonicalSourcePlanes(from pixelBuffer: CVPixelBuffer) throws -> (y: Data, uv: Data) {
+    guard CVPixelBufferGetPixelFormatType(pixelBuffer) == kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange,
+          CVPixelBufferGetPlaneCount(pixelBuffer) == 2 else {
+        throw LiveError.unsupportedCameraFrame
+    }
+    let width = CVPixelBufferGetWidth(pixelBuffer)
+    let height = CVPixelBufferGetHeight(pixelBuffer)
+    guard width > 0, height > 0, width.isMultiple(of: 2), height.isMultiple(of: 2) else {
+        throw LiveError.unsupportedCameraFrame
+    }
+    CVPixelBufferLockBaseAddress(pixelBuffer, .readOnly)
+    defer { CVPixelBufferUnlockBaseAddress(pixelBuffer, .readOnly) }
+    guard let yBase = CVPixelBufferGetBaseAddressOfPlane(pixelBuffer, 0),
+          let uvBase = CVPixelBufferGetBaseAddressOfPlane(pixelBuffer, 1) else {
+        throw LiveError.cameraFrameUnavailable
+    }
+    let yRowBytes = width
+    let uvRowBytes = width
+    var y = Data(count: yRowBytes * height)
+    var uv = Data(count: uvRowBytes * (height / 2))
+    let sourceYRowBytes = CVPixelBufferGetBytesPerRowOfPlane(pixelBuffer, 0)
+    let sourceUVRowBytes = CVPixelBufferGetBytesPerRowOfPlane(pixelBuffer, 1)
+    y.withUnsafeMutableBytes { destination in
+        for row in 0..<height {
+            let source = yBase.advanced(by: row * sourceYRowBytes)
+            let destinationRow = destination.baseAddress!.advanced(by: row * yRowBytes)
+            destinationRow.copyMemory(from: source, byteCount: yRowBytes)
+        }
+    }
+    uv.withUnsafeMutableBytes { destination in
+        for row in 0..<(height / 2) {
+            let source = uvBase.advanced(by: row * sourceUVRowBytes)
+            let destinationRow = destination.baseAddress!.advanced(by: row * uvRowBytes)
+            destinationRow.copyMemory(from: source, byteCount: uvRowBytes)
+        }
+    }
+    return (y, uv)
+}
+
+private func captureSourceReplay(_ capture: LiveCameraCapture, frameCount: Int = 32) throws -> CameraSourceReplayBuffer {
+    var frames: [CameraReplayFramePayload] = []
+    frames.reserveCapacity(frameCount)
+    for _ in 0..<frameCount {
+        let frame = try capture.nextFrame(timeout: 2)
+        let planes = try canonicalSourcePlanes(from: frame.pixelBuffer)
+        frames.append(CameraReplayFramePayload(
+            presentationTimestampSeconds: frame.timestamp.isValid ? frame.timestamp.seconds : nil,
+            callbackSequence: frame.sequence,
+            yPlane: planes.y,
+            uvPlane: planes.uv
+        ))
+    }
+    return try CameraSourceReplayBuffer(
+        frames: frames,
+        width: capture.geometry.cameraWidth,
+        height: capture.geometry.cameraHeight,
+        cadenceHz: capture.frameDurationSeconds.map { 1 / $0 }
+    )
+}
+
+private func resizeReplaySource(
+    bridge: CameraNV12MetalBridge,
+    source: MetalCameraNV12SourceTextures,
+    geometry: CameraResizeGeometry,
+    output: CameraNV12MetalBridge.OutputTextures
+) throws -> Double {
+    guard let commandBuffer = bridge.commandQueue.makeCommandBuffer(),
+          let encoder = commandBuffer.makeComputeCommandEncoder() else {
+        throw LiveError.cameraOutputUnavailable
+    }
+    try bridge.encodeResize(source: source, geometry: geometry, into: output, using: encoder)
+    encoder.endEncoding()
+    commandBuffer.commit()
+    let committed = ProcessInfo.processInfo.systemUptime
+    commandBuffer.waitUntilCompleted()
+    guard commandBuffer.status == .completed else { throw LiveError.cameraOutputUnavailable }
+    return (ProcessInfo.processInfo.systemUptime - committed) * 1_000
+}
+
 private func runReplayCandidate(
     mode: CameraCandidateMode,
     runner: CameraInferenceRunner,
@@ -836,6 +1055,397 @@ private func runLiveCandidate(
     )
 }
 
+private func makeCameraSpaceCandidateRecord(
+    frame: CameraReplayFrameManifest,
+    callbackArrivalUptime: Double?,
+    result: CameraInferenceRunner.CameraSpaceResult
+) -> CameraSpaceFrameRecord {
+    CameraSpaceFrameRecord(
+        frameID: frame.frameID,
+        callbackSequence: frame.callbackSequence,
+        sourceSetupStartUptime: result.startUptime,
+        sourceSetupEndUptime: result.sourceSetupEndUptime,
+        frontendStartUptime: result.sourceSetupEndUptime,
+        frontendEndUptime: result.frontendEndUptime,
+        resultEndUptime: result.resultEndUptime,
+        callbackArrivalUptime: callbackArrivalUptime,
+        frameDeliveryToResultMilliseconds: result.frameDeliveryToResultMilliseconds,
+        sourceSetupMilliseconds: result.sourceSetupMilliseconds,
+        frontendMilliseconds: result.frontendMilliseconds,
+        postInputToResultMilliseconds: result.postInputToResultMilliseconds,
+        tailMilliseconds: result.tailMilliseconds,
+        gpuExecutionMilliseconds: result.gpuExecutionMilliseconds,
+        synchronizationMilliseconds: result.synchronizationMilliseconds,
+        top1Label: result.prediction.label,
+        top1Confidence: result.prediction.confidence,
+        thermalState: thermalStateName()
+    )
+}
+
+private func runCameraSpaceReplayCandidate(
+    mode: CameraCandidateMode,
+    runner: CameraInferenceRunner,
+    sourceTextures: [MetalCameraNV12SourceTextures],
+    replay: CameraSourceReplayBuffer,
+    mapping: CameraSpaceMapping,
+    measuredFrames: Int = 300
+) throws -> CameraSpaceCandidateArtifact {
+    guard !sourceTextures.isEmpty else { throw LiveError.benchmarkReplayUnavailable }
+    for warmup in 0..<20 {
+        let source = sourceTextures[warmup % sourceTextures.count]
+        if mode == .b2 {
+            _ = try runner.inferCameraSpaceB(source: source, mapping: mapping, frameDeliveryUptime: nil)
+        } else {
+            _ = try runner.inferCameraSpaceC(source: source, mapping: mapping, frameDeliveryUptime: nil)
+        }
+    }
+    let start = ProcessInfo.processInfo.systemUptime
+    var sourceSetup: [Double] = []; var gpu: [Double] = []; var synchronization: [Double] = []
+    var frontend: [Double] = []; var post: [Double] = []; var tail: [Double] = []
+    var records: [CameraSpaceFrameRecord] = []
+    records.reserveCapacity(measuredFrames)
+    for index in 0..<measuredFrames {
+        let frame = replay.manifest.frames[index % replay.manifest.frames.count]
+        let source = sourceTextures[frame.frameID % sourceTextures.count]
+        let result = mode == .b2
+            ? try runner.inferCameraSpaceB(source: source, mapping: mapping, frameDeliveryUptime: nil)
+            : try runner.inferCameraSpaceC(source: source, mapping: mapping, frameDeliveryUptime: nil)
+        sourceSetup.append(result.sourceSetupMilliseconds)
+        guard let gpuMilliseconds = result.gpuExecutionMilliseconds else { throw LiveError.cameraOutputUnavailable }
+        gpu.append(gpuMilliseconds)
+        synchronization.append(result.synchronizationMilliseconds)
+        frontend.append(result.frontendMilliseconds)
+        post.append(result.postInputToResultMilliseconds)
+        tail.append(result.tailMilliseconds)
+        records.append(makeCameraSpaceCandidateRecord(frame: frame, callbackArrivalUptime: nil, result: result))
+    }
+    let elapsed = ProcessInfo.processInfo.systemUptime - start
+    return CameraSpaceCandidateArtifact(
+        mode: mode == .b2 ? "B2-camera-space" : "C1-camera-space",
+        source: "deterministic_source_resolution_replay",
+        replayPayloadSHA256: replay.manifest.payloadSHA256,
+        processedFrames: measuredFrames,
+        sustainedFPS: elapsed > 0 ? Double(measuredFrames) / elapsed : nil,
+        callbackRate: nil,
+        droppedCallbacks: 0,
+        lateCallbacks: nil,
+        lateCallbackMeasurement: "not applicable to deterministic replay",
+        skippedFrames: 0,
+        sourceSetup: try CameraBenchmarkTimingArtifact(sourceSetup),
+        gpuExecution: try CameraBenchmarkTimingArtifact(gpu),
+        synchronization: try CameraBenchmarkTimingArtifact(synchronization),
+        frontend: try CameraBenchmarkTimingArtifact(frontend),
+        postInputToResult: try CameraBenchmarkTimingArtifact(post),
+        frameDeliveryToResult: nil,
+        tail: try CameraBenchmarkTimingArtifact(tail),
+        commandBufferCount: records.count,
+        synchronizationCount: records.count,
+        thermalStateStart: records.first?.thermalState ?? thermalStateName(),
+        thermalStateEnd: thermalStateName(),
+        rawFrameRecords: records
+    )
+}
+
+private func runPairedCameraSpaceReplay(
+    runner: CameraInferenceRunner,
+    sourceTextures: [MetalCameraNV12SourceTextures],
+    replay: CameraSourceReplayBuffer,
+    mapping: CameraSpaceMapping
+) throws -> (CameraSpacePairedArtifact, CameraSpaceQualityArtifact) {
+    guard !sourceTextures.isEmpty, !replay.manifest.frames.isEmpty else { throw LiveError.benchmarkReplayUnavailable }
+    var allB: [Double] = []; var allC: [Double] = []; var allDifferences: [Double] = []
+    var batchDifferences: [BenchmarkStatistics.PairedBatch] = []
+    var records: [CameraSpacePairRecord] = []
+    var firstOrderPairs = 0; var secondOrderPairs = 0; var agreements = 0
+    var disagreements: [String] = []; var maxActivationError = 0.0
+    var firstBLabel = ""; var firstCLabel = ""
+    for batchIndex in 0..<BenchmarkStatistics.bootstrapBatchCount {
+        for warmup in 0..<20 {
+            let source = sourceTextures[(batchIndex * 20 + warmup) % sourceTextures.count]
+            if (batchIndex + warmup).isMultiple(of: 2) {
+                _ = try runner.inferCameraSpaceB(source: source, mapping: mapping, frameDeliveryUptime: nil)
+                _ = try runner.inferCameraSpaceC(source: source, mapping: mapping, frameDeliveryUptime: nil)
+            } else {
+                _ = try runner.inferCameraSpaceC(source: source, mapping: mapping, frameDeliveryUptime: nil)
+                _ = try runner.inferCameraSpaceB(source: source, mapping: mapping, frameDeliveryUptime: nil)
+            }
+        }
+        var differences: [Double] = []
+        for pairIndex in 0..<BenchmarkStatistics.bootstrapPairsPerBatch {
+            let frame = replay.manifest.frames[(batchIndex * BenchmarkStatistics.bootstrapPairsPerBatch + pairIndex) % replay.manifest.frames.count]
+            let source = sourceTextures[frame.frameID % sourceTextures.count]
+            let bFirst = (batchIndex + pairIndex).isMultiple(of: 2)
+            let bResult: CameraInferenceRunner.CameraSpaceResult
+            let cResult: CameraInferenceRunner.CameraSpaceResult
+            if bFirst {
+                firstOrderPairs += 1
+                bResult = try runner.inferCameraSpaceB(source: source, mapping: mapping, frameDeliveryUptime: nil)
+                cResult = try runner.inferCameraSpaceC(source: source, mapping: mapping, frameDeliveryUptime: nil)
+            } else {
+                secondOrderPairs += 1
+                cResult = try runner.inferCameraSpaceC(source: source, mapping: mapping, frameDeliveryUptime: nil)
+                bResult = try runner.inferCameraSpaceB(source: source, mapping: mapping, frameDeliveryUptime: nil)
+            }
+            let difference = bResult.postInputToResultMilliseconds - cResult.postInputToResultMilliseconds
+            differences.append(difference); allDifferences.append(difference)
+            allB.append(bResult.postInputToResultMilliseconds); allC.append(cResult.postInputToResultMilliseconds)
+            let activationError = zip(bResult.activation, cResult.activation).map { abs(Double($0 - $1)) }.max() ?? 0
+            maxActivationError = max(maxActivationError, activationError)
+            if bResult.prediction.label == cResult.prediction.label {
+                agreements += 1
+            } else {
+                disagreements.append("frame=\(frame.frameID),batch=batch-\(batchIndex),B=\(bResult.prediction.label),C=\(cResult.prediction.label)")
+            }
+            if records.isEmpty { firstBLabel = bResult.prediction.label; firstCLabel = cResult.prediction.label }
+            records.append(CameraSpacePairRecord(
+                batchID: "batch-\(batchIndex)", frameID: frame.frameID,
+                executionOrder: bFirst ? "B2_camera_then_C1_camera" : "C1_camera_then_B2_camera",
+                bSourceSetupMilliseconds: bResult.sourceSetupMilliseconds,
+                cSourceSetupMilliseconds: cResult.sourceSetupMilliseconds,
+                bGPUExecutionMilliseconds: bResult.gpuExecutionMilliseconds,
+                cGPUExecutionMilliseconds: cResult.gpuExecutionMilliseconds,
+                bSynchronizationMilliseconds: bResult.synchronizationMilliseconds,
+                cSynchronizationMilliseconds: cResult.synchronizationMilliseconds,
+                bFrontendMilliseconds: bResult.frontendMilliseconds,
+                cFrontendMilliseconds: cResult.frontendMilliseconds,
+                bPostInputToResultMilliseconds: bResult.postInputToResultMilliseconds,
+                cPostInputToResultMilliseconds: cResult.postInputToResultMilliseconds,
+                differenceMilliseconds: difference,
+                bTop1Label: bResult.prediction.label,
+                cTop1Label: cResult.prediction.label,
+                thermalState: thermalStateName()
+            ))
+        }
+        batchDifferences.append(BenchmarkStatistics.PairedBatch(batchID: "batch-\(batchIndex)", differences: differences))
+    }
+    let bootstrap = try BenchmarkStatistics.pairedBlockBootstrap(batchDifferences)
+    let paired = CameraSpacePairedArtifact(
+        metric: "camera_space_post_input_to_result",
+        signConvention: BenchmarkStatistics.pairedDifferenceConvention,
+        batchCount: BenchmarkStatistics.bootstrapBatchCount,
+        pairsPerBatch: BenchmarkStatistics.bootstrapPairsPerBatch,
+        differences: allDifferences,
+        batchDifferences: batchDifferences,
+        differenceSummary: try CameraBenchmarkTimingArtifact(allDifferences),
+        bootstrap: bootstrap,
+        aggregatePercentage: try BenchmarkStatistics.aggregatePercentage(pipelineB: allB, pipelineC: allC),
+        firstOrderPairs: firstOrderPairs,
+        secondOrderPairs: secondOrderPairs,
+        rawPairRecords: records
+    )
+    return (paired, CameraSpaceQualityArtifact(
+        acceptedCActivationMaxAbsoluteError: 0,
+        acceptedCTop1Agreement: 0,
+        acceptedBActivationMaxAbsoluteError: 0,
+        activationMaxAbsoluteError: maxActivationError,
+        top1Agreement: Double(agreements) / Double(allDifferences.count),
+        disagreementCount: disagreements.count,
+        disagreements: disagreements,
+        bTop1Label: firstBLabel,
+        cTop1Label: firstCLabel,
+        cFullRGBIntermediateBytes: 0,
+        cpuElementByElementPopulationBytes: 0
+    ))
+}
+
+private func runLiveCameraSpaceCandidate(
+    mode: CameraCandidateMode,
+    runner: CameraInferenceRunner,
+    measuredFrames: Int = 300
+) throws -> (CameraSpaceCandidateArtifact, LiveCameraCapture) {
+    let capture = try LiveCameraCapture()
+    let mapping = try CameraSpaceMapping(sourceWidth: capture.geometry.cameraWidth, sourceHeight: capture.geometry.cameraHeight)
+    for _ in 0..<20 {
+        let frame = try capture.nextFrame(timeout: 2)
+        let lease = try capture.bridge.sourceTextures(pixelBuffer: frame.pixelBuffer)
+        if mode == .b2 {
+            _ = try runner.inferCameraSpaceB(source: lease.metalSourceTextures, mapping: mapping, frameDeliveryUptime: frame.callbackArrivalUptime)
+        } else {
+            _ = try runner.inferCameraSpaceC(source: lease.metalSourceTextures, mapping: mapping, frameDeliveryUptime: frame.callbackArrivalUptime)
+        }
+    }
+    let start = ProcessInfo.processInfo.systemUptime
+    var sourceSetup: [Double] = []; var gpu: [Double] = []; var synchronization: [Double] = []
+    var frontend: [Double] = []; var post: [Double] = []; var delivery: [Double] = []; var tail: [Double] = []
+    var records: [CameraSpaceFrameRecord] = []
+    var previousSequence: Int?
+    var skipped = 0
+    records.reserveCapacity(measuredFrames)
+    for index in 0..<measuredFrames {
+        let frame = try capture.nextFrame(timeout: 2)
+        if let previousSequence, frame.sequence > previousSequence + 1 { skipped += frame.sequence - previousSequence - 1 }
+        previousSequence = frame.sequence
+        let lease = try capture.bridge.sourceTextures(pixelBuffer: frame.pixelBuffer)
+        let result = mode == .b2
+            ? try runner.inferCameraSpaceB(source: lease.metalSourceTextures, mapping: mapping, frameDeliveryUptime: frame.callbackArrivalUptime)
+            : try runner.inferCameraSpaceC(source: lease.metalSourceTextures, mapping: mapping, frameDeliveryUptime: frame.callbackArrivalUptime)
+        sourceSetup.append(result.sourceSetupMilliseconds)
+        guard let gpuMilliseconds = result.gpuExecutionMilliseconds else { throw LiveError.cameraOutputUnavailable }
+        gpu.append(gpuMilliseconds); synchronization.append(result.synchronizationMilliseconds)
+        frontend.append(result.frontendMilliseconds); post.append(result.postInputToResultMilliseconds)
+        if let value = result.frameDeliveryToResultMilliseconds { delivery.append(value) }
+        tail.append(result.tailMilliseconds)
+        records.append(CameraSpaceFrameRecord(
+            frameID: index, callbackSequence: frame.sequence,
+            sourceSetupStartUptime: result.startUptime,
+            sourceSetupEndUptime: result.sourceSetupEndUptime,
+            frontendStartUptime: result.sourceSetupEndUptime,
+            frontendEndUptime: result.frontendEndUptime,
+            resultEndUptime: result.resultEndUptime,
+            callbackArrivalUptime: frame.callbackArrivalUptime,
+            frameDeliveryToResultMilliseconds: result.frameDeliveryToResultMilliseconds,
+            sourceSetupMilliseconds: result.sourceSetupMilliseconds,
+            frontendMilliseconds: result.frontendMilliseconds,
+            postInputToResultMilliseconds: result.postInputToResultMilliseconds,
+            tailMilliseconds: result.tailMilliseconds,
+            gpuExecutionMilliseconds: result.gpuExecutionMilliseconds,
+            synchronizationMilliseconds: result.synchronizationMilliseconds,
+            top1Label: result.prediction.label,
+            top1Confidence: result.prediction.confidence,
+            thermalState: thermalStateName()
+        ))
+    }
+    let end = ProcessInfo.processInfo.systemUptime
+    let snapshot = capture.delegate.snapshot()
+    let callbackRate = end > start ? Double(snapshot.callbackCount) / (end - start) : nil
+    return (
+        CameraSpaceCandidateArtifact(
+            mode: mode == .b2 ? "B2-camera-space" : "C1-camera-space",
+            source: "physical_camera_live",
+            replayPayloadSHA256: nil,
+            processedFrames: measuredFrames,
+            sustainedFPS: end > start ? Double(measuredFrames) / (end - start) : nil,
+            callbackRate: callbackRate,
+            droppedCallbacks: snapshot.droppedCallbackCount,
+            lateCallbacks: nil,
+            lateCallbackMeasurement: "not separately observable; AVFoundation didDrop callbacks recorded",
+            skippedFrames: skipped,
+            sourceSetup: try CameraBenchmarkTimingArtifact(sourceSetup),
+            gpuExecution: try CameraBenchmarkTimingArtifact(gpu),
+            synchronization: try CameraBenchmarkTimingArtifact(synchronization),
+            frontend: try CameraBenchmarkTimingArtifact(frontend),
+            postInputToResult: try CameraBenchmarkTimingArtifact(post),
+            frameDeliveryToResult: delivery.isEmpty ? nil : try CameraBenchmarkTimingArtifact(delivery),
+            tail: try CameraBenchmarkTimingArtifact(tail),
+            commandBufferCount: measuredFrames,
+            synchronizationCount: measuredFrames,
+            thermalStateStart: records.first?.thermalState ?? thermalStateName(),
+            thermalStateEnd: thermalStateName(),
+            rawFrameRecords: records
+        ), capture
+    )
+}
+
+private func runCameraSpaceBenchmark() throws {
+    let runner = try CameraInferenceRunner()
+    let capture = try LiveCameraCapture()
+    let sourceReplay = try captureSourceReplay(capture)
+    let outputPath = ProcessInfo.processInfo.environment["PF_BENCHMARK_OUTPUT"] ?? "benchmarks/results/r6.5-camera-space.json"
+    let outputURL = URL(fileURLWithPath: outputPath, isDirectory: false)
+    let persistedReplay = try sourceReplay.write(to: outputURL.deletingLastPathComponent(), stem: "r6.5-camera-source-replay")
+    let mapping = try CameraSpaceMapping(sourceWidth: persistedReplay.manifest.width, sourceHeight: persistedReplay.manifest.height)
+    let sourceTextures = try persistedReplay.manifest.frames.map { frame in
+        let planes = try persistedReplay.planeData(for: frame)
+        return try runner.makeSourceTextures(width: persistedReplay.manifest.width, height: persistedReplay.manifest.height, y: planes.y, uv: planes.uv)
+    }
+
+    // Correctness gate: direct C and direct B are checked against the accepted
+    // resize-then-stem path on the same source replay frame before timing claims.
+    let outputRing = try capture.bridge.makeOutputRing(count: 1, geometry: capture.geometry)
+    let stagedWait = try resizeReplaySource(
+        bridge: capture.bridge, source: sourceTextures[0], geometry: capture.geometry, output: outputRing[0]
+    )
+    let stagedInput = MetalRGBBaseline.NV12Textures(yPlane: outputRing[0].yPlane, uvPlane: outputRing[0].uvPlane)
+    let stagedCResult = try runner.inferC1(input: stagedInput, resizedReadyUptime: ProcessInfo.processInfo.systemUptime, callbackArrivalUptime: nil)
+    let acceptedCActivation = try runner.currentC1Activation()
+    _ = try runner.inferB2(input: stagedInput, resizedReadyUptime: ProcessInfo.processInfo.systemUptime, callbackArrivalUptime: nil)
+    let acceptedBActivation = try runner.currentB2Activation()
+    let directC = try runner.inferCameraSpaceC(source: sourceTextures[0], mapping: mapping, frameDeliveryUptime: nil)
+    let directB = try runner.inferCameraSpaceB(source: sourceTextures[0], mapping: mapping, frameDeliveryUptime: nil)
+    let acceptedCError = zip(acceptedCActivation, directC.activation).map { abs(Double($0 - $1)) }.max() ?? 0
+    let acceptedBError = zip(acceptedBActivation, directB.activation).map { abs(Double($0 - $1)) }.max() ?? 0
+    let acceptedAgreement = directC.prediction.label == stagedCResult.prediction.label ? 1.0 : 0.0
+    guard acceptedCError <= Double(FairABCBenchmark.featureParityTolerance), acceptedBError <= Double(FairABCBenchmark.featureParityTolerance) else {
+        throw LiveError.inferenceOutputUnavailable
+    }
+
+    capture.session.stopRunning()
+    let pairedResult = try runPairedCameraSpaceReplay(runner: runner, sourceTextures: sourceTextures, replay: persistedReplay, mapping: mapping)
+    let paired = pairedResult.0
+    var quality = pairedResult.1
+    quality.acceptedCActivationMaxAbsoluteError = acceptedCError
+    quality.acceptedCTop1Agreement = acceptedAgreement
+    quality.acceptedBActivationMaxAbsoluteError = acceptedBError
+    let bReplay = try runCameraSpaceReplayCandidate(mode: .b2, runner: runner, sourceTextures: sourceTextures, replay: persistedReplay, mapping: mapping)
+    let cReplay = try runCameraSpaceReplayCandidate(mode: .c1, runner: runner, sourceTextures: sourceTextures, replay: persistedReplay, mapping: mapping)
+    let bLive = try runLiveCameraSpaceCandidate(mode: .b2, runner: runner).0
+    let cLive = try runLiveCameraSpaceCandidate(mode: .c1, runner: runner).0
+    let replayArtifact = CameraBenchmarkReplayArtifact(
+        schemaVersion: persistedReplay.manifest.schemaVersion,
+        payloadSHA256: persistedReplay.manifest.payloadSHA256,
+        manifestSHA256: persistedReplay.manifestSHA256,
+        frameCount: persistedReplay.manifest.frames.count,
+        frameIDs: persistedReplay.manifest.frames.map(\.frameID),
+        callbackSequences: persistedReplay.manifest.frames.map(\.callbackSequence),
+        width: persistedReplay.manifest.width,
+        height: persistedReplay.manifest.height,
+        pixelFormat: persistedReplay.manifest.pixelFormat,
+        cadenceHz: persistedReplay.manifest.cadenceHz
+    )
+    let artifact = CameraSpaceBenchmarkArtifact(
+        schemaVersion: "r6.5-camera-space-benchmark-v1",
+        commit: ProcessInfo.processInfo.environment["PF_GIT_COMMIT"] ?? "unknown",
+        buildConfiguration: ProcessInfo.processInfo.environment["PF_BUILD_CONFIGURATION"] ?? "release",
+        computeUnitsPolicy: runner.computeUnitsPolicyLabel,
+        deviceName: runner.deviceName,
+        osVersion: ProcessInfo.processInfo.environment["PF_OS_VERSION"] ?? ProcessInfo.processInfo.operatingSystemVersionString,
+        cameraActiveFormat: capture.activeFormat,
+        cameraDimensions: "\(capture.geometry.cameraWidth)x\(capture.geometry.cameraHeight)",
+        cameraPixelFormat: persistedReplay.manifest.pixelFormat,
+        cameraFrameDurationSeconds: capture.frameDurationSeconds,
+        environment: CameraSpaceEnvironmentArtifact(
+            timestampUTC: ISO8601DateFormatter().string(from: Date()),
+            architecture: ProcessInfo.processInfo.environment["PF_ARCHITECTURE"] ?? "unknown",
+            operatingSystem: ProcessInfo.processInfo.operatingSystemVersionString,
+            physicalMemoryBytes: ProcessInfo.processInfo.physicalMemory,
+            swiftVersion: ProcessInfo.processInfo.environment["PF_SWIFT_VERSION"] ?? "unknown",
+            xcodeVersion: ProcessInfo.processInfo.environment["PF_XCODE_VERSION"] ?? "unknown",
+            modelIdentifier: "Apple MobileNetV2 ImageNet",
+            sourceTreeState: ProcessInfo.processInfo.environment["PF_SOURCE_TREE_STATE"] ?? "unknown"
+        ),
+        sourceReplay: replayArtifact,
+        paired: paired,
+        b2Replay: bReplay,
+        c1Replay: cReplay,
+        b2Live: bLive,
+        c1Live: cLive,
+        quality: quality,
+        bRGBLogicalBytes: 224 * 224 * 3 * MemoryLayout<Float>.stride,
+        bRGBAllocatedBytes: 224 * 224 * 3 * MemoryLayout<Float>.stride,
+        cRGBLogicalBytes: 0,
+        cRGBAllocatedBytes: 0,
+        gpuCommandBufferPolicy: "one ordered caller-owned submission per candidate; B direct source RGB conversion plus unchanged B2 stem; C direct native stem",
+        synchronizationPolicy: "one wait after each candidate command buffer; no host wait between B conversion and B2 stem",
+        thermalStateAtArtifact: thermalStateName(),
+        statisticsAlgorithmVersion: BenchmarkStatistics.algorithmVersion,
+        bootstrapSeed: BenchmarkStatistics.bootstrapSeed,
+        bootstrapReplicates: BenchmarkStatistics.bootstrapReplicateCount
+    )
+    let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+    try FileManager.default.createDirectory(at: outputURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+    try encoder.encode(artifact).write(to: outputURL, options: .atomic)
+    print("PASS camera-space benchmark: \(outputURL.path)")
+    print("source_replay_payload_sha256: \(persistedReplay.manifest.payloadSHA256)")
+    print("source_replay_frames: \(persistedReplay.manifest.frames.count)")
+    print(String(format: "paired_camera_space_b_minus_c_p50_ms: %.4f", paired.differenceSummary.p50))
+    print(String(format: "paired_camera_space_percentage: %.4f", paired.aggregatePercentage))
+    print(String(format: "paired_camera_space_bootstrap_median_ci_ms: [%.4f, %.4f]", paired.bootstrap.medianDifference.lower, paired.bootstrap.medianDifference.upper))
+    print(String(format: "accepted_c_activation_max_abs_error: %.8f", acceptedCError))
+    print(String(format: "accepted_b_activation_max_abs_error: %.8f", acceptedBError))
+    print(String(format: "top1_agreement: %.4f", quality.top1Agreement))
+    print(String(format: "resize_reference_wait_ms: %.4f", stagedWait))
+}
+
 private func runCameraBenchmark() throws {
     let runner = try CameraInferenceRunner()
     let capture = try LiveCameraCapture()
@@ -960,6 +1570,8 @@ private func planeFuseLiveMain() {
             try runCamera()
         case ["--camera-bench"]:
             try runCameraBenchmark()
+        case ["--camera-space-bench"]:
+            try runCameraSpaceBenchmark()
         default:
             throw LiveError.usage
         }

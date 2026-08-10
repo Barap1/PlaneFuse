@@ -194,6 +194,33 @@ final class CameraNV12MetalBridge {
         )
     }
 
+    /// Replay-only overload for canonical source textures. It preserves the
+    /// same shader and byte semantics without fabricating a CVMetalTexture
+    /// wrapper or a camera capture object.
+    func encodeResize(source: MetalCameraNV12SourceTextures, geometry: CameraResizeGeometry, into output: OutputTextures, using encoder: MTLComputeCommandEncoder) throws {
+        guard source.width == geometry.cameraWidth,
+              source.height == geometry.cameraHeight,
+              output.geometry.cameraWidth == geometry.cameraWidth,
+              output.geometry.cameraHeight == geometry.cameraHeight else {
+            throw LiveError.unsupportedCameraFrame
+        }
+        var parameters = CameraResizeParameters(
+            cropOriginX: UInt32(geometry.cropOriginX),
+            cropOriginY: UInt32(geometry.cropOriginY),
+            cropSide: UInt32(geometry.cropSide)
+        )
+        encoder.setComputePipelineState(yPipeline)
+        encoder.setTexture(source.yPlane, index: 0)
+        encoder.setTexture(output.yPlane, index: 1)
+        encoder.setBytes(&parameters, length: MemoryLayout<CameraResizeParameters>.stride, index: 0)
+        encoder.dispatchThreads(MTLSize(width: 224, height: 224, depth: 1), threadsPerThreadgroup: MTLSize(width: 16, height: 16, depth: 1))
+        encoder.setComputePipelineState(uvPipeline)
+        encoder.setTexture(source.uvPlane, index: 0)
+        encoder.setTexture(output.uvPlane, index: 1)
+        encoder.setBytes(&parameters, length: MemoryLayout<CameraResizeParameters>.stride, index: 0)
+        encoder.dispatchThreads(MTLSize(width: 112, height: 112, depth: 1), threadsPerThreadgroup: MTLSize(width: 16, height: 16, depth: 1))
+    }
+
     func execute(pixelBuffer: CVPixelBuffer, into output: OutputTextures) throws -> Execution {
         let source = try sourceTextures(pixelBuffer: pixelBuffer)
         guard let commandBuffer = commandQueue.makeCommandBuffer(),

@@ -1,0 +1,21 @@
+[0/1] Planning build
+Building for production...
+[0/7] Copying NV12MobileNetV2CameraSpaceStem.metal
+[1/7] Copying CameraSpaceNV12RGB.metal
+[1/7] Write sources
+[4/7] Write swift-version--58304C5D6DBC2206.txt
+[6/8] Compiling PlaneFuseCore BenchmarkStatistics.swift
+[7/9] Compiling PlaneFuseLive CameraBenchmarkSupport.swift
+[7/9] Write Objects.LinkFileList
+[8/9] Linking planefuse-live
+Build of product 'planefuse-live' complete! (8.80s)
+PASS camera-space benchmark: benchmarks/results/r6.5-camera-space.json
+source_replay_payload_sha256: fabc08678eb174d70a8dcd2c74fd089195e88c098c8ca914c26c5a1bb4437a2e
+source_replay_frames: 32
+paired_camera_space_b_minus_c_p50_ms: -0.9526
+paired_camera_space_percentage: -64.7717
+paired_camera_space_bootstrap_median_ci_ms: [-0.9655, -0.9260]
+accepted_c_activation_max_abs_error: 0.00000000
+accepted_b_activation_max_abs_error: 0.00000000
+top1_agreement: 1.0000
+resize_reference_wait_ms: 0.6792
