@@ -136,6 +136,12 @@ case "$command_name" in
       cat "$log_file"
       exit 0
     fi
+    if [ "$command_args" = "mobilenetv2 shared" ] || [ "$command_args" = "mobilenetv2 shared confirm" ]; then
+      benchmark_output="${PF_BENCHMARK_OUTPUT:-$ROOT/benchmarks/results/r6.2-mobilenetv2-direct-shared.json}"
+      PF_ARCHITECTURE="$(uname -m)" PF_SWIFT_VERSION="$(swift --version | head -n 1)" PF_XCODE_VERSION="$(xcodebuild -version | head -n 1)" PF_GIT_COMMIT="$(git rev-parse HEAD)" PF_BUILD_CONFIGURATION="release" PF_BENCHMARK_OUTPUT="$benchmark_output" run_logged swift run -c release planefuse bench mobilenetv2 shared
+      cat "$log_file"
+      exit 0
+    fi
     if [ "$command_args" = "mobilenetv2 quick" ] || [ "$command_args" = "mobilenetv2 confirm" ] || [ "$command_args" = "mobilenetv2 b2" ]; then
       benchmark_label="${command_args##* }"
       if [ "$benchmark_label" = "b2" ]; then
@@ -149,7 +155,7 @@ case "$command_name" in
       cat "$log_file"
       exit 0
     fi
-    echo "usage: ./pf bench camera|quick|fair quick|fair confirm|mobilenetv2 quick|mobilenetv2 confirm"
+    echo "usage: ./pf bench camera|quick|fair quick|fair confirm|mobilenetv2 quick|mobilenetv2 confirm|mobilenetv2 shared"
     exit 2
     ;;
   profile)

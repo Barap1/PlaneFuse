@@ -545,6 +545,58 @@ func runMobileNetV2Bench(configuration: MobileNetV2Benchmark.Configuration, labe
     return 0
 }
 
+private struct DirectSharedBenchmarkArtifact: Codable {
+    let schemaVersion: Int
+    let status: String
+    let commit: String?
+    let environment: EnvironmentSnapshot
+    let measurement: MobileNetV2DirectSharedBenchmark.Measurement
+    let model: MobileNetV2AssetManifest
+}
+
+func runMobileNetV2DirectSharedBench() throws -> Int32 {
+    let root = URL(fileURLWithPath: FileManager.default.currentDirectoryPath, isDirectory: true)
+    let coefficientPath = ProcessInfo.processInfo.environment["PF_MOBILENET_COEFFICIENTS"] ?? "models/derived/MobileNetV2StemCoefficients.json"
+    let tailPath = ProcessInfo.processInfo.environment["PF_MOBILENET_TAIL"] ?? "models/derived/tail-compiled/MobileNetV2Tail.mlmodelc"
+    let manifest = MobileNetV2AssetManifest.inspected
+    try manifest.validate(at: root)
+    let corpus = try MobileNetV2Corpus(manifestURL: root.appendingPathComponent(manifest.validationCorpusManifest), root: root)
+    let tail = try CoreMLMobileNetV2TailAdapter(
+        modelURL: URL(fileURLWithPath: tailPath), manifest: manifest, computeUnits: .all
+    )
+    let benchmark = try MobileNetV2DirectSharedBenchmark(
+        configuration: try .init(warmupIterations: 20),
+        coefficientsURL: URL(fileURLWithPath: coefficientPath),
+        tail: tail,
+        corpus: corpus
+    )
+    let measurement = try benchmark.run()
+    let artifact = DirectSharedBenchmarkArtifact(
+        schemaVersion: 1,
+        status: "mobilenetv2_direct_b2_c1_shared",
+        commit: ProcessInfo.processInfo.environment["PF_GIT_COMMIT"],
+        environment: EnvironmentSnapshot(),
+        measurement: measurement,
+        model: manifest
+    )
+    let outputPath = ProcessInfo.processInfo.environment["PF_BENCHMARK_OUTPUT"] ?? "benchmarks/results/r6.2-mobilenetv2-direct-shared.json"
+    let url = URL(fileURLWithPath: outputPath)
+    try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+    try JSONEncoder.benchmark.encode(artifact).write(to: url, options: .atomic)
+    emit("PlaneFuse bench MobileNetV2 direct B2/C1 shared: RECORDED")
+    emit("result: \(outputPath)")
+    emit(String(format: "b2_post_resize_to_result_p50_ms: %.4f", measurement.b2Statistics.p50))
+    emit(String(format: "c1_post_resize_to_result_p50_ms: %.4f", measurement.c1Statistics.p50))
+    emit(String(format: "b2_minus_c1_p50_ms: %.4f", measurement.b2MinusC1Statistics.p50))
+    emit(String(format: "aggregate_percentage: %.4f", measurement.aggregatePercentage))
+    emit(String(format: "median_bootstrap_ci_ms: [%.4f, %.4f]", measurement.pairedBootstrapConfidenceInterval.medianDifference.lower, measurement.pairedBootstrapConfidenceInterval.medianDifference.upper))
+    emit(String(format: "top1_agreement: %.4f", measurement.top1Agreement))
+    emit(String(format: "activation_max_abs_error: %.8f", measurement.activationMaxAbsoluteError))
+    emit("b2_rgb_logical_bytes: \(measurement.b2RGBLogicalBytes)")
+    emit("c1_rgb_logical_bytes: \(measurement.c1RGBLogicalBytes)")
+    return measurement.top1Agreement >= 1.0 && measurement.activationMaxAbsoluteError <= Double(FairABCBenchmark.featureParityTolerance) ? 0 : 1
+}
+
 func runMobileNetV2Profile() throws -> Int32 {
     let root = URL(fileURLWithPath: FileManager.default.currentDirectoryPath, isDirectory: true)
     let coefficientPath = ProcessInfo.processInfo.environment["PF_MOBILENET_COEFFICIENTS"] ?? "models/derived/MobileNetV2StemCoefficients.json"
@@ -824,6 +876,9 @@ do {
         }
         if benchmarkArguments == ["mobilenetv2", "confirm"] {
             exit(try runMobileNetV2Bench(configuration: .confirm, label: "confirm"))
+        }
+        if benchmarkArguments == ["mobilenetv2", "shared"] || benchmarkArguments == ["mobilenetv2", "shared", "confirm"] {
+            exit(try runMobileNetV2DirectSharedBench())
         }
         throw CommandError.usage
     case "profile":
