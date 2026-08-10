@@ -243,10 +243,20 @@ public final class CoreMLMobileNetV2TailAdapter: MobileNetV2TailRunning {
     private let outputName: String
     private let activationShape: [NSNumber]
     private let activationCount: Int
+    /// The requested Core ML compute-unit policy. This records configuration only;
+    /// actual runtime hardware selection remains Core ML's responsibility.
+    public let computeUnitsPolicyLabel: String
 
-    public init(modelURL: URL, manifest: MobileNetV2AssetManifest) throws {
+    public init(
+        modelURL: URL,
+        manifest: MobileNetV2AssetManifest,
+        computeUnits: MLComputeUnits = .all
+    ) throws {
         guard FileManager.default.fileExists(atPath: modelURL.path) else { throw MobileNetV2IntegrationError.tailModelMissing(modelURL) }
-        self.model = try MLModel(contentsOf: Self.resolvedModelURL(modelURL))
+        let configuration = MLModelConfiguration()
+        configuration.computeUnits = computeUnits
+        self.model = try MLModel(contentsOf: Self.resolvedModelURL(modelURL), configuration: configuration)
+        self.computeUnitsPolicyLabel = Self.computeUnitsPolicyLabel(for: computeUnits)
         let inputs = self.model.modelDescription.inputDescriptionsByName
         guard inputs.count == 1, let input = inputs.first,
               input.value.type == .multiArray else { throw MobileNetV2IntegrationError.ambiguousTailInput }
@@ -322,6 +332,16 @@ public final class CoreMLMobileNetV2TailAdapter: MobileNetV2TailRunning {
     fileprivate static func matches(_ constraint: MLMultiArrayConstraint?, shape: [Int]) -> Bool {
         guard let constraint, constraint.dataType == .float32 else { return false }
         return constraint.shape.map(\.intValue) == shape
+    }
+
+    private static func computeUnitsPolicyLabel(for computeUnits: MLComputeUnits) -> String {
+        switch computeUnits {
+        case .all: return "all"
+        case .cpuOnly: return "cpuOnly"
+        case .cpuAndGPU: return "cpuAndGPU"
+        case .cpuAndNeuralEngine: return "cpuAndNeuralEngine"
+        @unknown default: return "unknown"
+        }
     }
 }
 
