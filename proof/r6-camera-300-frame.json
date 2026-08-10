@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "status": "R6_CAMERA_DELIVERY_GATE_ACCEPTED_DEBUG_EVIDENCE",
+  "run_timestamp_utc": "2026-08-10T20:03:22Z",
+  "source_log": "proof/r6-camera-300-frame.log",
+  "original_ignored_source_log": "artifacts/logs/pf-live-20260810T200322Z.log",
+  "source_log_sha256": "e2d492fbb23cb5081019d1c488b542737b87c36091df699566d1db768f114100",
+  "command": "./pf live --camera",
+  "build_configuration": "Debug",
+  "final_benchmark_eligible": false,
+  "camera": {
+    "frames_completed": 300,
+    "processed_frames": 300,
+    "last_callback_sequence": 317,
+    "drop_count": null,
+    "late_frame_count": null,
+    "dimensions": "1920x1080",
+    "pixel_format": "NV12 video-range",
+    "resize_path": "CVMetalTextureCache Y/UV mapping -> GPU even-aligned center-square crop and nearest source-grid resize",
+    "resize_gpu_p50_ms": 0.0329
+  },
+  "post_resize_measurement_boundary": "output NV12 resize completion -> frontend/model result; not capture-to-result",
+  "observed_post_resize_metrics": {
+    "b_frontend_p50_ms": 1.7138,
+    "c_frontend_p50_ms": 1.0679,
+    "b_model_input_to_result_p50_ms": 6.9808,
+    "c_model_input_to_result_p50_ms": 4.9640
+  },
+  "correctness": {
+    "first_frame_activation_max_abs_error": 0.00000644,
+    "first_frame_b_label": "microphone, mike",
+    "first_frame_c_label": "microphone, mike",
+    "top1_agreement_300_frames": 1.0
+  },
+  "structural_evidence": {
+    "c_full_rgb_intermediate_bytes": 0,
+    "c_element_by_element_cpu_activation_population": 0,
+    "c_bridge": "persistent buffer-backed MLMultiArray view"
+  },
+  "limitations": [
+    "The current run uses the live B1 RGBA32Float path, not the required strongest B2 planar Float32 path.",
+    "The current runner executes B before C on each frame; paired release benchmarking must alternate order.",
+    "The current live command is Debug-only and does not provide p95, mean, MAD, dropped/late-frame counts, thermal state, or capture-to-result timing.",
+    "No final B/C latency percentage is accepted from this artifact."
+  ],
+  "historical_timeout_logs": [
+    "artifacts/logs/pf-live-20260809T230020Z.log",
+    "artifacts/logs/pf-live-20260809T230044Z.log",
+    "artifacts/logs/pf-live-20260809T230122Z.log"
+  ]
+}

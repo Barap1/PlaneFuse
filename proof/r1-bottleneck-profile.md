@@ -9,7 +9,7 @@ Commands:
 ./pf bench mobilenetv2 b2
 ```
 
-Environment: arm64, Apple M5 Pro, macOS 26.6, Xcode 26.6, Swift 6.3.3. Both runs use five warmups, 20 measured iterations, and the same Core ML CPU-only tail. The component profile cycles through the 32-sample corpus and records 20 measured iterations; the B2 benchmark validates all 32 samples. The component profile isolates B's NV12 conversion and RGB stem into separate diagnostic submissions; the normal B/C benchmark remains the one-submission paired contract.
+Environment: arm64, Apple M5 Pro, macOS 26.6, Xcode 26.6, Swift 6.3.3. Both runs use five warmups, 20 measured iterations, and the same tail model loaded with the default `MLModel` configuration; the compute-unit policy was not explicitly recorded in this historical diagnostic. The independent source-derived reference elsewhere is explicitly CPU-only. The component profile cycles through the 32-sample corpus and records 20 measured iterations; the B2 benchmark validates all 32 samples. The component profile isolates B's NV12 conversion and RGB stem into separate diagnostic submissions; the normal B/C benchmark remains the one-submission paired contract.
 
 ## Component p50 (milliseconds)
 

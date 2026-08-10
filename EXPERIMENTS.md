@@ -104,7 +104,7 @@ Base commit: 665a46d
 Evidence/observation: Core ML rejects a Float16 multi-array feature declaration under the source model's specification version 1, but accepts the same unchanged derived tail graph after the minimum specification-version-7 declaration. The temporary model compiled with `coremlc` on the stable Xcode 26.6 toolchain.
 Hypothesis: A Float16 declaration for the unchanged `[48,112,112]` tail input can support an IOSurface-backed bridge without unacceptable task-output drift.
 Change: Added a reproducible project-local Float16 tail preparation script and compared the temporary compiled Float16-input tail with the accepted Float32 CPU-only tail over the 32-sample corpus.
-Correctness: Top-1 agreement was 1.0, but maximum probability-vector absolute error was 0.01288722 and mean probability L1 distance was 0.01548487, exceeding the predeclared 0.005 and 0.05 thresholds respectively.
+Correctness: Top-1 agreement was 1.0. Maximum probability-vector absolute error was 0.01288722 and failed its predeclared 0.005 threshold; mean probability L1 distance was 0.01548487 and passed its 0.05 threshold.
 Quick benchmark: Not run; the precision contract failed before IOSurface/Metal timing.
 Confirmation benchmark: Not applicable; the candidate failed the declared R3 quality gate.
 Outcome: REJECT

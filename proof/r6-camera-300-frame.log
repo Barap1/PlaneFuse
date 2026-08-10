@@ -1,0 +1,23 @@
+[0/1] Planning build
+Building for debugging...
+[0/3] Write swift-version--58304C5D6DBC2206.txt
+Build of product 'planefuse-live' complete! (0.10s)
+PlaneFuse Live camera: 300 continuous native-plane frames, local MobileNetV2 B/C inference
+camera_dimensions: 1920x1080
+camera_pixel_format: NV12 video-range (0x34323076)
+camera_first_timestamp: 314.80709
+camera_last_sequence: 317
+resize_policy: CVMetalTextureCache Y/UV mapping -> GPU even-aligned center-square crop and nearest source-grid resize; output=224x224 NV12; no Swift Y/UV array copy or RGB resize
+resize_gpu_p50_ms: 0.0329
+b_frontend_p50_ms: 1.7138
+c_frontend_p50_ms: 1.0679
+b_end_to_end_p50_ms: 6.9808
+c_end_to_end_p50_ms: 4.9640
+bc_activation_max_abs_error_first_frame: 0.00000644
+b_top1_label_first_frame: microphone, mike
+b_top1_confidence_first_frame: 0.07855225
+c_top1_label_first_frame: microphone, mike
+c_top1_confidence_first_frame: 0.07861328
+top1_agreement_300_frames: 1.0000
+c_rgb_intermediate_bytes: 0
+c_cpu_activation_population: 0 (persistent buffer-backed MLMultiArray view)

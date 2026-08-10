@@ -25,8 +25,11 @@ Metal timing, it was compared with the accepted Float32 CPU-only tail over all
 - mean probability L1 distance ≤ 0.05.
 
 Observed: top-1 agreement `1.0`, maximum probability absolute error
-`0.01288722`, and mean probability L1 distance `0.01548487`. The latter two
-fail, so no R3 Float16 bridge benchmark was run and no threshold was relaxed.
+`0.01288722`, and mean probability L1 distance `0.01548487`. The maximum
+probability absolute error fails its `0.005` threshold; the mean probability
+L1 distance passes its `0.05` threshold. R3 remains rejected because the
+maximum-error gate failed, so no IOSurface bridge benchmark was run and no
+threshold was relaxed.
 The accepted R2 Float32 shared bridge remains the control for R4.
 
 Machine-readable result: `proof/r3-float16-feasibility.json`.
