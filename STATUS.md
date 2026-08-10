@@ -1,16 +1,16 @@
 # PlaneFuse status
 
-Current milestone: R6.1 - Release-grade live benchmark (IN PROGRESS; R6 camera-delivery gate passed)
+Current milestone: R6.1 - Release-grade live benchmark (IMPLEMENTED; result is qualified/inconclusive for competition-worthiness)
 
 Overall status: PHASE 2 CAMERA INTEGRATION
 
 Current branch: phase2/continuum
 
-Current best verified result: pre-Phase-2 control remains the accepted historical reference — M4 fixture C end-to-end p50 0.1948 ms vs B 0.2328 ms; 16.34% lower under equal-submission methodology. The successful R6 camera run is Debug technical-gate evidence only; no final camera speedup is accepted.
+Current best verified result: pre-Phase-2 control remains the accepted historical reference — M4 fixture C end-to-end p50 0.1948 ms vs B 0.2328 ms; 16.34% lower under equal-submission methodology. The first committed Release camera benchmark at 93a7016 measured direct paired B2-C1 p50 difference 0.0460 ms / 3.8033% with median bootstrap CI [-0.0244, 0.1094] ms; because the CI crosses zero, no final camera speedup is accepted.
 
 Correctness status: R5 PASS — exact nearest-sited polyphase parity and a rigorous documented negative latency result are verified; prior R0-R4 evidence remains intact
 
-Pipeline A status: not built
+Pipeline A status: not built; required contextual challenge remains
 
 Pipeline B status: built; release quick artifact recorded
 
@@ -18,11 +18,11 @@ Pipeline C status: built; direct Y/UV fused stem with no RGB intermediate
 
 Real model: Apple MobileNetV2 ImageNet integrated; unchanged 252-layer Core ML tail runs after the transformed 48-channel stem
 
-PlaneFuse Live: R6 GPU camera texture path built; permitted physical-camera 300-frame gate passed in the current Debug path; judge-facing UI and Release benchmark remain unfinished
+PlaneFuse Live: Release replay/paired/live benchmark path built and run; judge-facing UI remains unfinished
 
-Known blockers: release-grade camera evidence is still required: strongest B2 versus C1, alternating paired order, separate B-only/C-only throughput, true frame-delivery-to-result timing, p95/mean/MAD, dropped/late-frame counts, thermal metadata, and persisted JSON. R3 Float16, R4 Metal 4, and R5 latency improvement were rejected or negative on their documented gates. Public push/submission remains human-controlled.
+Known blockers: direct B2/C1 result is below the competition target and its paired median CI crosses zero; Pipeline A, the 64-input R7 corpus, profiler/go-no-go for camera-space fusion, and judge-facing UI remain. R3 Float16, R4 Metal 4, and R5 latency improvement were rejected or negative on their documented gates. Public push/submission remains human-controlled.
 
-Next highest-leverage action: implement `./pf bench camera` in Release with matched B2/C1 boundaries and defensible frame-delivery timing, then run the offline direct B2-shared versus C1-shared confirmation.
+Next highest-leverage action: run the direct offline B2-shared versus C1-shared confirmation, then implement Pipeline A and make the profiler-driven camera-space fusion go/no-go decision.
 
 Human decision currently required: no for the active implementation path; publication, repository visibility, and submission remain human-controlled.
 

@@ -154,3 +154,17 @@ Confirmation benchmark:
 Outcome: ACCEPT / REJECT / INCONCLUSIVE
 Lesson:
 Accepted commit (if any):
+
+## E011 - R6.1 Release replay and live camera benchmark
+
+Date: 2026-08-10
+Base commit: 93a7016
+Evidence/observation: The Release benchmark path captured a 300-frame real NV12 replay, persisted binary payload plus manifest, reused preallocated replay textures, alternated B2/C1 order over five 200-pair batches, and ran separate 300-frame physical-camera sessions for true frame-delivery-to-result timing.
+Hypothesis: A strongest-credible B2 planar Float32 baseline and C1 native-plane stem will show a stable camera-level advantage under matched shared-tail conditions.
+Change: Added `./pf bench camera`, explicit `.all` tail configuration, deterministic replay, candidate-local paired post-resize timing, isolated live sessions, raw pair records, fixed-seed hierarchical bootstrap, thermal/drop/callback metadata, and a structural artifact verifier.
+Correctness: PASS; Release artifact recorded top-1 agreement 1.0, activation max absolute error 8.583068e-6, identical replay hash for B2/C1, zero C full-RGB intermediate bytes, and zero element-by-element CPU activation population bytes. Artifact verifier passed.
+Quick benchmark: Direct paired B2-C1 post-resize-input-to-result p50 difference 0.0460 ms, aggregate 3.8033%; p95 difference 0.6093 ms; mean/MAD and raw samples are persisted.
+Confirmation benchmark: Five independent 200-pair batches produced median bootstrap 95% CI [-0.0244, 0.1094] ms, which crosses zero. Separate physical-camera B2/C1 sessions each processed 300 frames with zero dropped/late/overwritten/skipped counts in this run; their delivery timings are descriptive, not a paired comparative claim.
+Outcome: INCONCLUSIVE
+Lesson: The strongest B2 planar baseline narrows the prior camera advantage below the competition target; the direct paired confidence interval does not establish a stable camera speedup. Continue to Pipeline A and the bounded profiler-driven fusion go/no-go, without claiming this as a win.
+Accepted commit (if any): 93a7016

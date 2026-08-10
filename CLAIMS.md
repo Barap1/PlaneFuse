@@ -216,3 +216,18 @@ Status: QUALIFIED
 Claim wording: "A permitted physical-camera run processed 300 1920x1080 NV12 video-range frames through the CVMetalTextureCache native-plane GPU resize path and persistent local B/C inference resources. The run recorded first-frame activation max error 6.44e-6, 300 processed-frame top-1 agreement 1.0, zero C full-RGB intermediate bytes, and zero element-by-element CPU activation population; its last callback sequence was 317 and drop/late counts were not recorded. This is Debug technical-gate evidence, not a final B-versus-C performance claim or capture-to-result measurement."
 
 Evidence files: `proof/r6-camera-300-frame.json`, `proof/r6-camera-300-frame.log`, `proof/r6-camera-texture.md`
+
+## C022 - R6.1 Release camera benchmark evidence
+
+Status: QUALIFIED
+
+Claim wording: "At committed head `93a7016`, the Release camera benchmark captured and persisted 300 real 1920x1080 NV12 video-range frames (payload SHA-256 `1bf39d0b944aa6f780361134667eed6b01cf3af4a81bfe064ba8a6e6e88c4a3f`), reused the identical replay for B2 and C1, ran exactly five 200-pair alternating batches with explicit `MLComputeUnits.all`, and separately measured 300-frame B2-only and C1-only physical-camera sessions. The direct paired post-resize-input-to-result p50 difference was 0.0460 ms (3.8033% aggregate), with median paired bootstrap 95% CI [-0.0244, 0.1094] ms; the interval crosses zero, so this is not an accepted camera speedup claim. Top-1 agreement was 1.0, activation max absolute error was 8.583068e-6, C full-RGB intermediate bytes were 0, and element-by-element CPU activation population bytes were 0."
+
+Required evidence:
+
+- committed Release command and JSON artifact;
+- persisted replay payload and manifest with matching SHA-256;
+- exact paired raw records, batch structure, bootstrap, and isolated live-session records;
+- parity and task agreement.
+
+Evidence files: `proof/r6.1-camera-benchmark-release.json`, `proof/r6.1-camera-replay.manifest.json`, `proof/r6.1-camera-replay.bin`, `scripts/check_r6_camera_artifact.py`, `Sources/PlaneFuseLive/main.swift`
