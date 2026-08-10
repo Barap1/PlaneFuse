@@ -246,6 +246,8 @@ struct CameraBenchmarkArtifact: Codable {
     let cameraDimensions: String
     let cameraPixelFormat: String
     let cameraFrameDurationSeconds: Double?
+    let cameraResizeGPU: CameraBenchmarkTimingArtifact
+    let cameraResizeWall: CameraBenchmarkTimingArtifact
     let replay: CameraBenchmarkReplayArtifact
     let paired: CameraBenchmarkPairedArtifact
     let b2Replay: CameraBenchmarkCandidateArtifact

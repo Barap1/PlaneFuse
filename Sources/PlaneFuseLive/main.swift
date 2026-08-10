@@ -548,14 +548,24 @@ private func thermalStateName(_ state: ProcessInfo.ThermalState = ProcessInfo.pr
     }
 }
 
-private func captureReplay(_ capture: LiveCameraCapture, frameCount: Int = 300) throws -> CameraReplayBuffer {
+private struct ReplayCaptureResult {
+    let replay: CameraReplayBuffer
+    let resizeGPU: CameraBenchmarkTimingArtifact
+    let resizeWall: CameraBenchmarkTimingArtifact
+}
+
+private func captureReplay(_ capture: LiveCameraCapture, frameCount: Int = 300) throws -> ReplayCaptureResult {
     let outputRing = try capture.bridge.makeOutputRing(count: 3, geometry: capture.geometry)
     var frames: [CameraReplayFramePayload] = []
+    var resizeGPU: [Double] = []; var resizeWall: [Double] = []
     frames.reserveCapacity(frameCount)
     for index in 0..<frameCount {
         let frame = try capture.nextFrame(timeout: 2)
         let output = outputRing[index % outputRing.count]
-        _ = try capture.bridge.execute(pixelBuffer: frame.pixelBuffer, into: output)
+        let resizeStart = ProcessInfo.processInfo.systemUptime
+        let execution = try capture.bridge.execute(pixelBuffer: frame.pixelBuffer, into: output)
+        resizeWall.append((ProcessInfo.processInfo.systemUptime - resizeStart) * 1_000)
+        if let gpuMilliseconds = execution.gpuMilliseconds { resizeGPU.append(gpuMilliseconds) }
         let planes = try capture.bridge.readPlanes(from: output)
         frames.append(CameraReplayFramePayload(
             presentationTimestampSeconds: frame.timestamp.isValid ? frame.timestamp.seconds : nil,
@@ -564,11 +574,16 @@ private func captureReplay(_ capture: LiveCameraCapture, frameCount: Int = 300) 
             uvPlane: planes.uv
         ))
     }
-    return try CameraReplayBuffer(
+    let replay = try CameraReplayBuffer(
         frames: frames,
         width: 224,
         height: 224,
         cadenceHz: capture.frameDurationSeconds.map { 1 / $0 }
+    )
+    return ReplayCaptureResult(
+        replay: replay,
+        resizeGPU: try CameraBenchmarkTimingArtifact(resizeGPU),
+        resizeWall: try CameraBenchmarkTimingArtifact(resizeWall)
     )
 }
 
@@ -824,7 +839,8 @@ private func runLiveCandidate(
 private func runCameraBenchmark() throws {
     let runner = try CameraInferenceRunner()
     let capture = try LiveCameraCapture()
-    let replay = try captureReplay(capture)
+    let replayCapture = try captureReplay(capture)
+    let replay = replayCapture.replay
     let outputPath = ProcessInfo.processInfo.environment["PF_BENCHMARK_OUTPUT"] ?? "benchmarks/results/r6-camera.json"
     let outputURL = URL(fileURLWithPath: outputPath, isDirectory: false)
     let replayDirectory = outputURL.deletingLastPathComponent()
@@ -865,6 +881,8 @@ private func runCameraBenchmark() throws {
         cameraDimensions: "\(capture.geometry.cameraWidth)x\(capture.geometry.cameraHeight)",
         cameraPixelFormat: persistedReplay.manifest.pixelFormat,
         cameraFrameDurationSeconds: capture.frameDurationSeconds,
+        cameraResizeGPU: replayCapture.resizeGPU,
+        cameraResizeWall: replayCapture.resizeWall,
         replay: replayArtifact,
         paired: paired,
         b2Replay: b2Replay,

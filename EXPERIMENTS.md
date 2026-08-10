@@ -168,3 +168,31 @@ Confirmation benchmark: Five independent 200-pair batches produced median bootst
 Outcome: INCONCLUSIVE
 Lesson: The strongest B2 planar baseline narrows the prior camera advantage below the competition target; the direct paired confidence interval does not establish a stable camera speedup. Continue to Pipeline A and the bounded profiler-driven fusion go/no-go, without claiming this as a win.
 Accepted commit (if any): 93a7016
+
+## E012 - Direct B2-shared versus C1-shared Release confirmation
+
+Date: 2026-08-10
+Base commit: 57bcf42
+Evidence/observation: The direct benchmark used the existing 32-sample corpus, persistent CHW Float32 B2 and native C1 activation buffers, one shared `.all` tail, exactly five 200-pair batches, alternating order, and a fixed hierarchical bootstrap.
+Hypothesis: Removing boxed MLMultiArray population from both optimized paths would expose a stable strongest-B versus strongest-C comparison.
+Change: Added `MobileNetV2DirectSharedBenchmark` and `./pf bench mobilenetv2 shared`, with raw pair records and exact R6.1 statistics.
+Correctness: PASS; top-1 agreement 1.0, activation max error 9.298325e-6, zero C RGB bytes, zero element-by-element CPU activation-copy bytes.
+Quick benchmark: B2 p50 1.7264 ms; C1 p50 1.6209 ms; aggregate 6.1111% lower for C1.
+Confirmation benchmark: Five batches, 1,000 pairs; median bootstrap 95% CI [0.0542, 0.0729] ms, positive. The result is stable but below the ≥10% competition target.
+Outcome: QUALIFIED
+Lesson: The strongest conventional B2 narrows the native-plane advantage to a reproducible but sub-target 6.11%; the direct matched result should remain visible and not be replaced by the weaker B1 baseline.
+Accepted commit (if any): 4c4b8fe, 57bcf42
+
+## E013 - Pipeline A original image-input challenge
+
+Date: 2026-08-10
+Base commit: 9f196b5
+Evidence/observation: The original Apple MobileNetV2 image-input model was loaded with explicit `.all` compute units. Pre-rendered 224x224 CGImages were prepared before timing; each measured call included BGRA pixel-buffer materialization, original Core ML prediction, and result extraction.
+Hypothesis: The framework-optimized unsplit image-input model may be faster than the split B2/C1 paths and must be shown contextually.
+Change: Added `./pf bench mobilenetv2 pipeline-a` and persisted 1,000 raw timing samples over five batches.
+Correctness: The run completed with the original model and its declared image-input boundary; this contextual benchmark does not replace the matched B2/C1 quality contract.
+Quick benchmark: p50 1.0891 ms, p95 1.1507 ms, mean 1.0957 ms.
+Confirmation benchmark: Five 200-sample batches, 1,000 processed calls; no claim is made that this boundary is directly interchangeable with B2/C1.
+Outcome: ACCEPT as contextual evidence
+Lesson: The standard unsplit Apple path is faster under its own framework-optimized image-input boundary. The final evaluation must disclose this and explain the boundary difference rather than present PlaneFuse as universally faster.
+Accepted commit (if any): 9f196b5

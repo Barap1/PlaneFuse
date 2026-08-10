@@ -231,3 +231,19 @@ Required evidence:
 - parity and task agreement.
 
 Evidence files: `proof/r6.1-camera-benchmark-release.json`, `proof/r6.1-camera-replay.manifest.json`, `proof/r6.1-camera-replay.bin`, `scripts/check_r6_camera_artifact.py`, `Sources/PlaneFuseLive/main.swift`
+
+## C023 - Direct Release B2-shared versus C1-shared result
+
+Status: QUALIFIED
+
+Claim wording: "At committed head `57bcf42`, the direct Release B2-shared versus C1-shared benchmark over the existing 32-sample corpus used exactly five 200-pair alternating batches and the same explicit `.all` Core ML tail. B2 p50 was 1.7264 ms and C1 p50 was 1.6209 ms, a 6.1111% aggregate p50 difference; the paired median 95% CI was [0.0542, 0.0729] ms. Top-1 agreement was 1.0 and maximum B2/C1 activation error was 9.298325e-6. This is below the project's ≥10% competition target and is not a final competition-worthiness claim."
+
+Evidence files: `proof/r6.2-mobilenetv2-direct-shared.json`, `Sources/PlaneFuseCore/MobileNetV2DirectSharedBenchmark.swift`, `Tests/PlaneFuseCoreTests/MobileNetV2DirectSharedBenchmarkTests.swift`
+
+## C024 - Pipeline A contextual original image-input result
+
+Status: QUALIFIED
+
+Claim wording: "At committed head `9f196b5`, the representative original Apple MobileNetV2 image-input Core ML path, explicitly loaded with `MLComputeUnits.all`, measured p50 1.0891 ms, p95 1.1507 ms, and mean 1.0957 ms over 1,000 calls. Its boundary starts with a pre-rendered 224x224 CGImage and includes BGRA pixel-buffer materialization, original image-input Core ML prediction, and result extraction. This is contextual evidence, not a substitute for the matched B2/C1 comparison; it is faster under its distinct framework-optimized boundary and remains visible in the evaluation matrix."
+
+Evidence files: `proof/r6.3-pipeline-a.json`, `Sources/PlaneFuseCore/MobileNetV2Integration.swift`, `Sources/PlaneFuseCLI/main.swift`

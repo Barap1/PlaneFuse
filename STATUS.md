@@ -10,7 +10,7 @@ Current best verified result: pre-Phase-2 control remains the accepted historica
 
 Correctness status: R5 PASS — exact nearest-sited polyphase parity and a rigorous documented negative latency result are verified; prior R0-R4 evidence remains intact
 
-Pipeline A status: not built; required contextual challenge remains
+Pipeline A status: Release contextual benchmark built and measured; original image-input path is faster under its distinct input/model boundary
 
 Pipeline B status: built; release quick artifact recorded
 
@@ -20,9 +20,9 @@ Real model: Apple MobileNetV2 ImageNet integrated; unchanged 252-layer Core ML t
 
 PlaneFuse Live: Release replay/paired/live benchmark path built and run; judge-facing UI remains unfinished
 
-Known blockers: direct B2/C1 result is below the competition target and its paired median CI crosses zero; Pipeline A, the 64-input R7 corpus, profiler/go-no-go for camera-space fusion, and judge-facing UI remain. R3 Float16, R4 Metal 4, and R5 latency improvement were rejected or negative on their documented gates. Public push/submission remains human-controlled.
+Known blockers: direct B2/C1 is stable but below the competition target; Pipeline A is faster in its distinct framework-optimized image-input boundary and must remain visible in evaluation; the 64-input R7 corpus, profiler/go-no-go for camera-space fusion, and judge-facing UI remain. R3 Float16, R4 Metal 4, and R5 latency improvement were rejected or negative on their documented gates. Public push/submission remains human-controlled.
 
-Next highest-leverage action: run the direct offline B2-shared versus C1-shared confirmation, then implement Pipeline A and make the profiler-driven camera-space fusion go/no-go decision.
+Next highest-leverage action: make the profiler-driven camera-space fusion go/no-go decision, then expand the quality corpus and run R7 adversarial evaluation without hiding Pipeline A.
 
 Human decision currently required: no for the active implementation path; publication, repository visibility, and submission remain human-controlled.
 
