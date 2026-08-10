@@ -1,6 +1,7 @@
 import CoreVideo
 import Foundation
 import Metal
+import PlaneFuseCore
 
 private struct CameraResizeParameters {
     var cropOriginX: UInt32
@@ -31,6 +32,34 @@ struct CameraResizeGeometry {
 }
 
 final class CameraNV12MetalBridge {
+    /// Owns the Core Video texture wrappers for a source camera frame. Keep this
+    /// lease alive until every command buffer using `metalSourceTextures` has
+    /// completed; exposing only the MTLTexture results would release the wrappers
+    /// before that lifetime boundary.
+    struct SourceTextureLease {
+        let yPlane: MTLTexture
+        let uvPlane: MTLTexture
+        let geometry: CameraResizeGeometry
+        let metalSourceTextures: MetalCameraNV12SourceTextures
+        private let yWrapper: CVMetalTexture
+        private let uvWrapper: CVMetalTexture
+
+        init(
+            yPlane: MTLTexture,
+            uvPlane: MTLTexture,
+            geometry: CameraResizeGeometry,
+            yWrapper: CVMetalTexture,
+            uvWrapper: CVMetalTexture
+        ) throws {
+            self.yPlane = yPlane
+            self.uvPlane = uvPlane
+            self.geometry = geometry
+            self.metalSourceTextures = try MetalCameraNV12SourceTextures(yPlane: yPlane, uvPlane: uvPlane)
+            self.yWrapper = yWrapper
+            self.uvWrapper = uvWrapper
+        }
+    }
+
     struct OutputTextures {
         let yPlane: MTLTexture
         let uvPlane: MTLTexture
@@ -90,18 +119,21 @@ final class CameraNV12MetalBridge {
         }
     }
 
-    func execute(pixelBuffer: CVPixelBuffer, into output: OutputTextures) throws -> Execution {
+    /// Maps and retains the source camera planes. The returned lease, rather
+    /// than bare CVMetalTextureGetTexture values, is the source passed to any
+    /// caller-owned camera-space encoding.
+    func sourceTextures(pixelBuffer: CVPixelBuffer) throws -> SourceTextureLease {
         let width = CVPixelBufferGetWidth(pixelBuffer)
         let height = CVPixelBufferGetHeight(pixelBuffer)
         guard CVPixelBufferGetPixelFormatType(pixelBuffer) == kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange,
               CVPixelBufferGetPlaneCount(pixelBuffer) == 2,
-              width == output.geometry.cameraWidth, height == output.geometry.cameraHeight,
               CVPixelBufferGetWidthOfPlane(pixelBuffer, 0) == width,
               CVPixelBufferGetHeightOfPlane(pixelBuffer, 0) == height,
               CVPixelBufferGetWidthOfPlane(pixelBuffer, 1) == width / 2,
               CVPixelBufferGetHeightOfPlane(pixelBuffer, 1) == height / 2 else {
             throw LiveError.unsupportedCameraFrame
         }
+        let geometry = try CameraResizeGeometry.make(width: width, height: height)
         var yWrapper: CVMetalTexture?
         var uvWrapper: CVMetalTexture?
         guard CVMetalTextureCacheCreateTextureFromImage(
@@ -114,18 +146,38 @@ final class CameraNV12MetalBridge {
         ) == kCVReturnSuccess,
         let yTexture = yWrapper.flatMap(CVMetalTextureGetTexture),
         let uvTexture = uvWrapper.flatMap(CVMetalTextureGetTexture),
-        let commandBuffer = commandQueue.makeCommandBuffer(),
-        let encoder = commandBuffer.makeComputeCommandEncoder() else {
+        let retainedYWrapper = yWrapper,
+        let retainedUVWrapper = uvWrapper else {
             throw LiveError.cameraOutputUnavailable
         }
+        do {
+            return try SourceTextureLease(
+                yPlane: yTexture, uvPlane: uvTexture, geometry: geometry,
+                yWrapper: retainedYWrapper, uvWrapper: retainedUVWrapper
+            )
+        } catch {
+            throw LiveError.unsupportedCameraFrame
+        }
+    }
 
+    /// Encodes the accepted source-plane nearest resize into caller-owned output
+    /// textures. It neither ends the encoder nor submits or waits for a command
+    /// buffer, so it can be composed with a candidate stem when required.
+    func encodeResize(source: SourceTextureLease, into output: OutputTextures, using encoder: MTLComputeCommandEncoder) throws {
+        guard source.geometry.cameraWidth == output.geometry.cameraWidth,
+              source.geometry.cameraHeight == output.geometry.cameraHeight,
+              source.geometry.cropOriginX == output.geometry.cropOriginX,
+              source.geometry.cropOriginY == output.geometry.cropOriginY,
+              source.geometry.cropSide == output.geometry.cropSide else {
+            throw LiveError.unsupportedCameraFrame
+        }
         var parameters = CameraResizeParameters(
-            cropOriginX: UInt32(output.geometry.cropOriginX),
-            cropOriginY: UInt32(output.geometry.cropOriginY),
-            cropSide: UInt32(output.geometry.cropSide)
+            cropOriginX: UInt32(source.geometry.cropOriginX),
+            cropOriginY: UInt32(source.geometry.cropOriginY),
+            cropSide: UInt32(source.geometry.cropSide)
         )
         encoder.setComputePipelineState(yPipeline)
-        encoder.setTexture(yTexture, index: 0)
+        encoder.setTexture(source.yPlane, index: 0)
         encoder.setTexture(output.yPlane, index: 1)
         encoder.setBytes(&parameters, length: MemoryLayout<CameraResizeParameters>.stride, index: 0)
         encoder.dispatchThreads(
@@ -133,16 +185,27 @@ final class CameraNV12MetalBridge {
             threadsPerThreadgroup: MTLSize(width: 16, height: 16, depth: 1)
         )
         encoder.setComputePipelineState(uvPipeline)
-        encoder.setTexture(uvTexture, index: 0)
+        encoder.setTexture(source.uvPlane, index: 0)
         encoder.setTexture(output.uvPlane, index: 1)
         encoder.setBytes(&parameters, length: MemoryLayout<CameraResizeParameters>.stride, index: 0)
         encoder.dispatchThreads(
             MTLSize(width: 112, height: 112, depth: 1),
             threadsPerThreadgroup: MTLSize(width: 16, height: 16, depth: 1)
         )
+    }
+
+    func execute(pixelBuffer: CVPixelBuffer, into output: OutputTextures) throws -> Execution {
+        let source = try sourceTextures(pixelBuffer: pixelBuffer)
+        guard let commandBuffer = commandQueue.makeCommandBuffer(),
+              let encoder = commandBuffer.makeComputeCommandEncoder() else {
+            throw LiveError.cameraOutputUnavailable
+        }
+        try encodeResize(source: source, into: output, using: encoder)
         encoder.endEncoding()
-        commandBuffer.commit()
-        commandBuffer.waitUntilCompleted()
+        withExtendedLifetime(source) {
+            commandBuffer.commit()
+            commandBuffer.waitUntilCompleted()
+        }
         guard commandBuffer.status == .completed else { throw LiveError.cameraOutputUnavailable }
         return Execution(
             geometry: output.geometry,
