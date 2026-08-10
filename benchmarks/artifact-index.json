@@ -40,6 +40,10 @@
     "r5-polyphase-corrected-quick.json": "ACCEPTED",
     "r5-polyphase-corrected-confirm-1.json": "ACCEPTED",
     "r5-polyphase-corrected-confirm-2.json": "ACCEPTED",
-    "r5-polyphase-corrected-confirm-3.json": "ACCEPTED"
+    "r5-polyphase-corrected-confirm-3.json": "ACCEPTED",
+    "r6-camera-replay.manifest.json": "EXPERIMENTAL",
+    "r6-camera.json": "EXPERIMENTAL",
+    "r6.2-mobilenetv2-direct-shared.json": "EXPERIMENTAL",
+    "r6.3-pipeline-a.json": "EXPERIMENTAL"
   }
 }
