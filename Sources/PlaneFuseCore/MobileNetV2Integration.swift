@@ -405,19 +405,21 @@ public final class CoreMLMobileNetV2SourceImageAdapter {
     private let model: MLModel
     private let inputName: String
     private let outputName: String
+    public let computeUnitsPolicyLabel: String
 
-    public init(modelURL: URL) throws {
+    public init(modelURL: URL, computeUnits: MLComputeUnits = .all) throws {
         let resolvedModelURL = modelURL.pathExtension == "mlmodel"
             ? try MLModel.compileModel(at: modelURL)
             : modelURL
         let configuration = MLModelConfiguration()
-        configuration.computeUnits = .cpuOnly
+        configuration.computeUnits = computeUnits
         let loadedModel = try MLModel(contentsOf: resolvedModelURL, configuration: configuration)
         let inputs = loadedModel.modelDescription.inputDescriptionsByName
         guard let input = inputs.first(where: { $0.value.type == .image }) else {
             throw MobileNetV2IntegrationError.unsupportedManifest
         }
         self.model = loadedModel
+        self.computeUnitsPolicyLabel = computeUnits == .all ? "all" : computeUnits == .cpuOnly ? "cpuOnly" : computeUnits == .cpuAndGPU ? "cpuAndGPU" : computeUnits == .cpuAndNeuralEngine ? "cpuAndNeuralEngine" : "unknown"
         inputName = input.key
         outputName = loadedModel.modelDescription.outputDescriptionsByName.keys.first(where: { name in
             loadedModel.modelDescription.outputDescriptionsByName[name]?.type == .dictionary

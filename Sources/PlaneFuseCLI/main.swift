@@ -554,6 +554,25 @@ private struct DirectSharedBenchmarkArtifact: Codable {
     let model: MobileNetV2AssetManifest
 }
 
+private struct PipelineABenchmarkArtifact: Codable {
+    let schemaVersion: Int
+    let status: String
+    let commit: String?
+    let environment: EnvironmentSnapshot
+    let modelPath: String
+    let computeUnitsPolicy: String
+    let timingBoundary: String
+    let warmupIterationsPerBatch: Int
+    let batchCount: Int
+    let measuredIterationsPerBatch: Int
+    let rawMilliseconds: [Double]
+    let batchMilliseconds: [[Double]]
+    let statistics: BenchmarkStatistics.Summary
+    let processedFrames: Int
+    let top1Labels: [String]
+    let sourceSampleIDs: [String]
+}
+
 func runMobileNetV2DirectSharedBench() throws -> Int32 {
     let root = URL(fileURLWithPath: FileManager.default.currentDirectoryPath, isDirectory: true)
     let coefficientPath = ProcessInfo.processInfo.environment["PF_MOBILENET_COEFFICIENTS"] ?? "models/derived/MobileNetV2StemCoefficients.json"
@@ -595,6 +614,66 @@ func runMobileNetV2DirectSharedBench() throws -> Int32 {
     emit("b2_rgb_logical_bytes: \(measurement.b2RGBLogicalBytes)")
     emit("c1_rgb_logical_bytes: \(measurement.c1RGBLogicalBytes)")
     return measurement.top1Agreement >= 1.0 && measurement.activationMaxAbsoluteError <= Double(FairABCBenchmark.featureParityTolerance) ? 0 : 1
+}
+
+func runPipelineABench() throws -> Int32 {
+    let root = URL(fileURLWithPath: FileManager.default.currentDirectoryPath, isDirectory: true)
+    let sourceModelPath = ProcessInfo.processInfo.environment["PF_MOBILENET_SOURCE_MODEL"] ?? "models/MobileNetV2.mlmodel"
+    let manifest = MobileNetV2AssetManifest.inspected
+    try manifest.validate(at: root)
+    let corpus = try MobileNetV2Corpus(manifestURL: root.appendingPathComponent(manifest.validationCorpusManifest), root: root)
+    let sourceImages = try corpus.loadSourceImages()
+    let adapter = try CoreMLMobileNetV2SourceImageAdapter(modelURL: URL(fileURLWithPath: sourceModelPath), computeUnits: .all)
+    let batchCount = 5
+    let measuredPerBatch = 200
+    let warmupsPerBatch = 20
+    var raw: [Double] = []; var batches: [[Double]] = []; var labels: [String] = []
+    raw.reserveCapacity(batchCount * measuredPerBatch); labels.reserveCapacity(batchCount * measuredPerBatch)
+    for batch in 0..<batchCount {
+        for warmup in 0..<warmupsPerBatch {
+            _ = try adapter.predict(image: sourceImages[(batch * warmupsPerBatch + warmup) % sourceImages.count].image)
+        }
+        var batchSamples: [Double] = []; batchSamples.reserveCapacity(measuredPerBatch)
+        for iteration in 0..<measuredPerBatch {
+            let image = sourceImages[(batch * measuredPerBatch + iteration) % sourceImages.count]
+            let start = ProcessInfo.processInfo.systemUptime
+            let probabilities = try adapter.predict(image: image.image)
+            let elapsed = (ProcessInfo.processInfo.systemUptime - start) * 1_000
+            batchSamples.append(elapsed); raw.append(elapsed)
+            if let top = probabilities.max(by: { $0.value < $1.value })?.key { labels.append(top) }
+        }
+        batches.append(batchSamples)
+    }
+    let artifact = PipelineABenchmarkArtifact(
+        schemaVersion: 1,
+        status: "pipeline_a_original_image_input",
+        commit: ProcessInfo.processInfo.environment["PF_GIT_COMMIT"],
+        environment: EnvironmentSnapshot(),
+        modelPath: sourceModelPath,
+        computeUnitsPolicy: adapter.computeUnitsPolicyLabel,
+        timingBoundary: "pre-rendered 224x224 CGImage ready before timing; BGRA pixel-buffer materialization plus original Core ML image-input prediction and result extraction inside timing",
+        warmupIterationsPerBatch: warmupsPerBatch,
+        batchCount: batchCount,
+        measuredIterationsPerBatch: measuredPerBatch,
+        rawMilliseconds: raw,
+        batchMilliseconds: batches,
+        statistics: try BenchmarkStatistics.summary(raw),
+        processedFrames: raw.count,
+        top1Labels: labels,
+        sourceSampleIDs: sourceImages.map(\.id)
+    )
+    let outputPath = ProcessInfo.processInfo.environment["PF_BENCHMARK_OUTPUT"] ?? "benchmarks/results/r6.3-pipeline-a.json"
+    let url = URL(fileURLWithPath: outputPath)
+    try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+    try JSONEncoder.benchmark.encode(artifact).write(to: url, options: .atomic)
+    emit("PlaneFuse bench Pipeline A original image-input: RECORDED")
+    emit("result: \(outputPath)")
+    emit("compute_units_policy: \(adapter.computeUnitsPolicyLabel)")
+    emit(String(format: "pipeline_a_p50_ms: %.4f", artifact.statistics.p50))
+    emit(String(format: "pipeline_a_p95_ms: %.4f", artifact.statistics.p95))
+    emit(String(format: "pipeline_a_mean_ms: %.4f", artifact.statistics.mean))
+    emit("processed_frames: \(artifact.processedFrames)")
+    return 0
 }
 
 func runMobileNetV2Profile() throws -> Int32 {
@@ -879,6 +958,9 @@ do {
         }
         if benchmarkArguments == ["mobilenetv2", "shared"] || benchmarkArguments == ["mobilenetv2", "shared", "confirm"] {
             exit(try runMobileNetV2DirectSharedBench())
+        }
+        if benchmarkArguments == ["mobilenetv2", "pipeline-a"] {
+            exit(try runPipelineABench())
         }
         throw CommandError.usage
     case "profile":
