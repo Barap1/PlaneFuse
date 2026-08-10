@@ -247,3 +247,11 @@ Status: QUALIFIED
 Claim wording: "At committed head `9f196b5`, the representative original Apple MobileNetV2 image-input Core ML path, explicitly loaded with `MLComputeUnits.all`, measured p50 1.0891 ms, p95 1.1507 ms, and mean 1.0957 ms over 1,000 calls. Its boundary starts with a pre-rendered 224x224 CGImage and includes BGRA pixel-buffer materialization, original image-input Core ML prediction, and result extraction. This is contextual evidence, not a substitute for the matched B2/C1 comparison; it is faster under its distinct framework-optimized boundary and remains visible in the evaluation matrix."
 
 Evidence files: `proof/r6.3-pipeline-a.json`, `Sources/PlaneFuseCore/MobileNetV2Integration.swift`, `Sources/PlaneFuseCLI/main.swift`
+
+## C025 - Camera-space fusion go/no-go evidence
+
+Status: QUALIFIED
+
+Claim wording: "At committed head `5ff39fa`, Release camera profiling measured native-plane resize GPU p50 0.0217 ms but synchronized resize wall p50 0.5096 ms (p95 0.6843 ms), materially larger than the direct B2/C1 paired p50 difference of 0.0743 ms. The run passed the declared parity thresholds with top-1 agreement 0.9960 and activation max error 9.059906e-6. This justifies one bounded camera-space fusion experiment; it does not claim that fusion has been implemented or will improve performance."
+
+Evidence files: `proof/r6.1-camera-profiler-go-no-go.md`, `proof/r6.1-camera-profiler-go-no-go.json`, `proof/r6.1-camera-profiler-replay.manifest.json`, `Sources/PlaneFuseLive/main.swift`

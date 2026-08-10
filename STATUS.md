@@ -1,6 +1,6 @@
 # PlaneFuse status
 
-Current milestone: R6.1 - Release-grade live benchmark (IMPLEMENTED; result is qualified/inconclusive for competition-worthiness)
+Current milestone: R6.5 - camera-space fusion go/no-go (PROFILER JUSTIFIED; HUMAN REVIEW REQUIRED BEFORE FURTHER OPTIMIZATION)
 
 Overall status: PHASE 2 CAMERA INTEGRATION
 
@@ -20,11 +20,11 @@ Real model: Apple MobileNetV2 ImageNet integrated; unchanged 252-layer Core ML t
 
 PlaneFuse Live: Release replay/paired/live benchmark path built and run; judge-facing UI remains unfinished
 
-Known blockers: direct B2/C1 is stable but below the competition target; Pipeline A is faster in its distinct framework-optimized image-input boundary and must remain visible in evaluation; the 64-input R7 corpus, profiler/go-no-go for camera-space fusion, and judge-facing UI remain. R3 Float16, R4 Metal 4, and R5 latency improvement were rejected or negative on their documented gates. Public push/submission remains human-controlled.
+Known blockers: direct B2/C1 is stable but below the competition target; Pipeline A is faster in its distinct framework-optimized image-input boundary and must remain visible in evaluation; resize synchronization wall time justifies one bounded camera-space fusion experiment, but the competition gate has not passed and human direction is required before further optimization. The 64-input R7 corpus and judge-facing UI remain. R3 Float16, R4 Metal 4, and R5 latency improvement were rejected or negative on their documented gates. Public push/submission remains human-controlled.
 
-Next highest-leverage action: make the profiler-driven camera-space fusion go/no-go decision, then expand the quality corpus and run R7 adversarial evaluation without hiding Pipeline A.
+Next highest-leverage action: human review of the qualified sub-target direct result, faster Pipeline A context, and the profiler-justified bounded fusion experiment; do not install beta tooling or change workload/model without approval.
 
-Human decision currently required: no for the active implementation path; publication, repository visibility, and submission remain human-controlled.
+Human decision currently required: yes — the strongest B2/C1 result is below the competition target and Pipeline A is faster under its distinct boundary; decide whether to authorize the bounded camera-space fusion experiment before R7. Publication, repository visibility, and submission remain human-controlled.
 
 Last milestone summary: R5 passed after two hostile review corrections: the exact compiler reduced generated UV instructions 9→4 and weighted multiplications 27→17, preserved independent Double/Metal parity, and recorded three corrected 200-pair batches (+0.23%, -0.64%, +0.39%) without a consistent e2e win. R2 remains the strongest accepted bridge result; R3 Float16 and R4 Metal 4 were rejected on documented quality/format gates.
 

@@ -196,3 +196,17 @@ Confirmation benchmark: Five 200-sample batches, 1,000 processed calls; no claim
 Outcome: ACCEPT as contextual evidence
 Lesson: The standard unsplit Apple path is faster under its own framework-optimized image-input boundary. The final evaluation must disclose this and explain the boundary difference rather than present PlaneFuse as universally faster.
 Accepted commit (if any): 9f196b5
+
+## E014 - R6.5 camera-space fusion profiler go/no-go
+
+Date: 2026-08-10
+Base commit: 5ff39fa
+Evidence/observation: Release camera profiling separated native-plane resize GPU execution from synchronized wall time. GPU p50 was 0.0217 ms, while wall p50 was 0.5096 ms and p95 0.6843 ms; the direct B2/C1 p50 difference was 0.0743 ms.
+Hypothesis: Eliminating the resized NV12 intermediate and its synchronization could materially improve true frame-delivery boundaries even if the native resize kernel itself is fast.
+Change: Added resize GPU/wall timing to the Release camera artifact and performed the profiler-driven decision; no camera-space fusion kernel was implemented.
+Correctness: PASS for the measured candidate path: top-1 agreement 0.9960, activation max error 9.059906e-6, both within declared thresholds. This is a go/no-go artifact, not fusion evidence.
+Quick benchmark: Resize wall overhead was material relative to the direct B2/C1 difference; the direct paired result remained below the competition target.
+Confirmation benchmark: Not applicable; no fusion variant was run.
+Outcome: GO JUSTIFIED / HUMAN REVIEW REQUIRED
+Lesson: The remaining camera opportunity is synchronization/mapping around resize, not raw GPU resize duration. A bounded camera-space experiment is technically motivated, but the current strongest B2/C1 and Pipeline A gates do not support autonomous claim reframing or beta/toolchain expansion.
+Accepted commit (if any): 5ff39fa
