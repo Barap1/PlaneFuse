@@ -76,10 +76,12 @@ final class CameraNV12MetalBridge {
                 pixelFormat: .r8Uint, width: 224, height: 224, mipmapped: false
             )
             yDescriptor.usage = [.shaderRead, .shaderWrite]
+            yDescriptor.storageMode = .shared
             let uvDescriptor = MTLTextureDescriptor.texture2DDescriptor(
                 pixelFormat: .rg8Uint, width: 112, height: 112, mipmapped: false
             )
             uvDescriptor.usage = [.shaderRead, .shaderWrite]
+            uvDescriptor.storageMode = .shared
             guard let yPlane = device.makeTexture(descriptor: yDescriptor),
                   let uvPlane = device.makeTexture(descriptor: uvDescriptor) else {
                 throw LiveError.cameraOutputUnavailable
@@ -147,5 +149,27 @@ final class CameraNV12MetalBridge {
             gpuMilliseconds: commandBuffer.gpuEndTime > commandBuffer.gpuStartTime
                 ? (commandBuffer.gpuEndTime - commandBuffer.gpuStartTime) * 1_000 : nil
         )
+    }
+
+    func readPlanes(from output: OutputTextures) throws -> (y: Data, uv: Data) {
+        var y = Data(count: output.yPlane.width * output.yPlane.height)
+        var uv = Data(count: output.uvPlane.width * output.uvPlane.height * 2)
+        y.withUnsafeMutableBytes { bytes in
+            output.yPlane.getBytes(
+                bytes.baseAddress!,
+                bytesPerRow: output.yPlane.width,
+                from: MTLRegionMake2D(0, 0, output.yPlane.width, output.yPlane.height),
+                mipmapLevel: 0
+            )
+        }
+        uv.withUnsafeMutableBytes { bytes in
+            output.uvPlane.getBytes(
+                bytes.baseAddress!,
+                bytesPerRow: output.uvPlane.width * 2,
+                from: MTLRegionMake2D(0, 0, output.uvPlane.width, output.uvPlane.height),
+                mipmapLevel: 0
+            )
+        }
+        return (y, uv)
     }
 }

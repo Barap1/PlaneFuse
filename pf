@@ -88,14 +88,25 @@ case "$command_name" in
     cat "$log_file"
     ;;
   live)
-    if [ "$command_args" != "--help" ] && [ "$command_args" != "--sample" ] && [ "$command_args" != "--camera" ]; then
-      echo "usage: ./pf live --help|--sample|--camera"
+    if [ "$command_args" != "--help" ] && [ "$command_args" != "--sample" ] && [ "$command_args" != "--camera" ] && [ "$command_args" != "--camera-bench" ]; then
+      echo "usage: ./pf live --help|--sample|--camera|--camera-bench"
       exit 2
     fi
-    run_logged swift run -c debug planefuse-live "$command_args"
+    if [ "$command_args" = "--camera-bench" ]; then
+      benchmark_output="${PF_BENCHMARK_OUTPUT:-$ROOT/benchmarks/results/r6-camera.json}"
+      PF_ARCHITECTURE="$(uname -m)" PF_SWIFT_VERSION="$(swift --version | head -n 1)" PF_XCODE_VERSION="$(xcodebuild -version | head -n 1)" PF_GIT_COMMIT="$(git rev-parse HEAD)" PF_BUILD_CONFIGURATION="release" PF_BENCHMARK_OUTPUT="$benchmark_output" run_logged swift run -c release planefuse-live "$command_args"
+    else
+      run_logged swift run -c debug planefuse-live "$command_args"
+    fi
     cat "$log_file"
     ;;
   bench)
+    if [ "$command_args" = "camera" ]; then
+      benchmark_output="${PF_BENCHMARK_OUTPUT:-$ROOT/benchmarks/results/r6-camera.json}"
+      PF_ARCHITECTURE="$(uname -m)" PF_SWIFT_VERSION="$(swift --version | head -n 1)" PF_XCODE_VERSION="$(xcodebuild -version | head -n 1)" PF_GIT_COMMIT="$(git rev-parse HEAD)" PF_BUILD_CONFIGURATION="release" PF_BENCHMARK_OUTPUT="$benchmark_output" run_logged swift run -c release planefuse-live --camera-bench
+      cat "$log_file"
+      exit 0
+    fi
     if [ "$command_args" = "polyphase" ] || [ "$command_args" = "polyphase confirm" ]; then
       if [ "$command_args" = "polyphase confirm" ]; then
         benchmark_output="${PF_BENCHMARK_OUTPUT:-$ROOT/benchmarks/results/r5-polyphase-confirm.json}"
@@ -138,7 +149,7 @@ case "$command_name" in
       cat "$log_file"
       exit 0
     fi
-    echo "usage: ./pf bench quick|fair quick|fair confirm|mobilenetv2 quick|mobilenetv2 confirm"
+    echo "usage: ./pf bench camera|quick|fair quick|fair confirm|mobilenetv2 quick|mobilenetv2 confirm"
     exit 2
     ;;
   profile)
