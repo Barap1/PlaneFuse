@@ -214,14 +214,14 @@ Accepted commit (if any): 5ff39fa
 ## E015 - R6.5 direct camera-space fusion
 
 Date: 2026-08-10
-Base/implementation commit: df3dccf (final provenance-corrected Release rerun)
+Base/implementation commit: a665fb4 (final full-source provenance Release rerun)
 Evidence: `proof/r6.5-camera-space.json`, `proof/r6.5-camera-source-replay.manifest.json`, `proof/r6.5-camera-source-replay.bin`, `scripts/check_r6_5_camera_space_artifact.py`
 
 Observed bottleneck: profiler evidence showed synchronized resize wall p50 0.5096 ms, materially larger than the direct B2/C1 gap.
 Hypothesis: Compiling the accepted even-aligned crop and nearest source-grid mapping directly into the native C stem would remove the resized NV12 allocation and synchronization without changing the model.
 Fair design: direct source-space B materialized planar Float32 RGB through the same source mapping and one ordered B conversion+stem submission; direct C used one ordered native-stem submission; both used the same 32-frame 1920x1080 NV12 source replay, explicit `.all` tail, Release build, persistent resources, five alternating 200-pair batches, and separate B-only/C-only live sessions.
 Correctness: accepted C activation max error 0; accepted B activation max error 0; direct B/C activation max error 8.344651e-6; top-1 agreement 1.0; zero task disagreements; zero C RGB and CPU element-copy bytes.
-Result: direct B p50 post-input-to-result 1.6945 ms; direct C p50 2.3822 ms; paired B-minus-C p50 -1.4763 ms, mean -1.7275 ms, p95 -0.2983 ms, MAD 0.6647 ms; median bootstrap 95% CI [-1.5071, -1.4393] ms. The interval is decisively negative for C.
+Result: direct B p50 post-input-to-result 1.5613 ms; direct C p50 2.3859 ms; paired B-minus-C p50 -1.4195 ms, mean -1.5128 ms, p95 -0.3025 ms, MAD 0.5635 ms; median bootstrap 95% CI [-1.4586, -1.3918] ms. The interval is decisively negative for C.
 Outcome: REJECT as a performance candidate; numerically qualified negative experiment pending final provenance acceptance. Retain C1 as the provisional R7 candidate and do not random-tune or pursue a corrective shader variant.
 Lesson: Removing a synchronization boundary did not compensate for the direct transformed native stem's higher work relative to a fair source-space materialized-RGB baseline. This bounded architecture family is closed.
 Review: R6.5-CANDIDATE-B01B3E1-20260810-SOL-03 and R6.5-ACCEPTANCE-9FCC2EB-20260810-SOL-04; F-003 repair and final SHIP re-review required.

@@ -1,18 +1,14 @@
 [0/1] Planning build
 Building for production...
 [0/2] Write swift-version--58304C5D6DBC2206.txt
-[1/3] Write sources
-[3/4] Compiling PlaneFuseLive CameraBenchmarkSupport.swift
-[3/5] Write Objects.LinkFileList
-[4/5] Linking planefuse-live
-Build of product 'planefuse-live' complete! (3.67s)
+Build of product 'planefuse-live' complete! (0.09s)
 PASS camera-space benchmark: benchmarks/results/r6.5-camera-space.json
-source_replay_payload_sha256: 59455b315b816c6688a2a0f2066b3638e045bc7547810e0081f314ed1665e2fa
+source_replay_payload_sha256: c9bda8d59ebe90fb321504f2c696022bf036ff0e38b5f88a5790dd60f51b2966
 source_replay_frames: 32
-paired_camera_space_b_minus_c_p50_ms: -1.4762
-paired_camera_space_percentage: -77.0956
-paired_camera_space_bootstrap_median_ci_ms: [-1.5071, -1.4393]
+paired_camera_space_b_minus_c_p50_ms: -1.4195
+paired_camera_space_percentage: -83.1178
+paired_camera_space_bootstrap_median_ci_ms: [-1.4586, -1.3918]
 accepted_c_activation_max_abs_error: 0.00000000
 accepted_b_activation_max_abs_error: 0.00000000
 top1_agreement: 1.0000
-resize_reference_wait_ms: 0.5605
+resize_reference_wait_ms: 0.3166
