@@ -30,6 +30,28 @@ run_logged() {
   fi
 }
 
+camera_space_relevant_paths=(
+  Package.swift
+  pf
+  Sources/PlaneFuseCore/MetalMobileNetV2CameraSpaceStem.swift
+  Sources/PlaneFuseCore/MetalMobileNetV2CameraSpaceRGBPreprocessor.swift
+  Sources/PlaneFuseCore/Shaders/NV12MobileNetV2CameraSpaceStem.metal
+  Sources/PlaneFuseCore/Shaders/CameraSpaceNV12RGB.metal
+  Sources/PlaneFuseLive/main.swift
+  Sources/PlaneFuseLive/CameraBenchmarkSupport.swift
+  Sources/PlaneFuseLive/CameraNV12MetalBridge.swift
+  Tests/PlaneFuseCoreTests/CameraSpaceFusionMetalTests.swift
+  scripts/check_r6_5_camera_space_artifact.py
+)
+
+camera_space_source_state() {
+  if git diff --quiet HEAD -- "${camera_space_relevant_paths[@]}" && git diff --cached --quiet -- "${camera_space_relevant_paths[@]}"; then
+    echo "clean relevant paths"
+  else
+    echo "dirty relevant paths"
+  fi
+}
+
 case "$command_name" in
   setup)
     if [ "$command_args" != "mobilenetv2" ]; then
@@ -112,7 +134,13 @@ case "$command_name" in
     fi
     if [ "$command_args" = "camera-space" ]; then
       benchmark_output="${PF_BENCHMARK_OUTPUT:-$ROOT/benchmarks/results/r6.5-camera-space.json}"
-      PF_ARCHITECTURE="$(uname -m)" PF_SWIFT_VERSION="$(swift --version | head -n 1)" PF_XCODE_VERSION="$(xcodebuild -version | head -n 1)" PF_GIT_COMMIT="$(git rev-parse HEAD)" PF_BUILD_CONFIGURATION="release" PF_SOURCE_TREE_STATE="tracked source clean; declared user/evidence files excluded" PF_BENCHMARK_OUTPUT="$benchmark_output" run_logged swift run -c release planefuse-live --camera-space-bench
+      source_tree_state="$(camera_space_source_state)"
+      if [ "$source_tree_state" != "clean relevant paths" ]; then
+        echo "FAIL pf bench camera-space: benchmark-relevant tracked paths are dirty"
+        exit 1
+      fi
+      checked_paths="$(IFS=,; echo "${camera_space_relevant_paths[*]}")"
+      PF_ARCHITECTURE="$(uname -m)" PF_SWIFT_VERSION="$(swift --version | head -n 1)" PF_XCODE_VERSION="$(xcodebuild -version | head -n 1)" PF_GIT_COMMIT="$(git rev-parse HEAD)" PF_BUILD_CONFIGURATION="release" PF_SOURCE_TREE_STATE="$source_tree_state" PF_SOURCE_TREE_CHECKED_PATHS="$checked_paths" PF_BENCHMARK_OUTPUT="$benchmark_output" run_logged swift run -c release planefuse-live --camera-space-bench
       cat "$log_file"
       exit 0
     fi

@@ -517,4 +517,5 @@ struct CameraSpaceEnvironmentArtifact: Codable {
     let xcodeVersion: String
     let modelIdentifier: String
     let sourceTreeState: String
+    let sourceTreeCheckedPaths: [String]
 }

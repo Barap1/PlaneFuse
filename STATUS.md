@@ -1,30 +1,30 @@
 # PlaneFuse status
 
-Current milestone: R6.5 - camera-space fusion go/no-go (PROFILER JUSTIFIED; HUMAN REVIEW REQUIRED BEFORE FURTHER OPTIMIZATION)
+Current milestone: R7 - final adversarial evaluation (R6.5 negative experiment accepted; C1 retained)
 
 Overall status: PHASE 2 CAMERA INTEGRATION
 
 Current branch: phase2/continuum
 
-Current best verified result: pre-Phase-2 control remains the accepted historical reference — M4 fixture C end-to-end p50 0.1948 ms vs B 0.2328 ms; 16.34% lower under equal-submission methodology. The first committed Release camera benchmark at 93a7016 measured direct paired B2-C1 p50 difference 0.0460 ms / 3.8033% with median bootstrap CI [-0.0244, 0.1094] ms; because the CI crosses zero, no final camera speedup is accepted.
+Current best verified result: pre-Phase-2 control remains the accepted historical reference — M4 fixture C end-to-end p50 0.1948 ms vs B 0.2328 ms; 16.34% lower under equal-submission methodology. The strongest Release camera-space result at b01b3e1 is negative: direct B p50 1.6923 ms vs direct C p50 2.8522 ms; paired B−C p50 -1.5078 ms with median bootstrap CI [-1.5532, -1.4729] ms. No R6.5 camera-space speedup is accepted.
 
-Correctness status: R5 PASS — exact nearest-sited polyphase parity and a rigorous documented negative latency result are verified; prior R0-R4 evidence remains intact
+Correctness status: R6.5 PASS as a bounded negative experiment — direct camera-space B/C parity and source-resolution replay passed; prior R0-R5 evidence remains intact
 
 Pipeline A status: Release contextual benchmark built and measured; original image-input path is faster under its distinct input/model boundary
 
 Pipeline B status: built; release quick artifact recorded
 
-Pipeline C status: built; direct Y/UV fused stem with no RGB intermediate
+Pipeline C status: accepted C1 retained for R7; direct camera-space fusion was measured and rejected as slower
 
 Real model: Apple MobileNetV2 ImageNet integrated; unchanged 252-layer Core ML tail runs after the transformed 48-channel stem
 
 PlaneFuse Live: Release replay/paired/live benchmark path built and run; judge-facing UI remains unfinished
 
-Known blockers: direct B2/C1 is stable but below the competition target; Pipeline A is faster in its distinct framework-optimized image-input boundary and must remain visible in evaluation; resize synchronization wall time justifies one bounded camera-space fusion experiment, but the competition gate has not passed and human direction is required before further optimization. The 64-input R7 corpus and judge-facing UI remain. R3 Float16, R4 Metal 4, and R5 latency improvement were rejected or negative on their documented gates. Public push/submission remains human-controlled.
+Known blockers: direct B2/C1 remains below the competition target; Pipeline A is faster in its distinct framework-optimized image-input boundary and must remain visible in evaluation; R6.5 direct camera-space fusion is conclusively slower than fair direct B. The 64-input R7 corpus, final A/B/C matrix, judge-facing UI, and final hostile reviews remain. R3 Float16, R4 Metal 4, R5 latency improvement, and R6.5 fusion speedup were rejected or negative on documented gates. Public push/submission remains human-controlled.
 
-Next highest-leverage action: human review of the qualified sub-target direct result, faster Pipeline A context, and the profiler-justified bounded fusion experiment; do not install beta tooling or change workload/model without approval.
+Next highest-leverage action: expand the provenance-bearing R7 quality corpus and run the final A/B/C matrix with accepted C1; do not install beta tooling or change workload/model without approval.
 
-Human decision currently required: yes — the strongest B2/C1 result is below the competition target and Pipeline A is faster under its distinct boundary; decide whether to authorize the bounded camera-space fusion experiment before R7. Publication, repository visibility, and submission remain human-controlled.
+Human decision currently required: no routine approval — R6.5 was authorized, completed as a negative result, and R7 may proceed automatically. Publication, repository visibility, and submission remain human-controlled.
 
 Last milestone summary: R5 passed after two hostile review corrections: the exact compiler reduced generated UV instructions 9→4 and weighted multiplications 27→17, preserved independent Double/Metal parity, and recorded three corrected 200-pair batches (+0.23%, -0.64%, +0.39%) without a consistent e2e win. R2 remains the strongest accepted bridge result; R3 Float16 and R4 Metal 4 were rejected on documented quality/format gates.
 

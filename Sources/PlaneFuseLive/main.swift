@@ -1411,7 +1411,8 @@ private func runCameraSpaceBenchmark() throws {
             swiftVersion: ProcessInfo.processInfo.environment["PF_SWIFT_VERSION"] ?? "unknown",
             xcodeVersion: ProcessInfo.processInfo.environment["PF_XCODE_VERSION"] ?? "unknown",
             modelIdentifier: "Apple MobileNetV2 ImageNet",
-            sourceTreeState: ProcessInfo.processInfo.environment["PF_SOURCE_TREE_STATE"] ?? "unknown"
+            sourceTreeState: ProcessInfo.processInfo.environment["PF_SOURCE_TREE_STATE"] ?? "unknown",
+            sourceTreeCheckedPaths: (ProcessInfo.processInfo.environment["PF_SOURCE_TREE_CHECKED_PATHS"] ?? "").split(separator: ",").map(String.init)
         ),
         sourceReplay: replayArtifact,
         paired: paired,
