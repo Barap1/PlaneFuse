@@ -91,6 +91,19 @@ def generate(kind: int) -> list[tuple[int, int, int]]:
             elif kind == 26:
                 v = (x * y) % 256
                 rgb = (v, (x * 7) % 256, (y * 11) % 256)
+            elif kind == 28:
+                distance = ((x - 112) * (x - 112) + (y - 112) * (y - 112)) ** 0.5
+                v = min(255, int(distance * 2.0))
+                rgb = (v, 255 - v, (v * 3) % 256)
+            elif kind == 29:
+                phase = (x * 3 + y * 5) % 8
+                rgb = ((phase * 31) % 256, ((7 - phase) * 37) % 256, (phase * 17) % 256)
+            elif kind == 30:
+                bar = (x * 8) // WIDTH
+                rgb = ((255, 0, 0), (255, 255, 0), (0, 255, 0), (0, 255, 255), (0, 0, 255), (255, 0, 255), (255, 255, 255), (0, 0, 0))[bar]
+            elif kind == 31:
+                phase = ((x % 8) // 2) + 4 * ((y % 8) // 2)
+                rgb = ((phase * 23) % 256, (phase * 47) % 256, (255 - phase * 19) % 256)
             else:
                 distance = min(x, y, WIDTH - 1 - x, HEIGHT - 1 - y)
                 v = min(255, distance * 16)
@@ -103,7 +116,7 @@ def main() -> int:
     CORPUS_DIR.mkdir(parents=True, exist_ok=True)
     manifest = json.loads(MANIFEST_PATH.read_text())
     existing = [sample for sample in manifest["samples"] if not sample["id"].startswith("stress-")]
-    for kind in range(28):
+    for kind in range(32):
         sample_id = f"stress-{kind:02d}"
         path = CORPUS_DIR / f"{sample_id}.png"
         png(path, generate(kind))

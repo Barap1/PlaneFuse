@@ -262,6 +262,38 @@
       "source_url": "https://github.com/Barap1/PlaneFuse",
       "license": "CC0-1.0 / repository-generated procedural stress input",
       "attribution": "PlaneFuse deterministic stress-corpus generator"
+    },
+    {
+      "id": "stress-28",
+      "relative_path": "proof/m5-corpus/stress-28.png",
+      "sha256": "b0fe0af2cd1950edf8a155acb1e9200fdcec912a35f5177f4436fa34abccc59a",
+      "source_url": "https://github.com/Barap1/PlaneFuse",
+      "license": "CC0-1.0 / repository-generated procedural stress input",
+      "attribution": "PlaneFuse deterministic stress-corpus generator"
+    },
+    {
+      "id": "stress-29",
+      "relative_path": "proof/m5-corpus/stress-29.png",
+      "sha256": "01d87e4fecca49d9c48bf495d06cc55a10b2607d570bf214372aa893086107c4",
+      "source_url": "https://github.com/Barap1/PlaneFuse",
+      "license": "CC0-1.0 / repository-generated procedural stress input",
+      "attribution": "PlaneFuse deterministic stress-corpus generator"
+    },
+    {
+      "id": "stress-30",
+      "relative_path": "proof/m5-corpus/stress-30.png",
+      "sha256": "0cef81781d6292115e20e3e40d911791de5f0ae2de131a47688a1f955a86bbe4",
+      "source_url": "https://github.com/Barap1/PlaneFuse",
+      "license": "CC0-1.0 / repository-generated procedural stress input",
+      "attribution": "PlaneFuse deterministic stress-corpus generator"
+    },
+    {
+      "id": "stress-31",
+      "relative_path": "proof/m5-corpus/stress-31.png",
+      "sha256": "fecfc42d0ea7ca1f96d668cce73d5d7fc9a15e5518addd0e7dbe3d9cef07eefa",
+      "source_url": "https://github.com/Barap1/PlaneFuse",
+      "license": "CC0-1.0 / repository-generated procedural stress input",
+      "attribution": "PlaneFuse deterministic stress-corpus generator"
     }
   ]
 }
