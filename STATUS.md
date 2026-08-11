@@ -1,8 +1,8 @@
 # PlaneFuse status
 
-Current milestone: R7.5 - same-workload source-reuse fallback under independent review (R6.5 accepted negative)
+Current milestone: R8/R9 - PlaneFuse Live productization and final claims/submission preparation (performance frozen)
 
-Overall status: PHASE 2 R7 evidence repair complete; repaired R7 hostile review preserved the F-001 hard stop; R7.5 source-reuse confirmation is complete and technically promising, pending fresh independent review
+Overall status: R7/R7.5 evidence independently accepted for technical progression; performance research frozen; R8/R9 active
 
 Current branch: phase2/continuum
 
@@ -20,9 +20,9 @@ Real model: Apple MobileNetV2 ImageNet integrated; unchanged 252-layer Core ML t
 
 PlaneFuse Live: Release replay/paired/live benchmark path built and previously completed successfully; a fresh R7 physical-camera invocation received zero callbacks before timeout, so no new camera result is inferred. Judge-facing UI remains unfinished
 
-Known blockers: R7 remains formally unaccepted because its four preregistered targets were false/pending at the repaired evidence gate. The authorized one-shot R7.5 source-reuse experiment is now complete, including permitted confirmation, and must receive fresh independent hostile review before any acceptance or target claim. The profiler privacy publication blocker remains. Public push/submission remains human-controlled.
+Known blockers: T2/T3 remain not met or established; T4 was not invoked. R7.5 T1 is accepted only as the measured same-workload target result in the independent SHIP review, not as a universal speedup claim. Finish R8/R9 productization and claims audit. The profiler privacy publication blocker remains. Public push/submission remains human-controlled.
 
-Next highest-leverage action: obtain a fresh behaviorally read-only Sol review of the repaired R7 packet plus the R7.5 confirmation artifact; if valid and SHIP, freeze performance research and proceed to R8/R9.
+Next highest-leverage action: finish the judge-facing PlaneFuse Live shell, live metric/dataflow presentation, fresh-clone/evidence navigation, and final VERIFIED/QUALIFIED claims audit without new performance experiments.
 
 Human decision currently required: after fresh Sol review, decide only the contract-defined next step. Publication, repository visibility, video upload, history rewrite, and submission remain human-controlled.
 

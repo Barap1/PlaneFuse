@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "status": "r7_5_target_evaluation_sol_ship",
+  "review": "proof/reviews/R7-R75-HOSTILE-9DAFDBC-20260811.md",
+  "artifact": "proof/r7.5-source-reuse-final-52db138-20260811T1605Z-confirm.json",
+  "generating_commit": "52db138feef3d6fc52bcb5839a419423fd992019",
+  "evaluation_commit": "9dafdbc01a8dd9ead4064360aacf68bcf7168357",
+  "targets": {
+    "T1": {
+      "status": "passed",
+      "threshold_percent": 10.0,
+      "measured_percent_c1_sr_vs_fresh_b2": 11.812798234714004,
+      "paired_median_ci_ms": [0.18024999735644087, 0.19879166939062998],
+      "basis": "R7.5 C1-SR confirmation versus fresh strongest matched B2"
+    },
+    "T2": {
+      "status": "not_met",
+      "basis": "No current physical-camera frame-delivery result; fresh R7 camera attempt had zero callbacks and no values were inferred"
+    },
+    "T3": {
+      "status": "not_met_or_established",
+      "basis": "No genuinely comparable >=2x frontend result and no qualifying application-level >=5% e2e result"
+    },
+    "T4": {
+      "status": "not_invoked",
+      "basis": "R7.5 qualifies through fixed T1; T4 is not an escape hatch or discretionary reinterpretation"
+    }
+  },
+  "decision": "SHIP review accepted the technically valid R7.5 result; freeze performance research and proceed to R8/R9.",
+  "publication": "human_gate_required"
+}

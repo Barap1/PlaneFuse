@@ -292,13 +292,13 @@ Supersession: F-002 found that the cited implementation used one warmup phase an
 
 ## C031 - R7.5 source-reuse confirmation
 
-Status: QUALIFIED / PENDING FRESH HOSTILE REVIEW
+Status: VERIFIED TECHNICAL RESULT / QUALIFIED TARGET CLAIM
 
 Claim wording: "At confirmation commit `52db138feef3d6fc52bcb5839a419423fd992019`, the one authorized same-workload R7.5 source-reuse experiment used five independent Release processes, 20 warmup triples, 240 measured triples, six balanced B2/C1/C1-SR order permutations per batch, the fixed 64-input corpus, explicit `.all`, and persistent shared activations. B2 p50 was 1.737875 ms, accepted C1 p50 was 1.633458 ms, and C1-SR p50 was 1.532583 ms. C1-SR was 6.1755% lower than C1 and 11.8128% lower than B2; the C1-minus-C1-SR paired median bootstrap 95% CI was [0.091125, 0.101750] ms. Full 64-sample quality recorded activation max error 5.960464e-6, top-1/top-5-set/top-5-ranking agreement 1.0, probability max error 0.001953125, and mean probability L1 0.001176831. This is technically promising evidence pending independent hostile review, not yet an accepted competition claim."
 
 Evidence files: `proof/r7.5-source-reuse-final-52db138-20260811T1605Z-confirm.json`, `proof/r7.5-source-reuse-batches/52db138-20260811T1605Z-confirm/`, `scripts/check_r75_source_reuse.py`, `Sources/PlaneFuseCore/R75SourceReuseBenchmark.swift`, `Sources/PlaneFuseCore/Shaders/NV12MobileNetV2Stem.metal`, `proof/R7.5-PREREGISTRATION.md`
 
-Limitations: The source-reuse result is a same-workload fallback candidate, not a replacement for the repaired R7 evidence until a fresh independent reviewer verifies fairness, quality, source schedule, and target evaluation. The original R7 hard stop and negative R6.5 result remain visible.
+Independent review: `proof/reviews/R7-R75-HOSTILE-9DAFDBC-20260811.md` returned `SHIP` with no findings and verified the protocol, quality, fairness, and target evaluation. Limitations: this is a same-workload selective source-reuse result, not a universal speedup claim; T2/T3 remain unfulfilled or unestablished, T4 was not invoked, the original R7 matched B2/C1 result remains below 10%, and the negative R6.5 result remains visible.
 
 ## C029 - R7 repaired strongest matched B2/C1 evidence
 
