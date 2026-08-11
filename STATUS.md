@@ -2,7 +2,7 @@
 
 Current milestone: R7 - final adversarial evaluation (R6.5 accepted negative; C1 retained)
 
-Overall status: PHASE 2 R7 EVIDENCE COMPLETE; HOSTILE REVIEW PENDING
+Overall status: PHASE 2 R7 REVIEW BLOCKED; REQUIRED SOL ADVISOR UNAVAILABLE
 
 Current branch: phase2/continuum
 
@@ -20,11 +20,11 @@ Real model: Apple MobileNetV2 ImageNet integrated; unchanged 252-layer Core ML t
 
 PlaneFuse Live: Release replay/paired/live benchmark path built and previously completed successfully; a fresh R7 physical-camera invocation received zero callbacks before timeout, so no new camera result is inferred. Judge-facing UI remains unfinished
 
-Known blockers: all measured R7 competition targets are currently false or pending hostile review; direct B2/C1 remains below the competition target, and Pipeline A is faster in its distinct framework-optimized image-input boundary and must remain visible in evaluation. The output-blind R7 corpus gate passes with 32 provenance-bearing real images plus 32 procedural stress inputs, exactly four per subject bucket. R7 quality, paired B2/C1, Pipeline A, and historical standalone camera evidence are persisted; the fresh camera attempt was unavailable before its first callback. Hostile technical/rubric reviews, judge-facing UI, and final package work remain. R3 Float16, R4 Metal 4, R5 latency improvement, and R6.5 fusion speedup were rejected or negative on documented gates. Public push/submission remains human-controlled.
+Known blockers: all measured R7 competition targets are false except T4, which cannot be evaluated without the required hostile review. Direct B2/C1 remains below the competition target, and Pipeline A is faster in its distinct framework-optimized image-input boundary and must remain visible in evaluation. The output-blind R7 corpus gate passes with 32 provenance-bearing real images plus 32 procedural stress inputs, exactly four per subject bucket. R7 quality, paired B2/C1, Pipeline A, and historical standalone camera evidence are persisted; the fresh camera attempt was unavailable before its first callback. Two independent `sol_advisor_advisor` invocations remained running through bounded waits and returned no verdict; this failure is recorded under `proof/reviews/`. Do not accept R7, activate R7.5, or proceed to R8/R9 until the required independent review is available. R3 Float16, R4 Metal 4, R5 latency improvement, and R6.5 fusion speedup were rejected or negative on documented gates. Public push/submission remains human-controlled.
 
-Next highest-leverage action: request the hostile Sol R7 technical review against `proof/r7-competition-targets.json`, all direct quality/performance artifacts, and the camera evidence/unavailability record; do not install beta tooling or change workload/model without approval.
+Next highest-leverage action: restore/retry the configured read-only Sol advisor and review `proof/r7-competition-targets.json`, all direct quality/performance artifacts, and the camera evidence/unavailability record; no coding or performance experiment is authorized while this acceptance gate is blocked.
 
-Human decision currently required: no for the authorized R7 execution. Publication, repository visibility, video upload, and submission remain human-controlled.
+Human decision currently required: independent Sol advisor/tool availability must be restored; no local substitute is acceptable at this gate. Publication, repository visibility, video upload, and submission remain human-controlled.
 
 Last milestone summary: R5 passed after two hostile review corrections: the exact compiler reduced generated UV instructions 9→4 and weighted multiplications 27→17, preserved independent Double/Metal parity, and recorded three corrected 200-pair batches (+0.23%, -0.64%, +0.39%) without a consistent e2e win. R2 remains the strongest accepted bridge result; R3 Float16 and R4 Metal 4 were rejected on documented quality/format gates.
 
