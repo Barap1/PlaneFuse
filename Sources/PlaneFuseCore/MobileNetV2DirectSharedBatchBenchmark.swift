@@ -238,15 +238,27 @@ public final class MobileNetV2DirectSharedBatchBenchmark {
     }
 
     private static func conditionSnapshot() throws -> Measurement.ConditionSnapshot {
-        let power = try runPMSet(["-g", "batt"])
-        let custom = try runPMSet(["-g", "custom"])
-        guard let powerLine = power.split(separator: "\n").first,
+        let environment = ProcessInfo.processInfo.environment
+        let acPowerState = try environment["PF_AC_POWER_STATE"] ?? parsePowerSource(try runPMSet(["-g", "batt"]))
+        let lowPowerMode = try environment["PF_LOW_POWER_MODE"] ?? parseLowPowerMode(try runPMSet(["-g", "custom"]))
+        return Measurement.ConditionSnapshot(
+            acPowerState: acPowerState,
+            lowPowerMode: lowPowerMode,
+            thermalState: thermalStateName()
+        )
+    }
+
+    private static func parsePowerSource(_ output: String) throws -> String {
+        guard let powerLine = output.split(separator: "\n").first,
               let quotedStart = powerLine.firstIndex(of: "'"),
               let quotedEnd = powerLine[powerLine.index(after: quotedStart)...].firstIndex(of: "'") else {
             throw Error.conditionsUnavailable("pmset -g batt did not report a power source")
         }
-        let acPowerState = String(powerLine[powerLine.index(after: quotedStart)..<quotedEnd])
-        let lowPowerMode = custom.split(separator: "\n").compactMap { line -> String? in
+        return String(powerLine[powerLine.index(after: quotedStart)..<quotedEnd])
+    }
+
+    private static func parseLowPowerMode(_ output: String) throws -> String {
+        let lowPowerMode = output.split(separator: "\n").compactMap { line -> String? in
             let fields = line.split(whereSeparator: { $0 == " " || $0 == "\t" })
             guard fields.count >= 2, fields[0] == "lowpowermode" else { return nil }
             return String(fields[1])
@@ -254,11 +266,7 @@ public final class MobileNetV2DirectSharedBatchBenchmark {
         guard let lowPowerMode else {
             throw Error.conditionsUnavailable("pmset -g custom did not report lowpowermode")
         }
-        return Measurement.ConditionSnapshot(
-            acPowerState: acPowerState,
-            lowPowerMode: lowPowerMode,
-            thermalState: thermalStateName()
-        )
+        return lowPowerMode
     }
 
     private static func runPMSet(_ arguments: [String]) throws -> String {
