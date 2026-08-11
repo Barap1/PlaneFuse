@@ -208,12 +208,18 @@ case "$command_name" in
     cat "$log_file"
     ;;
   profile)
-    if [ "$command_args" != "mobilenetv2" ]; then
-      echo "usage: ./pf profile mobilenetv2"
+    if [ "$command_args" != "mobilenetv2" ] && [ "$command_args" != "mobilenetv2 shared" ]; then
+      echo "usage: ./pf profile mobilenetv2|mobilenetv2 shared"
       exit 2
     fi
-    profile_output="${PF_PROFILE_OUTPUT:-$ROOT/benchmarks/results/r1-mobilenetv2-components.json}"
-    PF_ARCHITECTURE="$(uname -m)" PF_SWIFT_VERSION="$(swift --version | head -n 1)" PF_XCODE_VERSION="$(xcodebuild -version | head -n 1)" PF_GIT_COMMIT="$(git rev-parse HEAD)" PF_BUILD_CONFIGURATION="release" PF_PROFILE_OUTPUT="$profile_output" run_logged swift run -c release planefuse profile mobilenetv2
+    if [ "$command_args" = "mobilenetv2 shared" ]; then
+      profile_output="${PF_PROFILE_OUTPUT:-$ROOT/proof/r7-final-shared-path-profile.json}"
+      profile_args="mobilenetv2 shared"
+    else
+      profile_output="${PF_PROFILE_OUTPUT:-$ROOT/benchmarks/results/r1-mobilenetv2-components.json}"
+      profile_args="mobilenetv2"
+    fi
+    PF_ARCHITECTURE="$(uname -m)" PF_SWIFT_VERSION="$(swift --version | head -n 1)" PF_XCODE_VERSION="$(xcodebuild -version | head -n 1)" PF_GIT_COMMIT="$(git rev-parse HEAD)" PF_BUILD_CONFIGURATION="release" PF_PROFILE_OUTPUT="$profile_output" run_logged swift run -c release planefuse profile $profile_args
     cat "$log_file"
     ;;
   bridge)
@@ -241,7 +247,7 @@ case "$command_name" in
     tail -n 12 "$log_file"
     ;;
   *)
-    echo "usage: ./pf <setup mobilenetv2|doctor|build|test quick|inspect|compile|verify|bench|quality|profile mobilenetv2|release validate>"
+    echo "usage: ./pf <setup mobilenetv2|doctor|build|test quick|inspect|compile|verify|bench|quality|profile mobilenetv2|profile mobilenetv2 shared|release validate>"
     exit 2
     ;;
 esac

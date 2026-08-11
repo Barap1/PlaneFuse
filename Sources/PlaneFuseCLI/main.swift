@@ -773,6 +773,34 @@ func runMobileNetV2Profile() throws -> Int32 {
     return measurement.top1Agreement >= 1.0 ? 0 : 1
 }
 
+func runMobileNetV2SharedProfile() throws -> Int32 {
+    let root = URL(fileURLWithPath: FileManager.default.currentDirectoryPath, isDirectory: true)
+    let coefficientPath = ProcessInfo.processInfo.environment["PF_MOBILENET_COEFFICIENTS"] ?? "models/derived/MobileNetV2StemCoefficients.json"
+    let tailPath = ProcessInfo.processInfo.environment["PF_MOBILENET_TAIL"] ?? "models/derived/tail-compiled/MobileNetV2Tail.mlmodelc"
+    let manifest = MobileNetV2AssetManifest.inspected
+    try manifest.validate(at: root)
+    let lineage = try MobileNetV2DerivedArtifactManifest.load(from: root.appendingPathComponent(manifest.derivedManifest))
+    try lineage.validate(at: root)
+    let corpus = try MobileNetV2Corpus(manifestURL: root.appendingPathComponent(manifest.validationCorpusManifest), root: root)
+    let tail = try CoreMLMobileNetV2TailAdapter(modelURL: URL(fileURLWithPath: tailPath), manifest: manifest)
+    let profile = try MobileNetV2SharedPathProfile(configuration: .quick, coefficientsURL: URL(fileURLWithPath: coefficientPath), tail: tail, corpus: corpus)
+    let measurement = try profile.run()
+    let outputPath = ProcessInfo.processInfo.environment["PF_PROFILE_OUTPUT"] ?? "proof/r7-final-shared-path-profile.json"
+    let url = URL(fileURLWithPath: outputPath)
+    try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+    try JSONEncoder.benchmark.encode(measurement).write(to: url, options: .atomic)
+    emit("PlaneFuse profile MobileNetV2 B2-shared/C1-shared: RECORDED")
+    emit("result: \(outputPath)")
+    emit(String(format: "b2_frontend_gpu_p50_ms: %.4f", measurement.pipelineB2Shared.gpuExecution?.p50Milliseconds ?? .nan))
+    emit(String(format: "c1_frontend_gpu_p50_ms: %.4f", measurement.pipelineC1Shared.gpuExecution?.p50Milliseconds ?? .nan))
+    emit(String(format: "b2_input_to_result_p50_ms: %.4f", measurement.pipelineB2Shared.inputToResult.p50Milliseconds))
+    emit(String(format: "c1_input_to_result_p50_ms: %.4f", measurement.pipelineC1Shared.inputToResult.p50Milliseconds))
+    emit(String(format: "top1_agreement: %.4f", measurement.top1Agreement))
+    emit(String(format: "activation_max_abs_error: %.8f", measurement.activationMaxAbsoluteError))
+    emit("trace_status: \(measurement.trace.status)")
+    return measurement.top1Agreement >= 1.0 && measurement.activationMaxAbsoluteError <= Double(FairABCBenchmark.featureParityTolerance) ? 0 : 1
+}
+
 func runMobileNetV2SharedBridge() throws -> Int32 {
     let root = URL(fileURLWithPath: FileManager.default.currentDirectoryPath, isDirectory: true)
     let coefficientPath = ProcessInfo.processInfo.environment["PF_MOBILENET_COEFFICIENTS"] ?? "models/derived/MobileNetV2StemCoefficients.json"
@@ -1037,8 +1065,13 @@ do {
         guard arguments == ["quality", "mobilenetv2", "b2-c1-shared"] else { throw CommandError.usage }
         exit(try runMobileNetV2SharedQualityEvidence())
     case "profile":
-        guard arguments == ["profile", "mobilenetv2"] else { throw CommandError.usage }
-        exit(try runMobileNetV2Profile())
+        if arguments == ["profile", "mobilenetv2"] {
+            exit(try runMobileNetV2Profile())
+        }
+        if arguments == ["profile", "mobilenetv2", "shared"] {
+            exit(try runMobileNetV2SharedProfile())
+        }
+        throw CommandError.usage
     case "bridge":
         if arguments == ["bridge", "mobilenetv2"] {
             exit(try runMobileNetV2SharedBridge())

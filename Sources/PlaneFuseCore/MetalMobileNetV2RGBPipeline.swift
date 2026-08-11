@@ -78,13 +78,28 @@ public final class MetalMobileNetV2RGBPipeline {
     /// Conventional B2 path: materialized normalized RGB in planar Float32,
     /// avoiding the unused alpha channel while retaining the same tail.
     public func executeCHW(_ input: NV12Textures, normalizedRGB: MTLBuffer, into activation: MTLBuffer) throws {
+        _ = try executeCHWTimed(input, normalizedRGB: normalizedRGB, into: activation)
+    }
+
+    /// Exact B2 shared-path submission with timing metadata for the separate
+    /// profiler evidence path. The encoded work is identical to `executeCHW`.
+    public func executeCHWTimed(_ input: NV12Textures, normalizedRGB: MTLBuffer, into activation: MTLBuffer) throws -> ExecutionTiming {
         guard let commandBuffer = commandQueue.makeCommandBuffer() else { throw MetalMobileNetV2NativeStem.Error.commandBufferUnavailable }
+        let start = ProcessInfo.processInfo.systemUptime
         guard let conversion = commandBuffer.makeComputeCommandEncoder() else { throw MetalMobileNetV2NativeStem.Error.encoderUnavailable }
         try encodeCHWConversion(input, into: normalizedRGB, using: conversion); conversion.endEncoding()
         guard let stem = commandBuffer.makeComputeCommandEncoder() else { throw MetalMobileNetV2NativeStem.Error.encoderUnavailable }
         try encodeCHWStem(normalizedRGB, into: activation, using: stem); stem.endEncoding()
+        let encoded = ProcessInfo.processInfo.systemUptime
         commandBuffer.commit(); commandBuffer.waitUntilCompleted()
+        let completed = ProcessInfo.processInfo.systemUptime
         guard commandBuffer.status == .completed else { throw MetalMobileNetV2NativeStem.Error.executionFailed }
+        return ExecutionTiming(
+            encodeMilliseconds: (encoded - start) * 1_000,
+            gpuWaitMilliseconds: (completed - encoded) * 1_000,
+            gpuExecutionMilliseconds: commandBuffer.gpuEndTime > commandBuffer.gpuStartTime ? (commandBuffer.gpuEndTime - commandBuffer.gpuStartTime) * 1_000 : nil,
+            totalMilliseconds: (completed - start) * 1_000
+        )
     }
 
     public func encodeCHWConversion(_ input: NV12Textures, into normalizedRGB: MTLBuffer, using encoder: MTLComputeCommandEncoder) throws {
