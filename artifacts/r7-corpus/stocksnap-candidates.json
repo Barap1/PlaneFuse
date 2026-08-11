@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "candidates": [
+    {
+      "provider": "stocksnap",
+      "stable_id": "stocksnap-food-gourmet-RZ5FO2XO9F",
+      "bucket": "food_drink",
+      "query": "incategory:\"CC-Zero\" food",
+      "title": "food gourmet",
+      "landing_url": "https://stocksnap.io/photo/food-gourmet-RZ5FO2XO9F",
+      "download_url": "https://cdn.stocksnap.io/img-thumbs/960w/food-gourmet_RZ5FO2XO9F.jpg",
+      "creator": "Mike Birdy",
+      "license_id": "CC0",
+      "license_evidence_url": "https://stocksnap.io/about",
+      "license_evidence_text": "StockSnap publishes its photographs under the Creative Commons CC0 license; the originating photo page also identifies CC0.",
+      "source_host": "stocksnap.io",
+      "width": 960,
+      "height": 540
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "candidates": [
+    {
+      "provider": "wikimedia",
+      "stable_id": "legacy-cat-dog-r7-derivative",
+      "bucket": "animals",
+      "query": "legacy",
+      "local_path": "proof/m5-corpus/r7-legacy/cat-dog.jpg",
+      "landing_url": "https://commons.wikimedia.org/wiki/File:Cat_and_Dog.png",
+      "creator": "Kingofthewetcats",
+      "license_id": "CC0 1.0",
+      "license_evidence_url": "https://commons.wikimedia.org/wiki/File:Cat_and_Dog.png",
+      "license_evidence_text": "CC0 1.0 / public domain dedication",
+      "source_host": "commons.wikimedia.org"
+    },
+    {
+      "provider": "wikimedia",
+      "stable_id": "legacy-flower-r7-derivative",
+      "bucket": "plants_flowers",
+      "query": "legacy",
+      "local_path": "proof/m5-corpus/r7-legacy/flower.jpg",
+      "landing_url": "https://commons.wikimedia.org/wiki/File:Flower_%F0%9F%8C%BC.jpg",
+      "creator": "E.Prabha",
+      "license_id": "CC0 1.0",
+      "license_evidence_url": "https://commons.wikimedia.org/wiki/File:Flower_%F0%9F%8C%BC.jpg",
+      "license_evidence_text": "CC0 1.0 / public domain dedication",
+      "source_host": "commons.wikimedia.org"
+    },
+    {
+      "provider": "wikimedia",
+      "stable_id": "legacy-cat-flower-pot-r7-derivative",
+      "bucket": "animals",
+      "query": "legacy",
+      "local_path": "proof/m5-corpus/r7-legacy/cat-flower-pot.jpg",
+      "landing_url": "https://commons.wikimedia.org/wiki/File:Cat_and_flower_pot.jpg",
+      "creator": "Momoodar",
+      "license_id": "CC0 1.0",
+      "license_evidence_url": "https://commons.wikimedia.org/wiki/File:Cat_and_flower_pot.jpg",
+      "license_evidence_text": "CC0 1.0 / public domain dedication",
+      "source_host": "commons.wikimedia.org"
+    },
+    {
+      "provider": "wikimedia",
+      "stable_id": "legacy-closeup-cat-r7-derivative",
+      "bucket": "animals",
+      "query": "legacy",
+      "local_path": "proof/m5-corpus/r7-legacy/closeup-cat.jpg",
+      "landing_url": "https://commons.wikimedia.org/wiki/File:Closeup_photo_of_a_cat.jpg",
+      "creator": "kallerna",
+      "license_id": "CC0 1.0",
+      "license_evidence_url": "https://commons.wikimedia.org/wiki/File:Closeup_photo_of_a_cat.jpg",
+      "license_evidence_text": "CC0 1.0 / public domain dedication",
+      "source_host": "commons.wikimedia.org"
+    }
+  ]
+}

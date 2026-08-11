@@ -158,6 +158,18 @@ Evidence: `Sources/PlaneFuseLive/main.swift`, `proof/m9-live.md`, and the denied
 
 Revisit when: a signed GUI shell and a permitted device run are available for a final video capture.
 
+## D015 - Selective intermediate elimination follows reuse economics
+
+Status: accepted
+
+Decision: PlaneFuse is not an "eliminate every intermediate" system. Remove representation boundaries selectively when the measured reuse and scheduling economics support it; retain an intermediate when spatial or channel reuse makes materialization beneficial.
+
+Why: R6.5 eliminated the resized NV12 intermediate and its synchronization boundary, but the direct transformed native stem was slower than a fair source-space materialized-RGB B path despite passing parity. The result closes that bounded fusion family and changes the compiler narrative from universal fusion to measured selective fusion.
+
+Evidence: `proof/r6.5-camera-space.json`, `EXPERIMENTS.md` E015, and `proof/reviews/R6.5-ACCEPTANCE-ED61ADF-20260811-SOL-07.md`.
+
+Revisit when: a new model/operator or profiler evidence establishes a distinct reuse opportunity under a separately preregistered experiment.
+
 ---
 
 New decision template:

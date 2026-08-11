@@ -1,0 +1,20 @@
+{
+  "candidate_id": "wikimedia-142620030",
+  "title": "File:Animal photo.jpg",
+  "provider": "wikimedia",
+  "source_page": "https://commons.wikimedia.org/wiki/File:Animal_photo.jpg",
+  "metadata_endpoint": "https://commons.wikimedia.org/w/api.php?action=query&format=json&formatversion=2&prop=imageinfo%7Cinfo&iiprop=url%7Csize%7Cmime%7Csha1%7Cextmetadata&inprop=url&titles=File%3AAnimal_photo.jpg",
+  "author": "Viveka Ravichandran V",
+  "source_declaration": "Own work",
+  "license_identifier": "CC0",
+  "license_declaration": "Creative Commons Zero, Public Domain Dedication",
+  "license_evidence_url": "https://creativecommons.org/publicdomain/zero/1.0/deed.en",
+  "source_media_url": "https://upload.wikimedia.org/wikipedia/commons/b/b3/Animal_photo.jpg",
+  "source_mime": "image/jpeg",
+  "source_dimensions": [900, 1600],
+  "source_bytes": 103728,
+  "source_sha1": "9278f3a7ab7fba9554cba87d8d4bb96c1db466ef",
+  "downloaded_sha256": "bbd25d1e58d22b436dd79c3099a24b97c93ab322d4c425a4b6196755877dc120",
+  "selection_status": "verified_candidate_not_promoted",
+  "selection_reason": "Not needed for the preregistered four-animal slots after deterministic output-blind selection; no PlaneFuse output was inspected."
+}

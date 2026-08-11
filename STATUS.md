@@ -2,7 +2,7 @@
 
 Current milestone: R7 - final adversarial evaluation (R6.5 accepted negative; C1 retained)
 
-Overall status: PHASE 2 R7 CORPUS BLOCKED
+Overall status: PHASE 2 R7 BENCHMARK READY
 
 Current branch: phase2/continuum
 
@@ -20,11 +20,11 @@ Real model: Apple MobileNetV2 ImageNet integrated; unchanged 252-layer Core ML t
 
 PlaneFuse Live: Release replay/paired/live benchmark path built and run; judge-facing UI remains unfinished
 
-Known blockers: direct B2/C1 remains below the competition target; Pipeline A is faster in its distinct framework-optimized image-input boundary and must remain visible in evaluation; R6.5 direct camera-space fusion is conclusively slower than fair direct B. R7 currently has 4 provenance-bearing real images and 32 procedural stress inputs; 28 additional real images are required before final A/B/C benchmarking. A bounded CC0 acquisition attempt produced 8 unpromoted candidates but Wikimedia rate-limited further downloads, so they are not evidence. The final A/B/C matrix, judge-facing UI, and final hostile reviews remain. R3 Float16, R4 Metal 4, R5 latency improvement, and R6.5 fusion speedup were rejected or negative on documented gates. Public push/submission remains human-controlled.
+Known blockers: direct B2/C1 remains below the competition target; Pipeline A is faster in its distinct framework-optimized image-input boundary and must remain visible in evaluation; R6.5 direct camera-space fusion is conclusively slower than fair direct B. The output-blind R7 corpus gate now passes with 32 provenance-bearing real images plus 32 procedural stress inputs, exactly four per subject bucket. The final A/B/C matrix, hostile technical/rubric reviews, and judge-facing UI remain. R3 Float16, R4 Metal 4, R5 latency improvement, and R6.5 fusion speedup were rejected or negative on documented gates. Public push/submission remains human-controlled.
 
-Next highest-leverage action: add 28 more license-clear/provenance-bearing real images, verify the 32+32 corpus, then run the final A/B/C matrix with accepted C1; do not install beta tooling or change workload/model without approval.
+Next highest-leverage action: run the complete R7 quality/performance matrix with accepted C1 and strongest matched B2, including all four competition-target calculations and standalone camera sessions; do not install beta tooling or change workload/model without approval.
 
-Human decision currently required: yes for the R7 corpus blocker if public-domain acquisition remains unavailable; do not weaken the 32-real-image gate. Publication, repository visibility, and submission remain human-controlled.
+Human decision currently required: no for the authorized R7 execution. Publication, repository visibility, video upload, and submission remain human-controlled.
 
 Last milestone summary: R5 passed after two hostile review corrections: the exact compiler reduced generated UV instructions 9→4 and weighted multiplications 27→17, preserved independent Double/Metal parity, and recorded three corrected 200-pair batches (+0.23%, -0.64%, +0.39%) without a consistent e2e win. R2 remains the strongest accepted bridge result; R3 Float16 and R4 Metal 4 were rejected on documented quality/format gates.
 
