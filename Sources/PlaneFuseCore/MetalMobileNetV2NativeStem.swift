@@ -88,8 +88,10 @@ public final class MetalMobileNetV2NativeStem {
     /// Returns CPU encoding and command-buffer wait regions for the R1 profile.
     public func executeTimed(_ input: MetalRGBBaseline.NV12Textures, into activation: MTLBuffer) throws -> ExecutionTiming {
         guard let commandBuffer = commandQueue.makeCommandBuffer() else { throw Error.commandBufferUnavailable }
+        commandBuffer.label = "planefuse.c1.shared"
         let start = ProcessInfo.processInfo.systemUptime
         guard let encoder = commandBuffer.makeComputeCommandEncoder() else { throw Error.encoderUnavailable }
+        encoder.label = "planefuse.c1.native_stem"
         try encode(input, into: activation, using: encoder)
         encoder.endEncoding()
         let encoded = ProcessInfo.processInfo.systemUptime

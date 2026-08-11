@@ -36,12 +36,18 @@ def main() -> int:
         fail("B2 profiler path has no timing instrumentation")
     if "encodeCHWConversion" not in b2_profile or "encodeCHWStem" not in b2_profile:
         fail("B2 profiler path does not use the accepted encoding helpers")
+    for label in ("planefuse.b2.shared", "planefuse.b2.rgb", "planefuse.b2.stem"):
+        if label not in b2_profile:
+            fail(f"B2 profiler label {label} is missing")
     if "executeTimed" in c1 or "ProcessInfo" in c1 or "gpuStartTime" in c1:
         fail("production C1 execute contains profiler instrumentation")
     if "encode(input" not in c1 or "waitUntilCompleted" not in c1:
         fail("production C1 no longer encodes and waits for the accepted helper")
     if "ProcessInfo" not in c1_profile or "gpuStartTime" not in c1_profile:
         fail("C1 profiler path has no timing instrumentation")
+    for label in ("planefuse.c1.shared", "planefuse.c1.native_stem"):
+        if label not in c1_profile:
+            fail(f"C1 profiler label {label} is missing")
     print("PASS R7 production instrumentation: B2/C1 production paths are uninstrumented; profiler paths share helpers")
     return 0
 

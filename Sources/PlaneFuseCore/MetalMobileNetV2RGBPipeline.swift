@@ -91,10 +91,13 @@ public final class MetalMobileNetV2RGBPipeline {
     /// profiler evidence path. The encoded work is identical to `executeCHW`.
     public func executeCHWTimed(_ input: NV12Textures, normalizedRGB: MTLBuffer, into activation: MTLBuffer) throws -> ExecutionTiming {
         guard let commandBuffer = commandQueue.makeCommandBuffer() else { throw MetalMobileNetV2NativeStem.Error.commandBufferUnavailable }
+        commandBuffer.label = "planefuse.b2.shared"
         let start = ProcessInfo.processInfo.systemUptime
         guard let conversion = commandBuffer.makeComputeCommandEncoder() else { throw MetalMobileNetV2NativeStem.Error.encoderUnavailable }
+        conversion.label = "planefuse.b2.rgb"
         try encodeCHWConversion(input, into: normalizedRGB, using: conversion); conversion.endEncoding()
         guard let stem = commandBuffer.makeComputeCommandEncoder() else { throw MetalMobileNetV2NativeStem.Error.encoderUnavailable }
+        stem.label = "planefuse.b2.stem"
         try encodeCHWStem(normalizedRGB, into: activation, using: stem); stem.endEncoding()
         let encoded = ProcessInfo.processInfo.systemUptime
         commandBuffer.commit(); commandBuffer.waitUntilCompleted()
