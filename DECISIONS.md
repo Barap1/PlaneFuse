@@ -170,6 +170,18 @@ Evidence: `proof/r6.5-camera-space.json`, `EXPERIMENTS.md` E015, and `proof/revi
 
 Revisit when: a new model/operator or profiler evidence establishes a distinct reuse opportunity under a separately preregistered experiment.
 
+## D016 - R7.5 source reuse is a bounded candidate, not a universal fusion policy
+
+Status: accepted
+
+Decision: Retain the fixed spatial-major C1-SR source-reuse implementation and confirmation as the only R7.5 candidate. Do not start another performance experiment or reinterpret the result before independent hostile review.
+
+Why: The confirmed candidate reuses exact NV12 source tiles across output channels, preserves the accepted operator and tail, passes full quality evidence, and measures 6.1755% below accepted C1 / 11.8128% below fresh B2. This is a measured reuse win after R6.5's negative result, not evidence that every intermediate should be removed.
+
+Evidence: `proof/r7.5-source-reuse-final-52db138-20260811T1605Z-confirm.json`, `scripts/check_r75_source_reuse.py`, `proof/reviews/R7.5-SOURCE-REUSE-ARCH-20260811.md`, and `EXPERIMENTS.md` E020.
+
+Revisit when: independent review identifies a valid evidence defect. Otherwise freeze performance research and proceed to R8/R9.
+
 ---
 
 New decision template:
