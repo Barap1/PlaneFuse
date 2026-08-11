@@ -19,18 +19,17 @@ trap 'rm -rf "$clone_root"' EXIT
 
 git clone --quiet --no-local --branch "$branch" "$ROOT" "$clone"
 run_clean_clone() {
-  set -e
   cd "$clone"
-  ./pf setup mobilenetv2
-  python3 scripts/check_benchmark_index.py
-  ./scripts/check_git_history.sh --release
-  ./scripts/check_project_docs.sh
-  ./pf inspect mobilenetv2
-  ./pf verify
-  ./pf verify lineage
-  ./pf build
-  ./pf test quick
-  ./pf bench quick
+  ./pf setup mobilenetv2 &&
+  python3 scripts/check_benchmark_index.py &&
+  ./scripts/check_git_history.sh --release &&
+  ./scripts/check_project_docs.sh &&
+  ./pf inspect mobilenetv2 &&
+  ./pf verify &&
+  ./pf verify lineage &&
+  ./pf build &&
+  ./pf test quick &&
+  ./pf bench quick &&
   ./pf live --sample
 }
 set +e
