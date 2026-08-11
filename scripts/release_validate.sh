@@ -15,6 +15,7 @@ clone_root="$(mktemp -d /private/tmp/planefuse-r0-clone.XXXXXX)"
 clone="$clone_root/PlaneFuse"
 started="$(date +%s)"
 status=0
+log_path="$ROOT/artifacts/logs/r0-clean-clone-$commit.log"
 trap 'rm -rf "$clone_root"' EXIT
 
 git clone --quiet --no-local --branch "$branch" "$ROOT" "$clone"
@@ -36,17 +37,18 @@ set +e
 run_clean_clone >"$clone_root/run.log" 2>&1
 status=$?
 set -e
+cp "$clone_root/run.log" "$log_path"
 finished="$(date +%s)"
 elapsed=$((finished - started))
 
-python3 - "$ROOT/proof/r0-clean-clone.json" "$branch" "$commit" "$status" "$elapsed" <<'PY'
+python3 - "$ROOT/proof/r0-clean-clone.json" "$branch" "$commit" "$status" "$elapsed" "$log_path" <<'PY'
 import json
 import platform
 import subprocess
 import sys
 from pathlib import Path
 
-output, branch, commit, status, elapsed = sys.argv[1:]
+output, branch, commit, status, elapsed, log_path = sys.argv[1:]
 def command(*args):
     return subprocess.run(args, check=False, capture_output=True, text=True).stdout.strip().splitlines()[0]
 
@@ -56,6 +58,7 @@ report = {
     "branch": branch,
     "commit": commit,
     "elapsed_seconds": int(elapsed),
+    "log": str(Path(log_path).relative_to(Path.cwd())),
     "commands": [
         "./pf setup mobilenetv2",
         "python3 scripts/check_benchmark_index.py",
