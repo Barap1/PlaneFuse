@@ -46,11 +46,11 @@ final class PlaneFuseDashboardAppDelegate: NSObject, NSApplicationDelegate {
 final class PlaneFuseDashboardController: NSObject {
     let rootView: NSView
 
-    private let previewView = NSView()
+    private let previewView = PreviewHostView()
     private let previewStatus = NSTextField(labelWithString: "CONNECTING TO CAMERA")
     private let liveStatus = NSTextField(labelWithString: "LIVE METRICS · WAITING")
     private let selectedMode = NSSegmentedControl(labels: ["B2 · RGB", "PLANEFUSE · NV12"], trackingMode: .selectOne, target: nil, action: nil)
-    private let selectedModeLabel = NSTextField(labelWithString: "PLANEfUSE · C1-SR")
+    private let selectedModeLabel = NSTextField(labelWithString: "PLANEFUSE · C1-SR SOURCE REUSE")
     private let top3Label = NSTextField(labelWithString: "Top predictions will appear after the first real frame.")
     private let bTop3Label = NSTextField(labelWithString: "B2 · waiting")
     private let cTop3Label = NSTextField(labelWithString: "PlaneFuse · waiting")
@@ -107,9 +107,8 @@ final class PlaneFuseDashboardController: NSObject {
             stack.trailingAnchor.constraint(equalTo: rootView.trailingAnchor, constant: -28),
             stack.topAnchor.constraint(equalTo: rootView.topAnchor, constant: 24),
             stack.bottomAnchor.constraint(equalTo: rootView.bottomAnchor, constant: -24),
-            previewCard.widthAnchor.constraint(equalTo: body.widthAnchor, multiplier: 0.61),
+            previewCard.widthAnchor.constraint(equalTo: panel.widthAnchor, multiplier: 61.0 / 39.0),
             previewCard.heightAnchor.constraint(equalTo: body.heightAnchor),
-            panel.widthAnchor.constraint(equalTo: body.widthAnchor, multiplier: 0.39),
             body.widthAnchor.constraint(equalTo: stack.widthAnchor),
             body.heightAnchor.constraint(equalTo: stack.heightAnchor, constant: -90)
         ])
@@ -146,12 +145,12 @@ final class PlaneFuseDashboardController: NSObject {
     private func makePanel() -> NSView {
         let panel = NSView(); panel.translatesAutoresizingMaskIntoConstraints = false
         let modeRow = NSStackView(views: [selectedMode, selectedModeLabel]); modeRow.orientation = .vertical; modeRow.spacing = 8
-        let liveBlock = makeBlock(title: "LIVE FRAME", views: [liveStatus, selectedModeLabel, top3Label])
+        let liveBlock = makeBlock(title: "LIVE FRAME", views: [liveStatus, top3Label])
         let compareBlock = makeBlock(title: "B2 / PLANEFUSE PARITY", views: [bTop3Label, cTop3Label, parityValue, errorValue])
         let metrics = makeMetricsBlock()
         let resources = makeResourceBlock()
         let stored = makeBlock(title: "JUDGE CONTEXT", views: [storedEvidence])
-        let stack = NSStackView(views: [modeRow, liveBlock, compareBlock, metrics, resources, stored]); stack.orientation = .vertical; stack.spacing = 14; stack.alignment = .leading
+        let stack = NSStackView(views: [modeRow, liveBlock, compareBlock, metrics, resources, stored]); stack.orientation = .vertical; stack.spacing = 12; stack.alignment = .width
         stack.translatesAutoresizingMaskIntoConstraints = false; panel.addSubview(stack)
         NSLayoutConstraint.activate([stack.leadingAnchor.constraint(equalTo: panel.leadingAnchor), stack.trailingAnchor.constraint(equalTo: panel.trailingAnchor), stack.topAnchor.constraint(equalTo: panel.topAnchor), stack.bottomAnchor.constraint(lessThanOrEqualTo: panel.bottomAnchor)])
         [liveStatus, selectedModeLabel, top3Label, bTop3Label, cTop3Label, parityValue, errorValue, frontendValue, endToEndValue, fpsValue, dropsValue, cameraValue, storedEvidence].forEach { $0.maximumNumberOfLines = 3; $0.lineBreakMode = .byWordWrapping; $0.translatesAutoresizingMaskIntoConstraints = false }
@@ -161,24 +160,24 @@ final class PlaneFuseDashboardController: NSObject {
     private func makeMetricsBlock() -> NSView {
         let block = cardView(); let title = label("MEASURED LIVE STATE", size: 10, weight: .bold, color: NSColor(hex: 0x8B9AA5)); title.translatesAutoresizingMaskIntoConstraints = false
         let rows = NSStackView(); rows.orientation = .vertical; rows.spacing = 6; rows.translatesAutoresizingMaskIntoConstraints = false
-        for (name, value) in [("frontend", frontendValue), ("end-to-end", endToEndValue), ("FPS", fpsValue), ("drops / overwrite", dropsValue), ("camera", cameraValue)] {
+        for (name, value) in [("stem + frontend", frontendValue), ("post-resize → result", endToEndValue), ("comparison-loop FPS", fpsValue), ("drops / overwrite", dropsValue), ("camera", cameraValue)] {
             let row = NSStackView(views: [label(name.uppercased(), size: 10, weight: .medium, color: NSColor(hex: 0x8B9AA5)), value]); row.orientation = .horizontal; row.distribution = .fill; row.spacing = 10
             value.alignment = .right; row.translatesAutoresizingMaskIntoConstraints = false; rows.addArrangedSubview(row)
         }
-        block.addSubview(title); block.addSubview(rows); NSLayoutConstraint.activate([title.leadingAnchor.constraint(equalTo: block.leadingAnchor, constant: 14), title.topAnchor.constraint(equalTo: block.topAnchor, constant: 12), rows.leadingAnchor.constraint(equalTo: block.leadingAnchor, constant: 14), rows.trailingAnchor.constraint(equalTo: block.trailingAnchor, constant: -14), rows.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 10), rows.bottomAnchor.constraint(equalTo: block.bottomAnchor, constant: -12), block.widthAnchor.constraint(equalToConstant: 500)]); return block
+        block.addSubview(title); block.addSubview(rows); NSLayoutConstraint.activate([title.leadingAnchor.constraint(equalTo: block.leadingAnchor, constant: 14), title.topAnchor.constraint(equalTo: block.topAnchor, constant: 12), rows.leadingAnchor.constraint(equalTo: block.leadingAnchor, constant: 14), rows.trailingAnchor.constraint(equalTo: block.trailingAnchor, constant: -14), rows.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 10), rows.bottomAnchor.constraint(equalTo: block.bottomAnchor, constant: -12)]); return block
     }
 
     private func makeResourceBlock() -> NSView {
         let block = cardView(); let title = label("RESOURCE BOUNDARIES", size: 10, weight: .bold, color: NSColor(hex: 0x8B9AA5)); title.translatesAutoresizingMaskIntoConstraints = false
-        let text = label("B2  ·  RGB intermediate  606,208 B allocated\nC1-SR  ·  RGB intermediate  NONE\nBoth  ·  CPU activation element-copy  0 B\nParity  ·  shared operator / tail", size: 11, weight: .medium, color: NSColor(hex: 0xD4DDD9)); text.maximumNumberOfLines = 4; text.translatesAutoresizingMaskIntoConstraints = false
-        block.addSubview(title); block.addSubview(text); NSLayoutConstraint.activate([title.leadingAnchor.constraint(equalTo: block.leadingAnchor, constant: 14), title.topAnchor.constraint(equalTo: block.topAnchor, constant: 12), text.leadingAnchor.constraint(equalTo: block.leadingAnchor, constant: 14), text.trailingAnchor.constraint(equalTo: block.trailingAnchor, constant: -14), text.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 9), text.bottomAnchor.constraint(equalTo: block.bottomAnchor, constant: -12), block.widthAnchor.constraint(equalToConstant: 500)]); return block
+        let text = label("B2  ·  RGB intermediate  602,112 B logical / 606,208 B Metal allocated\nC1-SR  ·  full RGB intermediate  NONE\nBoth  ·  CPU activation element-copy  0 B\nBoth  ·  shared pretrained tail", size: 11, weight: .medium, color: NSColor(hex: 0xD4DDD9)); text.maximumNumberOfLines = 4; text.translatesAutoresizingMaskIntoConstraints = false
+        block.addSubview(title); block.addSubview(text); NSLayoutConstraint.activate([title.leadingAnchor.constraint(equalTo: block.leadingAnchor, constant: 14), title.topAnchor.constraint(equalTo: block.topAnchor, constant: 12), text.leadingAnchor.constraint(equalTo: block.leadingAnchor, constant: 14), text.trailingAnchor.constraint(equalTo: block.trailingAnchor, constant: -14), text.topAnchor.constraint(equalTo: title.bottomAnchor, constant: 9), text.bottomAnchor.constraint(equalTo: block.bottomAnchor, constant: -12)]); return block
     }
 
     private func makeBlock(title: String, views: [NSView]) -> NSView {
         let block = NSView(); block.translatesAutoresizingMaskIntoConstraints = false; block.wantsLayer = true; block.layer?.backgroundColor = NSColor(hex: 0x121B21).cgColor; block.layer?.cornerRadius = 8
         let heading = label(title, size: 10, weight: .bold, color: NSColor(hex: 0x8B9AA5)); heading.translatesAutoresizingMaskIntoConstraints = false
         let stack = NSStackView(views: views); stack.orientation = .vertical; stack.spacing = 5; stack.translatesAutoresizingMaskIntoConstraints = false
-        block.addSubview(heading); block.addSubview(stack); NSLayoutConstraint.activate([heading.leadingAnchor.constraint(equalTo: block.leadingAnchor, constant: 14), heading.topAnchor.constraint(equalTo: block.topAnchor, constant: 12), stack.leadingAnchor.constraint(equalTo: block.leadingAnchor, constant: 14), stack.trailingAnchor.constraint(equalTo: block.trailingAnchor, constant: -14), stack.topAnchor.constraint(equalTo: heading.bottomAnchor, constant: 8), stack.bottomAnchor.constraint(equalTo: block.bottomAnchor, constant: -12), block.widthAnchor.constraint(equalToConstant: 500)]); return block
+        block.addSubview(heading); block.addSubview(stack); NSLayoutConstraint.activate([heading.leadingAnchor.constraint(equalTo: block.leadingAnchor, constant: 14), heading.topAnchor.constraint(equalTo: block.topAnchor, constant: 12), stack.leadingAnchor.constraint(equalTo: block.leadingAnchor, constant: 14), stack.trailingAnchor.constraint(equalTo: block.trailingAnchor, constant: -14), stack.topAnchor.constraint(equalTo: heading.bottomAnchor, constant: 8), stack.bottomAnchor.constraint(equalTo: block.bottomAnchor, constant: -12)]); return block
     }
 
     private func cardView() -> NSView { let view = NSView(); view.wantsLayer = true; view.layer?.backgroundColor = NSColor(hex: 0x121B21).cgColor; view.layer?.cornerRadius = 8; view.translatesAutoresizingMaskIntoConstraints = false; return view }
@@ -207,10 +206,30 @@ final class PlaneFuseDashboardController: NSObject {
     private var isStopped: Bool { stateLock.lock(); defer { stateLock.unlock() }; return stopped }
     private var currentMode: Int { stateLock.lock(); defer { stateLock.unlock() }; return modeIndex }
 
-    private func installPreview(capture: LiveCameraCapture) { previewLayer?.removeFromSuperlayer(); let layer = AVCaptureVideoPreviewLayer(session: capture.session); layer.videoGravity = .resizeAspectFill; layer.frame = previewView.bounds; previewView.layer?.addSublayer(layer); previewLayer = layer; previewStatus.stringValue = "LIVE · NV12 VIDEO-RANGE · \(capture.activeFormat)"; cameraValue.stringValue = capture.activeFormat }
-    private func update(b: CameraInferenceRunner.CandidateResult, c: CameraInferenceRunner.CandidateResult, selected: CameraInferenceRunner.CandidateResult, snapshot: CameraFrameDelegate.Snapshot, fps: Double) { liveStatus.stringValue = "LIVE METRICS · FRAME (snapshot.callbackCount)"; top3Label.stringValue = formatTop3(selected.topPredictions); bTop3Label.stringValue = "B2  (formatTop3(b.topPredictions))"; cTop3Label.stringValue = "PlaneFuse  (formatTop3(c.topPredictions))"; frontendValue.stringValue = String(format: "%.3f ms", selected.frontendMilliseconds); endToEndValue.stringValue = String(format: "%.3f ms", selected.postResizeInputToResultMilliseconds); fpsValue.stringValue = String(format: "%.1f", fps); dropsValue.stringValue = "\(snapshot.droppedCallbackCount) / \(snapshot.overwrittenFrameCount)"; parityValue.stringValue = c.prediction.label == b.prediction.label ? "PASS · top-1" : "QUALIFIED · top-1 differs"; errorValue.stringValue = String(format: "activation max %.7g", c.activationMaxAbsoluteDifference) }
+    private func installPreview(capture: LiveCameraCapture) { previewLayer?.removeFromSuperlayer(); let layer = AVCaptureVideoPreviewLayer(session: capture.session); layer.videoGravity = .resizeAspectFill; previewView.previewLayer = layer; previewView.layer?.addSublayer(layer); previewLayer = layer; previewStatus.stringValue = "LIVE · NV12 VIDEO-RANGE · \(capture.activeFormat)"; cameraValue.stringValue = capture.activeFormat }
+    private func update(b: CameraInferenceRunner.CandidateResult, c: CameraInferenceRunner.CandidateResult, selected: CameraInferenceRunner.CandidateResult, snapshot: CameraFrameDelegate.Snapshot, fps: Double) {
+        liveStatus.stringValue = "LIVE METRICS · FRAME \(snapshot.callbackCount)"
+        top3Label.stringValue = formatTop3(selected.topPredictions)
+        bTop3Label.stringValue = "B2 · RGB baseline\n\(formatTop3(b.topPredictions))"
+        cTop3Label.stringValue = "PlaneFuse · C1-SR source reuse\n\(formatTop3(c.topPredictions))"
+        frontendValue.stringValue = String(format: "%.3f ms", selected.frontendMilliseconds)
+        endToEndValue.stringValue = String(format: "%.3f ms", selected.postResizeInputToResultMilliseconds)
+        fpsValue.stringValue = String(format: "%.1f", fps)
+        dropsValue.stringValue = "\(snapshot.droppedCallbackCount) / \(snapshot.overwrittenFrameCount)"
+        parityValue.stringValue = c.prediction.label == b.prediction.label ? "PASS · top-1" : "QUALIFIED · top-1 differs"
+        errorValue.stringValue = String(format: "activation max %.7g", c.activationMaxAbsoluteDifference)
+    }
     private func formatTop3(_ predictions: [(label: String, confidence: Double)]) -> String { predictions.enumerated().map { "\($0.offset + 1)  \($0.element.label)  \(String(format: "%.1f%%", $0.element.confidence * 100))" }.joined(separator: "   ·   ") }
     private func showCameraError(_ message: String) { liveStatus.stringValue = "NO LIVE CAMERA METRICS"; previewStatus.stringValue = message.uppercased(); cameraValue.stringValue = "UNAVAILABLE"; top3Label.stringValue = "No prediction inferred. The stored evidence panel remains separate."; parityValue.stringValue = "UNMEASURED"; errorValue.stringValue = "—" }
+}
+
+private final class PreviewHostView: NSView {
+    weak var previewLayer: AVCaptureVideoPreviewLayer?
+
+    override func layout() {
+        super.layout()
+        previewLayer?.frame = bounds
+    }
 }
 
 private extension NSColor {

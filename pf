@@ -108,6 +108,8 @@ case "$command_name" in
     if [ "$command_args" = "--camera-bench" ]; then
       benchmark_output="${PF_BENCHMARK_OUTPUT:-$ROOT/benchmarks/results/r6-camera.json}"
       PF_ARCHITECTURE="$(uname -m)" PF_SWIFT_VERSION="$(swift --version | head -n 1)" PF_XCODE_VERSION="$(xcodebuild -version | head -n 1)" PF_GIT_COMMIT="$(git rev-parse HEAD)" PF_BUILD_CONFIGURATION="release" PF_BENCHMARK_OUTPUT="$benchmark_output" run_logged swift run -c release planefuse-live "$command_args"
+    elif [ "$command_args" = "--app" ]; then
+      PF_ARCHITECTURE="$(uname -m)" PF_SWIFT_VERSION="$(swift --version | head -n 1)" PF_XCODE_VERSION="$(xcodebuild -version | head -n 1)" PF_GIT_COMMIT="$(git rev-parse HEAD)" PF_BUILD_CONFIGURATION="release" run_logged swift run -c release planefuse-live "$command_args"
     else
       run_logged swift run -c debug planefuse-live "$command_args"
     fi
@@ -261,8 +263,21 @@ case "$command_name" in
     echo "PASS  pf release validate (log: $log_file)"
     tail -n 12 "$log_file"
     ;;
+  evidence)
+    if [ -n "$command_args" ] && [ "$command_args" != "--check" ]; then
+      echo "usage: ./pf evidence|evidence --check"
+      exit 2
+    fi
+    if [ "$command_args" = "--check" ]; then
+      run_logged python3 scripts/generate_judge_evidence.py --check
+      cat "$log_file"
+    else
+      run_logged python3 scripts/generate_judge_evidence.py --write --print
+      cat "$log_file"
+    fi
+    ;;
   *)
-    echo "usage: ./pf <setup mobilenetv2|doctor|build|test quick|inspect|compile|verify|bench|quality|profile mobilenetv2|profile mobilenetv2 shared|release validate>"
+    echo "usage: ./pf <setup mobilenetv2|doctor|build|test quick|inspect|compile|verify|bench|evidence|quality|profile mobilenetv2|profile mobilenetv2 shared|release validate>"
     exit 2
     ;;
 esac
