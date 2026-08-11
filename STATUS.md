@@ -18,11 +18,11 @@ Pipeline C status: accepted C1 retained for R7; direct camera-space fusion was m
 
 Real model: Apple MobileNetV2 ImageNet integrated; unchanged 252-layer Core ML tail runs after the transformed 48-channel stem
 
-PlaneFuse Live: Release replay/paired/live benchmark path built and previously completed successfully; a fresh R7 physical-camera invocation received zero callbacks before timeout, so no new camera result is inferred. Judge-facing UI remains unfinished
+PlaneFuse Live: judge-facing AppKit dashboard shell is built at `./pf live --app`; it separates LIVE camera/runtime values from STORED evidence and reports camera unavailability without inference. A fresh R7 physical-camera invocation received zero callbacks before timeout, so no new camera result is inferred. Human-permitted final camera/video capture remains open.
 
 Known blockers: T2/T3 remain not met or established; T4 was not invoked. R7.5 T1 is accepted only as the measured same-workload target result in the independent SHIP review, not as a universal speedup claim. Finish R8/R9 productization and claims audit. The profiler privacy publication blocker remains. Public push/submission remains human-controlled.
 
-Next highest-leverage action: finish the judge-facing PlaneFuse Live shell, live metric/dataflow presentation, fresh-clone/evidence navigation, and final VERIFIED/QUALIFIED claims audit without new performance experiments.
+Next highest-leverage action: human-permitted final camera capture and screenshots/video, then publication/repository/Devpost decisions. No new performance experiments are authorized.
 
 Human decision currently required: after fresh Sol review, decide only the contract-defined next step. Publication, repository visibility, video upload, history rewrite, and submission remain human-controlled.
 
