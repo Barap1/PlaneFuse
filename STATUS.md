@@ -2,7 +2,7 @@
 
 Current milestone: Release hardening - product polish, repository hygiene, and submission preparation (performance frozen)
 
-Overall status: R7.5 evidence independently accepted for technical progression; performance research frozen; release hardening in progress
+Overall status: R7.5 evidence independently accepted for technical progression; performance research frozen; autonomous release hardening complete
 
 Current branch: phase2/continuum
 
@@ -22,7 +22,7 @@ PlaneFuse Live: judge-facing AppKit dashboard runs at `./pf live --app` in Relea
 
 Known blockers: T2/T3 remain not met or established; T4 was not invoked. R7.5 T1 is accepted as the measured same-workload target result in the independent SHIP review, not as a universal speedup claim. Finish release documentation, final app QA, and publication preparation. The profiler privacy publication blocker remains. Public push/submission remains human-controlled.
 
-Next highest-leverage action: run the final local app smoke/visual inspection, then capture approved screenshots/video and make the human publication decisions. No new performance experiments are authorized.
+Next highest-leverage action: human visual inspection of `./pf live --app`, approved screenshots/video, and the privacy-safe publication decisions. No new performance experiments are authorized.
 
 Human decision currently required: choose the privacy-safe public-history strategy and approve publication only after final local QA. Repository visibility, default branch, video upload, and submission remain human-controlled.
 
