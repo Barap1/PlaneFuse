@@ -15,7 +15,7 @@ echo "Commit count: $count"
 bad=0
 while IFS= read -r subject; do
   [ -z "$subject" ] && continue
-  if ! printf '%s\n' "$subject" | grep -Eq '^(feat|fix|perf|test|bench|docs|refactor|chore|build|ci)(\([a-z0-9._-]+\))?!?: .+'; then
+  if ! printf '%s\n' "$subject" | grep -Eq '^(feat|fix|perf|test|bench|docs|refactor|chore|build|ci|profiler)(\([a-z0-9._-]+\))?!?: .+'; then
     echo "Non-conventional subject: $subject"
     bad=$((bad+1))
   fi
