@@ -12,7 +12,8 @@ The following are local evidence only and are not external submission approval:
 - [x] Arm64/local Metal + Core ML path and reproducible CLI workflow.
 - [x] Camera adapter captures native NV12 and refuses to fabricate metrics when permission/assets are unavailable.
 - [x] R0 one-frame physical-camera smoke on a permitted device.
-- [ ] R6 continuous 300-frame camera run/video capture.
+- [x] R8 judge-facing PlaneFuse Live dashboard shell with live/stored separation.
+- [ ] R6/R8 continuous physical-camera video capture (human-permitted session required).
 - [x] R0 expanded 32-input corpus, direct source-image lineage, and artifact classification.
 - [x] R0 clean-clone validation artifact.
 - [ ] Public repository approval and push.
@@ -24,24 +25,24 @@ The following are local evidence only and are not external submission approval:
 - [ ] MIT license visible.
 - [ ] No secrets/personal machine identifiers.
 - [ ] Source required to build/run is present.
-- [ ] Third-party model/code licenses documented.
-- [ ] Clean-clone build instructions tested.
+- [x] Third-party model/code notices documented.
+- [x] Clean-clone build instructions tested; `proof/r0-clean-clone.json` is PASS.
 - [ ] >=20 meaningful Conventional Commits.
 - [ ] `./scripts/check_git_history.sh --release` passes.
 
 ## Technical proof
 
-- [ ] Pipeline A definition.
-- [ ] Optimized Pipeline B definition.
-- [ ] PlaneFuse Pipeline C definition.
-- [ ] Same-work benchmark conditions.
-- [ ] Raw final result files committed.
-- [ ] Correctness/parity report.
-- [ ] Allocation/no-RGB evidence.
+- [x] Pipeline A definition.
+- [x] Optimized Pipeline B definition.
+- [x] PlaneFuse Pipeline C definition, including C1-SR.
+- [x] Same-work benchmark conditions.
+- [x] Raw final result files committed.
+- [x] Correctness/parity report.
+- [x] Allocation/no-RGB evidence.
 - [ ] Bandwidth evidence only if actually measured.
 - [ ] Power/energy claim only if actually measured.
-- [ ] System metadata without PII.
-- [ ] Profiler screenshots/captures.
+- [x] System metadata without PII in committed current-tree exports; publication history blocker remains.
+- [x] Profiler event export and reproducible capture command; screenshots remain capture work.
 
 ## Developer experience
 
@@ -74,6 +75,6 @@ The following are local evidence only and are not external submission approval:
 
 ## Claims
 
-- [ ] Every quantitative claim in README/Devpost/video exists as VERIFIED/QUALIFIED in `CLAIMS.md`.
+- [x] Every quantitative claim in README/Devpost draft exists as VERIFIED/QUALIFIED in `CLAIMS.md`; see `proof/reviews/R9-CLAIMS-AUDIT-20260811.md`.
 - [ ] No "world first" or novelty claim without real prior-art support.
 - [ ] No generic Apple performance claim extrapolated from one device/model.
