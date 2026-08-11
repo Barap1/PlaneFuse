@@ -78,7 +78,13 @@ public final class MetalMobileNetV2RGBPipeline {
     /// Conventional B2 path: materialized normalized RGB in planar Float32,
     /// avoiding the unused alpha channel while retaining the same tail.
     public func executeCHW(_ input: NV12Textures, normalizedRGB: MTLBuffer, into activation: MTLBuffer) throws {
-        _ = try executeCHWTimed(input, normalizedRGB: normalizedRGB, into: activation)
+        guard let commandBuffer = commandQueue.makeCommandBuffer() else { throw MetalMobileNetV2NativeStem.Error.commandBufferUnavailable }
+        guard let conversion = commandBuffer.makeComputeCommandEncoder() else { throw MetalMobileNetV2NativeStem.Error.encoderUnavailable }
+        try encodeCHWConversion(input, into: normalizedRGB, using: conversion); conversion.endEncoding()
+        guard let stem = commandBuffer.makeComputeCommandEncoder() else { throw MetalMobileNetV2NativeStem.Error.encoderUnavailable }
+        try encodeCHWStem(normalizedRGB, into: activation, using: stem); stem.endEncoding()
+        commandBuffer.commit(); commandBuffer.waitUntilCompleted()
+        guard commandBuffer.status == .completed else { throw MetalMobileNetV2NativeStem.Error.executionFailed }
     }
 
     /// Exact B2 shared-path submission with timing metadata for the separate

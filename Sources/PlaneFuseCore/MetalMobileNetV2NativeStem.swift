@@ -77,7 +77,12 @@ public final class MetalMobileNetV2NativeStem {
     }
 
     public func execute(_ input: MetalRGBBaseline.NV12Textures, into activation: MTLBuffer) throws {
-        _ = try executeTimed(input, into: activation)
+        guard let commandBuffer = commandQueue.makeCommandBuffer() else { throw Error.commandBufferUnavailable }
+        guard let encoder = commandBuffer.makeComputeCommandEncoder() else { throw Error.encoderUnavailable }
+        try encode(input, into: activation, using: encoder)
+        encoder.endEncoding()
+        commandBuffer.commit(); commandBuffer.waitUntilCompleted()
+        guard commandBuffer.status == .completed else { throw Error.executionFailed }
     }
 
     /// Returns CPU encoding and command-buffer wait regions for the R1 profile.

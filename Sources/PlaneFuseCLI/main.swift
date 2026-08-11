@@ -554,6 +554,17 @@ private struct DirectSharedBenchmarkArtifact: Codable {
     let model: MobileNetV2AssetManifest
 }
 
+private struct DirectSharedBatchArtifact: Codable {
+    let schemaVersion: Int
+    let status: String
+    let commit: String?
+    let executionIdentity: String
+    let command: String
+    let environment: EnvironmentSnapshot
+    let measurement: MobileNetV2DirectSharedBatchBenchmark.Measurement
+    let model: MobileNetV2AssetManifest
+}
+
 /// R7 output-quality evidence is intentionally separate from the latency
 /// artifact. It uses the same B2/C1 shared resources but runs each selected
 /// corpus sample once, outside benchmark timing, and never overwrites proof.
@@ -630,6 +641,55 @@ func runMobileNetV2DirectSharedBench() throws -> Int32 {
     emit("b2_rgb_logical_bytes: \(measurement.b2RGBLogicalBytes)")
     emit("c1_rgb_logical_bytes: \(measurement.c1RGBLogicalBytes)")
     return measurement.top1Agreement >= 1.0 && measurement.activationMaxAbsoluteError <= Double(FairABCBenchmark.featureParityTolerance) ? 0 : 1
+}
+
+func runMobileNetV2DirectSharedBatch() throws -> Int32 {
+    let root = URL(fileURLWithPath: FileManager.default.currentDirectoryPath, isDirectory: true)
+    let environment = ProcessInfo.processInfo.environment
+    guard let batchIndex = Int(environment["PF_R7_BATCH_INDEX"] ?? ""),
+          let sourceOffset = Int(environment["PF_R7_SOURCE_OFFSET"] ?? ""),
+          let orderPhase = Int(environment["PF_R7_ORDER_PHASE"] ?? "") else {
+        throw NSError(domain: "PlaneFuseCLI", code: 2, userInfo: [NSLocalizedDescriptionKey: "PF_R7_BATCH_INDEX, PF_R7_SOURCE_OFFSET, and PF_R7_ORDER_PHASE are required"])
+    }
+    let coefficientPath = environment["PF_MOBILENET_COEFFICIENTS"] ?? "models/derived/MobileNetV2StemCoefficients.json"
+    let tailPath = environment["PF_MOBILENET_TAIL"] ?? "models/derived/tail-compiled/MobileNetV2Tail.mlmodelc"
+    let manifest = MobileNetV2AssetManifest.inspected
+    try manifest.validate(at: root)
+    let corpus = try MobileNetV2Corpus(manifestURL: root.appendingPathComponent(manifest.validationCorpusManifest), root: root)
+    let tail = try CoreMLMobileNetV2TailAdapter(modelURL: URL(fileURLWithPath: tailPath), manifest: manifest, computeUnits: .all)
+    let configuration = try MobileNetV2DirectSharedBatchBenchmark.Configuration(
+        batchIndex: batchIndex,
+        sourceOffset: sourceOffset,
+        orderPhase: orderPhase
+    )
+    let benchmark = try MobileNetV2DirectSharedBatchBenchmark(
+        configuration: configuration,
+        coefficientsURL: URL(fileURLWithPath: coefficientPath),
+        tail: tail,
+        corpus: corpus
+    )
+    let measurement = try benchmark.run()
+    let outputPath = environment["PF_BENCHMARK_OUTPUT"] ?? "proof/r7-repaired-batches/batch-\(String(format: "%02d", batchIndex)).json"
+    let artifact = DirectSharedBatchArtifact(
+        schemaVersion: 1,
+        status: "mobilenetv2_direct_b2_c1_shared_batch",
+        commit: environment["PF_GIT_COMMIT"],
+        executionIdentity: environment["PF_R7_EXECUTION_ID"] ?? "batch-(batchIndex)",
+        command: "planefuse bench mobilenetv2 shared-batch",
+        environment: EnvironmentSnapshot(),
+        measurement: measurement,
+        model: manifest
+    )
+    let url = URL(fileURLWithPath: outputPath)
+    try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+    try JSONEncoder.benchmark.encode(artifact).write(to: url, options: .atomic)
+    emit("PlaneFuse bench MobileNetV2 repaired shared batch (batchIndex): RECORDED")
+    emit("result: (outputPath)")
+    emit("execution_identity: (artifact.executionIdentity)")
+    emit("warmups: (configuration.warmupIterations)")
+    emit("pairs: (measurement.rawPairedRecords.count)")
+    emit("order_phase: (configuration.orderPhase)")
+    return 0
 }
 
 func runMobileNetV2SharedQualityEvidence() throws -> Int32 {
@@ -1056,6 +1116,9 @@ do {
         }
         if benchmarkArguments == ["mobilenetv2", "shared"] || benchmarkArguments == ["mobilenetv2", "shared", "confirm"] {
             exit(try runMobileNetV2DirectSharedBench())
+        }
+        if benchmarkArguments == ["mobilenetv2", "shared-batch"] {
+            exit(try runMobileNetV2DirectSharedBatch())
         }
         if benchmarkArguments == ["mobilenetv2", "pipeline-a"] {
             exit(try runPipelineABench())
