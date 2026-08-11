@@ -1,0 +1,151 @@
+{
+  "activation_max_absolute_error" : 8.58306884765625e-06,
+  "command" : ".\/pf profile mobilenetv2 shared",
+  "commit" : "b6285f2eb6b9329f925cde81db5936f5f2a8de98",
+  "comparison" : "Exact accepted R7 B2-shared Float32 CHW materialized-RGB path versus C1-shared Float32 native-plane path; profiling is separate from the five-batch final benchmark.",
+  "configuration" : {
+    "measured_iterations" : 20,
+    "warmup_iterations" : 5
+  },
+  "device_class" : "AGXG17SDevice",
+  "device_name" : "Apple M5 Pro",
+  "environment" : {
+    "architecture" : "arm64",
+    "build_configuration" : "release",
+    "operating_system" : "Version 26.6.1 (Build 25G76)",
+    "swift_version" : "Apple Swift version 6.3.3 (swiftlang-6.3.3.1.3 clang-2100.1.1.101)",
+    "xcode_version" : "Xcode 26.6"
+  },
+  "persistent_activation_handoff" : {
+    "b2_buffer_length_bytes" : 2408448,
+    "bridge" : "BufferBackedMultiArray(dataPointer:) retained over each persistent MTLBuffer; same Core ML tail adapter for B2 and C1.",
+    "c1_buffer_length_bytes" : 2408448,
+    "element_type" : "Float32",
+    "shape" : [
+      48,
+      112,
+      112
+    ],
+    "strides" : [
+      12544,
+      112,
+      1
+    ]
+  },
+  "pipeline_b2_shared" : {
+    "encode" : {
+      "count" : 20,
+      "mean_milliseconds" : 0.0058124991483055055,
+      "median_absolute_deviation_milliseconds" : 0.0009583309292793274,
+      "p50_milliseconds" : 0.005541667633224279,
+      "p95_milliseconds" : 0.009583331120666116
+    },
+    "gpu_execution" : {
+      "count" : 20,
+      "mean_milliseconds" : 0.32453333333251067,
+      "median_absolute_deviation_milliseconds" : 0.02012499317061156,
+      "p50_milliseconds" : 0.2895833385991864,
+      "p95_milliseconds" : 0.3108750024694018
+    },
+    "gpu_timestamp_samples" : 20,
+    "input_to_result" : {
+      "count" : 20,
+      "mean_milliseconds" : 2.177343750008731,
+      "median_absolute_deviation_milliseconds" : 0.08870833698892966,
+      "p50_milliseconds" : 2.135875001840759,
+      "p95_milliseconds" : 2.2745833339286037
+    },
+    "synchronization_wait" : {
+      "count" : 20,
+      "mean_milliseconds" : 0.8434979175945045,
+      "median_absolute_deviation_milliseconds" : 0.06620833300985396,
+      "p50_milliseconds" : 0.8089583352557383,
+      "p95_milliseconds" : 0.9392083302373067
+    },
+    "tail_prediction" : {
+      "count" : 20,
+      "mean_milliseconds" : 1.3238770839961944,
+      "median_absolute_deviation_milliseconds" : 0.02883333945646882,
+      "p50_milliseconds" : 1.3257916652946733,
+      "p95_milliseconds" : 1.366999997117091
+    },
+    "wall_frontend" : {
+      "count" : 20,
+      "mean_milliseconds" : 0.84931041674281,
+      "median_absolute_deviation_milliseconds" : 0.06933332770131528,
+      "p50_milliseconds" : 0.8154166716849431,
+      "p95_milliseconds" : 0.9442916634725407
+    }
+  },
+  "pipeline_c1_shared" : {
+    "encode" : {
+      "count" : 20,
+      "mean_milliseconds" : 0.0042125004256377,
+      "median_absolute_deviation_milliseconds" : 0.0007916678441688418,
+      "p50_milliseconds" : 0.0040000013541430235,
+      "p95_milliseconds" : 0.0063333354773931205
+    },
+    "gpu_execution" : {
+      "count" : 20,
+      "mean_milliseconds" : 0.23372708310489543,
+      "median_absolute_deviation_milliseconds" : 0.0011666634236462414,
+      "p50_milliseconds" : 0.23945833527250215,
+      "p95_milliseconds" : 0.24074999964796007
+    },
+    "gpu_timestamp_samples" : 20,
+    "input_to_result" : {
+      "count" : 20,
+      "mean_milliseconds" : 2.0192624993796926,
+      "median_absolute_deviation_milliseconds" : 0.09458333079237491,
+      "p50_milliseconds" : 2.0217916680849157,
+      "p95_milliseconds" : 2.2013333364157006
+    },
+    "synchronization_wait" : {
+      "count" : 20,
+      "mean_milliseconds" : 0.7230187511595432,
+      "median_absolute_deviation_milliseconds" : 0.05641667667077854,
+      "p50_milliseconds" : 0.7100833390722983,
+      "p95_milliseconds" : 0.8242500043706968
+    },
+    "tail_prediction" : {
+      "count" : 20,
+      "mean_milliseconds" : 1.2840479172155028,
+      "median_absolute_deviation_milliseconds" : 0.04154166526859626,
+      "p50_milliseconds" : 1.2745416679535992,
+      "p95_milliseconds" : 1.3461249982356094
+    },
+    "wall_frontend" : {
+      "count" : 20,
+      "mean_milliseconds" : 0.7321000011870638,
+      "median_absolute_deviation_milliseconds" : 0.05966667231405154,
+      "p50_milliseconds" : 0.7199166720965877,
+      "p95_milliseconds" : 0.8340000058524311
+    }
+  },
+  "requested_core_ml_compute_units" : "all",
+  "resources" : {
+    "b2_rgb_logical_payload_bytes" : 602112,
+    "b2_rgb_metal_allocated_bytes" : 606208,
+    "c1_rgb_logical_payload_bytes" : 0,
+    "c1_rgb_metal_allocated_bytes" : 0,
+    "c1_rgb_resource_statement" : "C1 allocates no normalized RGB buffer; only its required activation buffer is retained.",
+    "cpu_element_by_element_activation_copy_bytes" : 0
+  },
+  "schema_version" : 1,
+  "source_symbols" : {
+    "b2_pipeline" : "MetalMobileNetV2RGBPipeline.executeCHWTimed \/ encodeCHWConversion \/ encodeCHWStem",
+    "b2_shader" : "Sources\/PlaneFuseCore\/Shaders\/NV12MobileNetV2RGB.metal (nv12ToMobileNetV2NormalizedRGBCHW, mobileNetV2RGBCHWStem)",
+    "c1_pipeline" : "MetalMobileNetV2NativeStem.executeTimed \/ encode",
+    "c1_shader" : "Sources\/PlaneFuseCore\/Shaders\/NV12MobileNetV2Stem.metal (nv12ToMobileNetV2Stem)",
+    "shared_tail" : "CoreMLMobileNetV2TailAdapter.predict(sharedActivation:)"
+  },
+  "status" : "r7_final_shared_path_profiler",
+  "top1_agreement" : 1,
+  "trace" : {
+    "capture_command" : "xcrun xctrace record --template 'Metal System Trace' --output proof\/profiler\/r7-b2-c1-shared-repaired-labeled.trace --launch -- .build\/arm64-apple-macosx\/release\/planefuse profile mobilenetv2 shared",
+    "format" : "Metal System Trace",
+    "raw_trace_path" : "proof\/profiler\/r7-b2-c1-shared-repaired-labeled.trace",
+    "status" : "metal-system-trace-captured-naturally-terminated"
+  },
+  "validation_sample_count" : 20
+}

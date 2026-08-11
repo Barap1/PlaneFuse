@@ -38,8 +38,8 @@
       "materialized_intermediates": "602112-byte logical RGB; 606208-byte Metal allocation",
       "bridge_class": "persistent BufferBackedMultiArray(dataPointer:) shared activation",
       "tail_configuration": "same Core ML MobileNetV2 tail, MLComputeUnits.all",
-      "authoritative_evidence": "proof/r7-final-b2-c1-shared-repaired.json; proof/r7-final-shared-path-profile-repaired-labeled.json",
-      "result": "repaired p50 2.483208 ms; pending hostile acceptance",
+      "authoritative_evidence": "proof/r7-final-b2-c1-shared-repaired-conditions.json; proof/r7-final-shared-path-profile-repaired-conditions.json",
+      "result": "condition-complete repaired p50 1.595167 ms; pending hostile re-review",
       "disposition": "strongest-credible-matched-B-pending-review",
       "eligible_for_final_matched_comparison": true,
       "reason": "Strongest fair conventional RGB baseline under the repaired five-process protocol."
@@ -66,8 +66,8 @@
       "materialized_intermediates": "no full RGB; 2408448-byte activation only",
       "bridge_class": "persistent BufferBackedMultiArray(dataPointer:) shared activation",
       "tail_configuration": "same Core ML MobileNetV2 tail, MLComputeUnits.all",
-      "authoritative_evidence": "proof/r7-final-b2-c1-shared-repaired.json; proof/r7-final-shared-path-profile-repaired-labeled.json",
-      "result": "repaired p50 2.413458 ms; pending hostile acceptance",
+      "authoritative_evidence": "proof/r7-final-b2-c1-shared-repaired-conditions.json; proof/r7-final-shared-path-profile-repaired-conditions.json",
+      "result": "condition-complete repaired p50 1.561417 ms; pending hostile re-review",
       "disposition": "strongest-accepted-stable-C-pending-review",
       "eligible_for_final_matched_comparison": true,
       "reason": "Accepted stable native-plane candidate, subject to repaired independent review."

@@ -1,0 +1,2413 @@
+{
+  "canonical_payload_sha256": "0244c0fb0ecd60967edf577f6d4b1efcbc63ea58d980ba91da1b588f1b601e50",
+  "payload": {
+    "capture": {
+      "command": "xcrun xctrace record --template 'Metal System Trace' --output proof/profiler/r7-b2-c1-shared-repaired-labeled.trace --launch -- .build/arm64-apple-macosx/release/planefuse profile mobilenetv2 shared",
+      "format": "Metal System Trace",
+      "metadata_policy": "sanitized; no device nickname, UUID, PID, username, local path, or process inventory",
+      "raw_trace_path": "proof/profiler/r7-b2-c1-shared-repaired-labeled.trace",
+      "status": "metal-system-trace-captured-naturally-terminated",
+      "target_exit": "exit(0); Target app exited"
+    },
+    "environment": {
+      "architecture": "arm64",
+      "build_configuration": "release",
+      "operating_system": "Version 26.6.1 (Build 25G76)",
+      "swift_version": "Apple Swift version 6.3.3 (swiftlang-6.3.3.1.3 clang-2100.1.1.101)",
+      "xcode_version": "Xcode 26.6"
+    },
+    "event_tables": {
+      "metal_application_command_buffer_submissions": {
+        "row_count": 50,
+        "rows": [
+          {
+            "duration": 217,
+            "encoder_count": 1,
+            "event_index": 0,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 1,
+            "start": 0
+          },
+          {
+            "duration": 38,
+            "encoder_count": 1,
+            "event_index": 1,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 2,
+            "start": 0
+          },
+          {
+            "duration": 25,
+            "encoder_count": 1,
+            "event_index": 2,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 3,
+            "start": 0
+          },
+          {
+            "duration": 17,
+            "encoder_count": 1,
+            "event_index": 3,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 4,
+            "start": 0
+          },
+          {
+            "duration": 23,
+            "encoder_count": 1,
+            "event_index": 4,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 5,
+            "start": 0
+          },
+          {
+            "duration": 13,
+            "encoder_count": 1,
+            "event_index": 5,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 6,
+            "start": 0
+          },
+          {
+            "duration": 15,
+            "encoder_count": 1,
+            "event_index": 6,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 7,
+            "start": 0
+          },
+          {
+            "duration": 12,
+            "encoder_count": 1,
+            "event_index": 7,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 8,
+            "start": 0
+          },
+          {
+            "duration": 20,
+            "encoder_count": 1,
+            "event_index": 8,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 9,
+            "start": 0
+          },
+          {
+            "duration": 17,
+            "encoder_count": 1,
+            "event_index": 9,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 10,
+            "start": 0
+          },
+          {
+            "duration": 17,
+            "encoder_count": 1,
+            "event_index": 10,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 11,
+            "start": 0
+          },
+          {
+            "duration": 12,
+            "encoder_count": 1,
+            "event_index": 11,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 12,
+            "start": 0
+          },
+          {
+            "duration": 18,
+            "encoder_count": 1,
+            "event_index": 12,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 13,
+            "start": 0
+          },
+          {
+            "duration": 12,
+            "encoder_count": 1,
+            "event_index": 13,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 14,
+            "start": 0
+          },
+          {
+            "duration": 17,
+            "encoder_count": 1,
+            "event_index": 14,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 15,
+            "start": 0
+          },
+          {
+            "duration": 12,
+            "encoder_count": 1,
+            "event_index": 15,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 16,
+            "start": 0
+          },
+          {
+            "duration": 15,
+            "encoder_count": 1,
+            "event_index": 16,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 17,
+            "start": 0
+          },
+          {
+            "duration": 12,
+            "encoder_count": 1,
+            "event_index": 17,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 18,
+            "start": 0
+          },
+          {
+            "duration": 17,
+            "encoder_count": 1,
+            "event_index": 18,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 19,
+            "start": 0
+          },
+          {
+            "duration": 11,
+            "encoder_count": 1,
+            "event_index": 19,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 20,
+            "start": 0
+          },
+          {
+            "duration": 15,
+            "encoder_count": 1,
+            "event_index": 20,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 21,
+            "start": 0
+          },
+          {
+            "duration": 11,
+            "encoder_count": 1,
+            "event_index": 21,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 22,
+            "start": 0
+          },
+          {
+            "duration": 14,
+            "encoder_count": 1,
+            "event_index": 22,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 23,
+            "start": 0
+          },
+          {
+            "duration": 11,
+            "encoder_count": 1,
+            "event_index": 23,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 24,
+            "start": 0
+          },
+          {
+            "duration": 16,
+            "encoder_count": 1,
+            "event_index": 24,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 25,
+            "start": 0
+          },
+          {
+            "duration": 12,
+            "encoder_count": 1,
+            "event_index": 25,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 26,
+            "start": 0
+          },
+          {
+            "duration": 15,
+            "encoder_count": 1,
+            "event_index": 26,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 27,
+            "start": 0
+          },
+          {
+            "duration": 11,
+            "encoder_count": 1,
+            "event_index": 27,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 28,
+            "start": 0
+          },
+          {
+            "duration": 15,
+            "encoder_count": 1,
+            "event_index": 28,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 29,
+            "start": 0
+          },
+          {
+            "duration": 13,
+            "encoder_count": 1,
+            "event_index": 29,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 30,
+            "start": 0
+          },
+          {
+            "duration": 18,
+            "encoder_count": 1,
+            "event_index": 30,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 31,
+            "start": 0
+          },
+          {
+            "duration": 19,
+            "encoder_count": 1,
+            "event_index": 31,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 32,
+            "start": 0
+          },
+          {
+            "duration": 34,
+            "encoder_count": 1,
+            "event_index": 32,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 33,
+            "start": 0
+          },
+          {
+            "duration": 21,
+            "encoder_count": 1,
+            "event_index": 33,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 34,
+            "start": 0
+          },
+          {
+            "duration": 25,
+            "encoder_count": 1,
+            "event_index": 34,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 35,
+            "start": 0
+          },
+          {
+            "duration": 16,
+            "encoder_count": 1,
+            "event_index": 35,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 36,
+            "start": 0
+          },
+          {
+            "duration": 39,
+            "encoder_count": 1,
+            "event_index": 36,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 37,
+            "start": 0
+          },
+          {
+            "duration": 32,
+            "encoder_count": 1,
+            "event_index": 37,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 38,
+            "start": 0
+          },
+          {
+            "duration": 32,
+            "encoder_count": 1,
+            "event_index": 38,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 39,
+            "start": 0
+          },
+          {
+            "duration": 16,
+            "encoder_count": 1,
+            "event_index": 39,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 40,
+            "start": 0
+          },
+          {
+            "duration": 18,
+            "encoder_count": 1,
+            "event_index": 40,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 41,
+            "start": 0
+          },
+          {
+            "duration": 13,
+            "encoder_count": 1,
+            "event_index": 41,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 42,
+            "start": 0
+          },
+          {
+            "duration": 18,
+            "encoder_count": 1,
+            "event_index": 42,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 43,
+            "start": 0
+          },
+          {
+            "duration": 13,
+            "encoder_count": 1,
+            "event_index": 43,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 44,
+            "start": 0
+          },
+          {
+            "duration": 24,
+            "encoder_count": 1,
+            "event_index": 44,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 45,
+            "start": 0
+          },
+          {
+            "duration": 13,
+            "encoder_count": 1,
+            "event_index": 45,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 46,
+            "start": 0
+          },
+          {
+            "duration": 16,
+            "encoder_count": 1,
+            "event_index": 46,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 47,
+            "start": 0
+          },
+          {
+            "duration": 13,
+            "encoder_count": 1,
+            "event_index": 47,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 48,
+            "start": 0
+          },
+          {
+            "duration": 20,
+            "encoder_count": 1,
+            "event_index": 48,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 49,
+            "start": 0
+          },
+          {
+            "duration": 12,
+            "encoder_count": 1,
+            "event_index": 49,
+            "event_type": "CommandBufferSubmission",
+            "frame_number": 50,
+            "start": 0
+          }
+        ],
+        "schema": "metal-application-command-buffer-submissions"
+      },
+      "metal_application_encoders_list": {
+        "row_count": 50,
+        "rows": [
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 0,
+            "event_type": "Encoding",
+            "frame_number": 1
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 1,
+            "event_type": "Encoding",
+            "frame_number": 2
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 2,
+            "event_type": "Encoding",
+            "frame_number": 3
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 3,
+            "event_type": "Encoding",
+            "frame_number": 4
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 4,
+            "event_type": "Encoding",
+            "frame_number": 5
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 5,
+            "event_type": "Encoding",
+            "frame_number": 6
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 6,
+            "event_type": "Encoding",
+            "frame_number": 7
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 7,
+            "event_type": "Encoding",
+            "frame_number": 8
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 8,
+            "event_type": "Encoding",
+            "frame_number": 9
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 9,
+            "event_type": "Encoding",
+            "frame_number": 10
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 10,
+            "event_type": "Encoding",
+            "frame_number": 11
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 11,
+            "event_type": "Encoding",
+            "frame_number": 12
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 12,
+            "event_type": "Encoding",
+            "frame_number": 13
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 13,
+            "event_type": "Encoding",
+            "frame_number": 14
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 14,
+            "event_type": "Encoding",
+            "frame_number": 15
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 15,
+            "event_type": "Encoding",
+            "frame_number": 16
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 16,
+            "event_type": "Encoding",
+            "frame_number": 17
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 17,
+            "event_type": "Encoding",
+            "frame_number": 18
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 18,
+            "event_type": "Encoding",
+            "frame_number": 19
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 19,
+            "event_type": "Encoding",
+            "frame_number": 20
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 20,
+            "event_type": "Encoding",
+            "frame_number": 21
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 21,
+            "event_type": "Encoding",
+            "frame_number": 22
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 22,
+            "event_type": "Encoding",
+            "frame_number": 23
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 23,
+            "event_type": "Encoding",
+            "frame_number": 24
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 24,
+            "event_type": "Encoding",
+            "frame_number": 25
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 25,
+            "event_type": "Encoding",
+            "frame_number": 26
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 26,
+            "event_type": "Encoding",
+            "frame_number": 27
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 27,
+            "event_type": "Encoding",
+            "frame_number": 28
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 28,
+            "event_type": "Encoding",
+            "frame_number": 29
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 29,
+            "event_type": "Encoding",
+            "frame_number": 30
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 30,
+            "event_type": "Encoding",
+            "frame_number": 31
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 31,
+            "event_type": "Encoding",
+            "frame_number": 32
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 32,
+            "event_type": "Encoding",
+            "frame_number": 33
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 33,
+            "event_type": "Encoding",
+            "frame_number": 34
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 34,
+            "event_type": "Encoding",
+            "frame_number": 35
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 35,
+            "event_type": "Encoding",
+            "frame_number": 36
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 36,
+            "event_type": "Encoding",
+            "frame_number": 37
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 37,
+            "event_type": "Encoding",
+            "frame_number": 38
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 38,
+            "event_type": "Encoding",
+            "frame_number": 39
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 39,
+            "event_type": "Encoding",
+            "frame_number": 40
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 40,
+            "event_type": "Encoding",
+            "frame_number": 41
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 41,
+            "event_type": "Encoding",
+            "frame_number": 42
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 42,
+            "event_type": "Encoding",
+            "frame_number": 43
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 43,
+            "event_type": "Encoding",
+            "frame_number": 44
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 44,
+            "event_type": "Encoding",
+            "frame_number": 45
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 45,
+            "event_type": "Encoding",
+            "frame_number": 46
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 46,
+            "event_type": "Encoding",
+            "frame_number": 47
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 47,
+            "event_type": "Encoding",
+            "frame_number": 48
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 48,
+            "event_type": "Encoding",
+            "frame_number": 49
+          },
+          {
+            "command_buffer_label": "Command Buffer 0",
+            "encoder_label": "Compute Command 0",
+            "event_index": 49,
+            "event_type": "Encoding",
+            "frame_number": 50
+          }
+        ],
+        "schema": "metal-application-encoders-list"
+      },
+      "metal_gpu_execution_points": {
+        "row_count": 164,
+        "rows": [
+          {
+            "event_index": 0,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 1,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 2,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 3,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 4,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 5,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 6,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 7,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 8,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 9,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 10,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 11,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 12,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 13,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 14,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 15,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 16,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 17,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 18,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 19,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 20,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 21,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 22,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 23,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 24,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 25,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 26,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 27,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 28,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 29,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 30,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 31,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 32,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 33,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 34,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 35,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 36,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 37,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 38,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 39,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 40,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 41,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 42,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 43,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 44,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 45,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 46,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 47,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 48,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 49,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 50,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 51,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 52,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 53,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 54,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 55,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 56,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 57,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 58,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 59,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 60,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 61,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 62,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 63,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 64,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 65,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 66,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 67,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 68,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 69,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 70,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 71,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 72,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 73,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 74,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 75,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 76,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 77,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 78,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 79,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 80,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 81,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 82,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 83,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 84,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 85,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 86,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 87,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 88,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 89,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 90,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 91,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 92,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 93,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 94,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 95,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 96,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 97,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 98,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 99,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 100,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 101,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 102,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 103,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 104,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 105,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 106,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 107,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 108,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 109,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 110,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 111,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 112,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 113,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 114,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 115,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 116,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 117,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 118,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 119,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 120,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 121,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 122,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 123,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 124,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 125,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 126,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 127,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 128,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 129,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 130,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 131,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 132,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 133,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 134,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 135,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 136,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 137,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 138,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 139,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 140,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 141,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 142,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 143,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 144,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 145,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 146,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 147,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 148,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 149,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 150,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 151,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 152,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 153,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 154,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 155,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 156,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 157,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 158,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 159,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 160,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 161,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 162,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          },
+          {
+            "event_index": 163,
+            "gpu_submission_id": 0,
+            "note": "",
+            "timestamp": 0
+          }
+        ],
+        "schema": "metal-gpu-execution-points"
+      }
+    },
+    "expected_path_structure": {
+      "b2": {
+        "command_submissions": 25,
+        "materialized_rgb_bytes": 602112,
+        "ordered_compute_encoders": [
+          "planefuse.b2.rgb",
+          "planefuse.b2.stem"
+        ],
+        "source_symbols": "MetalMobileNetV2RGBPipeline.executeCHWTimed -> encodeCHWConversion -> encodeCHWStem"
+      },
+      "c1": {
+        "command_submissions": 25,
+        "materialized_rgb_bytes": 0,
+        "ordered_compute_encoders": [
+          "planefuse.c1.native_stem"
+        ],
+        "source_symbols": "MetalMobileNetV2NativeStem.executeTimed -> encode"
+      },
+      "label_note": "Metal System Trace normalized object labels; the complete event-row temporal join and source-level labels are both retained and checked."
+    },
+    "generating_commit": "b6285f2eb6b9329f925cde81db5936f5f2a8de98",
+    "persistent_activation_handoff": {
+      "b2_buffer_length_bytes": 2408448,
+      "bridge": "BufferBackedMultiArray(dataPointer:) retained over each persistent MTLBuffer; same Core ML tail adapter for B2 and C1.",
+      "c1_buffer_length_bytes": 2408448,
+      "element_type": "Float32",
+      "shape": [
+        48,
+        112,
+        112
+      ],
+      "strides": [
+        12544,
+        112,
+        1
+      ]
+    },
+    "profile_artifact": "proof/r7-final-shared-path-profile-repaired-labeled.json",
+    "resource_evidence": {
+      "b2_rgb_logical_payload_bytes": 602112,
+      "b2_rgb_metal_allocated_bytes": 606208,
+      "c1_rgb_logical_payload_bytes": 0,
+      "c1_rgb_metal_allocated_bytes": 0,
+      "c1_rgb_resource_statement": "C1 allocates no normalized RGB buffer; only its required activation buffer is retained.",
+      "cpu_element_by_element_activation_copy_bytes": 0
+    },
+    "schema_version": 2,
+    "source_export_sha256": {
+      "command_events": "db0889172a7186bb1db8b6af57ccf02b105fe88938d2d17daf354c9fd5d81b4f",
+      "encoder_events": "18b2164148446ac2a374161995adc8e65a6597125a9487b64567e4646fd328f9",
+      "gpu_events": "76389d27ff740c23f0abb0466a7bd5103db473e506737e90a6c8d25e153b99fe",
+      "trace_toc": "f7a20cd530290e4d951650a90d33688625033588f843290417ae5cb1e698f221"
+    },
+    "status": "r7_sanitized_metal_event_rows",
+    "workload": {
+      "attribution_basis": "complete temporal event rows joined to the exact B2-then-C1 profiler call schedule; source-level encoder labels are verified separately because xctrace normalizes object labels",
+      "invocations": [
+        {
+          "command_buffer_event_index": 0,
+          "encoder_event_indices": [
+            0
+          ],
+          "invocation_index": 0,
+          "path": "B2",
+          "source_encoder_labels": [
+            "planefuse.b2.rgb",
+            "planefuse.b2.stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 1,
+          "encoder_event_indices": [
+            1
+          ],
+          "invocation_index": 1,
+          "path": "C1",
+          "source_encoder_labels": [
+            "planefuse.c1.native_stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 2,
+          "encoder_event_indices": [
+            2
+          ],
+          "invocation_index": 2,
+          "path": "B2",
+          "source_encoder_labels": [
+            "planefuse.b2.rgb",
+            "planefuse.b2.stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 3,
+          "encoder_event_indices": [
+            3
+          ],
+          "invocation_index": 3,
+          "path": "C1",
+          "source_encoder_labels": [
+            "planefuse.c1.native_stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 4,
+          "encoder_event_indices": [
+            4
+          ],
+          "invocation_index": 4,
+          "path": "B2",
+          "source_encoder_labels": [
+            "planefuse.b2.rgb",
+            "planefuse.b2.stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 5,
+          "encoder_event_indices": [
+            5
+          ],
+          "invocation_index": 5,
+          "path": "C1",
+          "source_encoder_labels": [
+            "planefuse.c1.native_stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 6,
+          "encoder_event_indices": [
+            6
+          ],
+          "invocation_index": 6,
+          "path": "B2",
+          "source_encoder_labels": [
+            "planefuse.b2.rgb",
+            "planefuse.b2.stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 7,
+          "encoder_event_indices": [
+            7
+          ],
+          "invocation_index": 7,
+          "path": "C1",
+          "source_encoder_labels": [
+            "planefuse.c1.native_stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 8,
+          "encoder_event_indices": [
+            8
+          ],
+          "invocation_index": 8,
+          "path": "B2",
+          "source_encoder_labels": [
+            "planefuse.b2.rgb",
+            "planefuse.b2.stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 9,
+          "encoder_event_indices": [
+            9
+          ],
+          "invocation_index": 9,
+          "path": "C1",
+          "source_encoder_labels": [
+            "planefuse.c1.native_stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 10,
+          "encoder_event_indices": [
+            10
+          ],
+          "invocation_index": 10,
+          "path": "B2",
+          "source_encoder_labels": [
+            "planefuse.b2.rgb",
+            "planefuse.b2.stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 11,
+          "encoder_event_indices": [
+            11
+          ],
+          "invocation_index": 11,
+          "path": "C1",
+          "source_encoder_labels": [
+            "planefuse.c1.native_stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 12,
+          "encoder_event_indices": [
+            12
+          ],
+          "invocation_index": 12,
+          "path": "B2",
+          "source_encoder_labels": [
+            "planefuse.b2.rgb",
+            "planefuse.b2.stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 13,
+          "encoder_event_indices": [
+            13
+          ],
+          "invocation_index": 13,
+          "path": "C1",
+          "source_encoder_labels": [
+            "planefuse.c1.native_stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 14,
+          "encoder_event_indices": [
+            14
+          ],
+          "invocation_index": 14,
+          "path": "B2",
+          "source_encoder_labels": [
+            "planefuse.b2.rgb",
+            "planefuse.b2.stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 15,
+          "encoder_event_indices": [
+            15
+          ],
+          "invocation_index": 15,
+          "path": "C1",
+          "source_encoder_labels": [
+            "planefuse.c1.native_stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 16,
+          "encoder_event_indices": [
+            16
+          ],
+          "invocation_index": 16,
+          "path": "B2",
+          "source_encoder_labels": [
+            "planefuse.b2.rgb",
+            "planefuse.b2.stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 17,
+          "encoder_event_indices": [
+            17
+          ],
+          "invocation_index": 17,
+          "path": "C1",
+          "source_encoder_labels": [
+            "planefuse.c1.native_stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 18,
+          "encoder_event_indices": [
+            18
+          ],
+          "invocation_index": 18,
+          "path": "B2",
+          "source_encoder_labels": [
+            "planefuse.b2.rgb",
+            "planefuse.b2.stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 19,
+          "encoder_event_indices": [
+            19
+          ],
+          "invocation_index": 19,
+          "path": "C1",
+          "source_encoder_labels": [
+            "planefuse.c1.native_stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 20,
+          "encoder_event_indices": [
+            20
+          ],
+          "invocation_index": 20,
+          "path": "B2",
+          "source_encoder_labels": [
+            "planefuse.b2.rgb",
+            "planefuse.b2.stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 21,
+          "encoder_event_indices": [
+            21
+          ],
+          "invocation_index": 21,
+          "path": "C1",
+          "source_encoder_labels": [
+            "planefuse.c1.native_stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 22,
+          "encoder_event_indices": [
+            22
+          ],
+          "invocation_index": 22,
+          "path": "B2",
+          "source_encoder_labels": [
+            "planefuse.b2.rgb",
+            "planefuse.b2.stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 23,
+          "encoder_event_indices": [
+            23
+          ],
+          "invocation_index": 23,
+          "path": "C1",
+          "source_encoder_labels": [
+            "planefuse.c1.native_stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 24,
+          "encoder_event_indices": [
+            24
+          ],
+          "invocation_index": 24,
+          "path": "B2",
+          "source_encoder_labels": [
+            "planefuse.b2.rgb",
+            "planefuse.b2.stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 25,
+          "encoder_event_indices": [
+            25
+          ],
+          "invocation_index": 25,
+          "path": "C1",
+          "source_encoder_labels": [
+            "planefuse.c1.native_stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 26,
+          "encoder_event_indices": [
+            26
+          ],
+          "invocation_index": 26,
+          "path": "B2",
+          "source_encoder_labels": [
+            "planefuse.b2.rgb",
+            "planefuse.b2.stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 27,
+          "encoder_event_indices": [
+            27
+          ],
+          "invocation_index": 27,
+          "path": "C1",
+          "source_encoder_labels": [
+            "planefuse.c1.native_stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 28,
+          "encoder_event_indices": [
+            28
+          ],
+          "invocation_index": 28,
+          "path": "B2",
+          "source_encoder_labels": [
+            "planefuse.b2.rgb",
+            "planefuse.b2.stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 29,
+          "encoder_event_indices": [
+            29
+          ],
+          "invocation_index": 29,
+          "path": "C1",
+          "source_encoder_labels": [
+            "planefuse.c1.native_stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 30,
+          "encoder_event_indices": [
+            30
+          ],
+          "invocation_index": 30,
+          "path": "B2",
+          "source_encoder_labels": [
+            "planefuse.b2.rgb",
+            "planefuse.b2.stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 31,
+          "encoder_event_indices": [
+            31
+          ],
+          "invocation_index": 31,
+          "path": "C1",
+          "source_encoder_labels": [
+            "planefuse.c1.native_stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 32,
+          "encoder_event_indices": [
+            32
+          ],
+          "invocation_index": 32,
+          "path": "B2",
+          "source_encoder_labels": [
+            "planefuse.b2.rgb",
+            "planefuse.b2.stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 33,
+          "encoder_event_indices": [
+            33
+          ],
+          "invocation_index": 33,
+          "path": "C1",
+          "source_encoder_labels": [
+            "planefuse.c1.native_stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 34,
+          "encoder_event_indices": [
+            34
+          ],
+          "invocation_index": 34,
+          "path": "B2",
+          "source_encoder_labels": [
+            "planefuse.b2.rgb",
+            "planefuse.b2.stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 35,
+          "encoder_event_indices": [
+            35
+          ],
+          "invocation_index": 35,
+          "path": "C1",
+          "source_encoder_labels": [
+            "planefuse.c1.native_stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 36,
+          "encoder_event_indices": [
+            36
+          ],
+          "invocation_index": 36,
+          "path": "B2",
+          "source_encoder_labels": [
+            "planefuse.b2.rgb",
+            "planefuse.b2.stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 37,
+          "encoder_event_indices": [
+            37
+          ],
+          "invocation_index": 37,
+          "path": "C1",
+          "source_encoder_labels": [
+            "planefuse.c1.native_stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 38,
+          "encoder_event_indices": [
+            38
+          ],
+          "invocation_index": 38,
+          "path": "B2",
+          "source_encoder_labels": [
+            "planefuse.b2.rgb",
+            "planefuse.b2.stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 39,
+          "encoder_event_indices": [
+            39
+          ],
+          "invocation_index": 39,
+          "path": "C1",
+          "source_encoder_labels": [
+            "planefuse.c1.native_stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 40,
+          "encoder_event_indices": [
+            40
+          ],
+          "invocation_index": 40,
+          "path": "B2",
+          "source_encoder_labels": [
+            "planefuse.b2.rgb",
+            "planefuse.b2.stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 41,
+          "encoder_event_indices": [
+            41
+          ],
+          "invocation_index": 41,
+          "path": "C1",
+          "source_encoder_labels": [
+            "planefuse.c1.native_stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 42,
+          "encoder_event_indices": [
+            42
+          ],
+          "invocation_index": 42,
+          "path": "B2",
+          "source_encoder_labels": [
+            "planefuse.b2.rgb",
+            "planefuse.b2.stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 43,
+          "encoder_event_indices": [
+            43
+          ],
+          "invocation_index": 43,
+          "path": "C1",
+          "source_encoder_labels": [
+            "planefuse.c1.native_stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 44,
+          "encoder_event_indices": [
+            44
+          ],
+          "invocation_index": 44,
+          "path": "B2",
+          "source_encoder_labels": [
+            "planefuse.b2.rgb",
+            "planefuse.b2.stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 45,
+          "encoder_event_indices": [
+            45
+          ],
+          "invocation_index": 45,
+          "path": "C1",
+          "source_encoder_labels": [
+            "planefuse.c1.native_stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 46,
+          "encoder_event_indices": [
+            46
+          ],
+          "invocation_index": 46,
+          "path": "B2",
+          "source_encoder_labels": [
+            "planefuse.b2.rgb",
+            "planefuse.b2.stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 47,
+          "encoder_event_indices": [
+            47
+          ],
+          "invocation_index": 47,
+          "path": "C1",
+          "source_encoder_labels": [
+            "planefuse.c1.native_stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 48,
+          "encoder_event_indices": [
+            48
+          ],
+          "invocation_index": 48,
+          "path": "B2",
+          "source_encoder_labels": [
+            "planefuse.b2.rgb",
+            "planefuse.b2.stem"
+          ]
+        },
+        {
+          "command_buffer_event_index": 49,
+          "encoder_event_indices": [
+            49
+          ],
+          "invocation_index": 49,
+          "path": "C1",
+          "source_encoder_labels": [
+            "planefuse.c1.native_stem"
+          ]
+        }
+      ],
+      "measured_iterations": 20,
+      "observed_command_buffer_rows": 50,
+      "observed_encoder_rows": 50,
+      "observed_gpu_execution_rows": 164,
+      "warmup_iterations": 5
+    }
+  }
+}

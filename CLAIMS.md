@@ -292,10 +292,20 @@ Supersession: F-002 found that the cited implementation used one warmup phase an
 
 ## C029 - R7 repaired strongest matched B2/C1 evidence
 
-Status: QUALIFIED PENDING FRESH HOSTILE REVIEW
+Status: HISTORICAL / SUPERSEDED BY CONDITION-COMPLETE RERUN
 
 Claim wording: "At repaired Release generating commit `3b62467f6bb4e8b0a95209f23471ecf2de722d3f`, the strongest matched B2/C1 comparison used five separate Release benchmark processes. Each process independently initialized the benchmark, performed 20 warmups, measured exactly 200 pairs, balanced 100 B2-first and 100 C1-first pairs, and rotated source offset/order phase across the fixed 64-input output-blind corpus. B2 p50 was 2.483208 ms and C1 p50 was 2.413458 ms. The difference between marginal p50s was 0.069750 ms, or 2.808866% in C1's favor; the median paired B2-minus-C1 difference was 0.077167 ms with paired-median bootstrap 95% CI [0.068625, 0.091542] ms. The repaired result remains below the ≥10% target. Quality was regenerated at the profiler/source repair commit with top-1 agreement 1.0, top-5 set agreement 0.984375, top-5 ranking agreement 0.96875, activation maximum absolute error 8.583068e-6, probability maximum absolute error 0.001953125, zero C RGB bytes, and zero PlaneFuse element-by-element CPU activation-copy bytes. The two real-image top-5 disagreements remain retained."
 
 Evidence files: `proof/r7-final-b2-c1-shared-repaired.json`, `proof/r7-repaired-batches/3b62467607ba29b58c0d7205dfec06f8f7b909c4/`, `proof/r7-b2-c1-shared-quality-repaired.json`, `proof/r7-competition-targets-repaired.json`, `scripts/check_r7_repaired_shared_benchmark.py`, `scripts/check_r7_repaired_targets.py`
 
 Limitations: This is not a competition-worthiness claim until fresh hostile review; the prior successful camera evidence remains historical and the fresh R7 physical-camera attempt had zero callbacks. The repaired paired CI and difference of marginal p50s are distinct estimands.
+
+## C030 - R7 condition-complete final B2/C1 evidence
+
+Status: QUALIFIED PENDING FRESH HOSTILE RE-REVIEW
+
+Claim wording: "At clean Release generating commit `b6285f2eb6b9329f925cde81db5936f5f2a8de98`, the unchanged five-process R7 B2/C1 protocol was rerun with batch-local 20 warmups, 200 measured pairs, 100/100 execution order balance, rotated source offsets, and complete per-batch AC power, Low Power Mode, and thermal-state metadata. B2 p50 was 1.595167 ms and C1 p50 was 1.561417 ms; the difference between marginal p50s was 0.033750 ms, or 2.115766% in C1's favor. The median paired difference and deterministic paired bootstrap interval are in the authoritative artifact. The result remains below the ≥10% target. Quality at the same source commit retained top-1 agreement 1.0, activation maximum absolute error 8.583068e-6, top-5 set agreement 0.984375, two real-image disagreements, zero C RGB bytes, and zero PlaneFuse element-by-element CPU activation-copy bytes."
+
+Evidence files: `proof/r7-final-b2-c1-shared-repaired-conditions.json`, `proof/r7-repaired-batches/b6285f/`, `proof/r7-b2-c1-shared-quality-conditions.json`, `proof/r7-competition-targets-repaired-conditions.json`, `scripts/check_r7_repaired_shared_benchmark.py`
+
+Profiler qualification: `proof/r7-final-shared-path-profile-repaired-conditions.json` and `proof/profiler/r7-b2-c1-shared-repaired-events-full.json` contain nonzero actual event rows, complete row-level temporal attribution, source-export hashes, and clean completion metadata. The raw trace remains uncommitted due size. This is not a competition-worthiness claim; fresh hostile re-review is required.

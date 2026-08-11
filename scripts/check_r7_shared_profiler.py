@@ -31,20 +31,30 @@ def validate_event_export(data: dict) -> None:
     }
     for name, minimum in required.items():
         table = tables.get(name, {})
-        if table.get("row_count", 0) < minimum or not table.get("sample_rows"):
-            fail(f"event table {name} is empty or schema-only")
+        if table.get("row_count", 0) < minimum or len(table.get("rows", [])) != table.get("row_count"):
+            fail(f"event table {name} is empty, truncated, or schema-only")
     workload = payload.get("workload", {})
     if workload.get("observed_command_buffer_rows") != 50:
         fail("expected 50 shared B2/C1 command submissions was not observed")
     if workload.get("observed_gpu_execution_rows", 0) <= 0 or workload.get("observed_encoder_rows", 0) <= 0:
         fail("GPU/encoder event rows are not nonzero")
     expected = payload.get("expected_path_structure", {})
+    invocations = workload.get("invocations", [])
+    if len(invocations) != 50:
+        fail("complete invocation attribution is missing")
+    paths = [entry.get("path") for entry in invocations]
+    if paths.count("B2") != 25 or paths.count("C1") != 25 or any(paths[index] != ("B2" if index % 2 == 0 else "C1") for index in range(50)):
+        fail("B2/C1 temporal attribution does not reconstruct the exact alternating schedule")
+    if any(entry.get("command_buffer_event_index") != index or entry.get("encoder_event_indices") != [index] for index, entry in enumerate(invocations)):
+        fail("invocation attribution does not bind every command and encoder event row")
     if expected.get("b2", {}).get("command_submissions") != 25 or expected.get("c1", {}).get("command_submissions") != 25:
         fail("expected B2/C1 path counts are missing")
     if expected.get("b2", {}).get("ordered_compute_encoders") != ["planefuse.b2.rgb", "planefuse.b2.stem"]:
         fail("B2 expected two-encoder structure is missing")
     if expected.get("c1", {}).get("ordered_compute_encoders") != ["planefuse.c1.native_stem"]:
         fail("C1 expected native-stem structure is missing")
+    if set(payload.get("source_export_sha256", {})) != {"trace_toc", "command_events", "gpu_events", "encoder_events"}:
+        fail("source export hashes are missing")
     capture = payload.get("capture", {})
     if capture.get("target_exit") != "exit(0); Target app exited":
         fail("profiler workload completion is not recorded as clean")
@@ -57,9 +67,9 @@ def run_negative_schema_only_test() -> None:
         "payload": {
             "status": "r7_sanitized_metal_event_rows",
             "event_tables": {
-                "metal_application_command_buffer_submissions": {"row_count": 0, "sample_rows": []},
-                "metal_gpu_execution_points": {"row_count": 0, "sample_rows": []},
-                "metal_application_encoders_list": {"row_count": 0, "sample_rows": []},
+                "metal_application_command_buffer_submissions": {"row_count": 0, "rows": []},
+                "metal_gpu_execution_points": {"row_count": 0, "rows": []},
+                "metal_application_encoders_list": {"row_count": 0, "rows": []},
             },
         },
         "canonical_payload_sha256": hashlib.sha256(b"{}").hexdigest(),
@@ -71,10 +81,29 @@ def run_negative_schema_only_test() -> None:
     fail("negative schema-only export test did not fail")
 
 
+def run_negative_attribution_tests(data: dict) -> None:
+    altered = json.loads(json.dumps(data))
+    altered["payload"]["workload"]["invocations"] = altered["payload"]["workload"]["invocations"][:-1]
+    try:
+        validate_event_export(altered)
+    except SystemExit:
+        pass
+    else:
+        fail("negative truncated-attribution export test did not fail")
+    altered = json.loads(json.dumps(data))
+    altered["payload"]["workload"]["invocations"][1]["path"] = "B2"
+    try:
+        validate_event_export(altered)
+    except SystemExit:
+        pass
+    else:
+        fail("negative wrong-path attribution export test did not fail")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("artifact", nargs="?", default="proof/r7-final-shared-path-profile-repaired-labeled.json")
-    parser.add_argument("--events", default="proof/profiler/r7-b2-c1-shared-repaired-events.json")
+    parser.add_argument("--events", default="proof/profiler/r7-b2-c1-shared-repaired-events-full.json")
     parser.add_argument("--expected-commit")
     args = parser.parse_args()
     artifact_path = Path(args.artifact)
@@ -110,9 +139,10 @@ def main() -> int:
             fail(f"{key} lacks measured GPU/input-to-result samples")
     validate_event_export(json.loads(event_path.read_text()))
     run_negative_schema_only_test()
+    run_negative_attribution_tests(json.loads(event_path.read_text()))
     print(f"PASS r7 shared profiler: {artifact_path}")
     print(f"head: {expected_commit}; event export: {event_path}")
-    print("nonzero command/GPU/encoder rows, clean completion, expected B2/C1 structure, hash, and negative schema-only test verified")
+    print("complete event rows, derived B2/C1 attribution, clean completion, source hashes, and negative tests verified")
     return 0
 
 

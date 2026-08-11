@@ -1,0 +1,1937 @@
+{
+  "command" : "planefuse bench mobilenetv2 shared-batch",
+  "commit" : "b6285f2eb6b9329f925cde81db5936f5f2a8de98",
+  "environment" : {
+    "architecture" : "arm64",
+    "build_configuration" : "release",
+    "operating_system" : "Version 26.6.1 (Build 25G76)",
+    "swift_version" : "Apple Swift version 6.3.3 (swiftlang-6.3.3.1.3 clang-2100.1.1.101)",
+    "xcode_version" : "Xcode 26.6"
+  },
+  "execution_identity" : "r7-b6285f2eb6b9329f925cde81db5936f5f2a8de98-run-20260811T153000Z-batch-4",
+  "measurement" : {
+    "activation_max_absolute_error" : 8.58306884765625e-06,
+    "b2_rgb_allocated_bytes" : 606208,
+    "b2_rgb_logical_bytes" : 602112,
+    "bootstrap_batch_count" : 5,
+    "bootstrap_block_size" : 10,
+    "bootstrap_pairs_per_batch" : 200,
+    "bootstrap_replicate_count" : 10000,
+    "bootstrap_seed" : 1346783826,
+    "c1_rgb_allocated_bytes" : 0,
+    "c1_rgb_logical_bytes" : 0,
+    "compute_units_policy" : "all",
+    "conditions_at_end" : {
+      "ac_power_state" : "AC Power",
+      "low_power_mode" : "0",
+      "thermal_state" : "nominal"
+    },
+    "conditions_at_start" : {
+      "ac_power_state" : "AC Power",
+      "low_power_mode" : "0",
+      "thermal_state" : "nominal"
+    },
+    "configuration" : {
+      "batch_index" : 4,
+      "measured_pairs" : 200,
+      "order_phase" : 0,
+      "source_offset" : 48,
+      "warmup_iterations" : 20
+    },
+    "cpu_element_by_element_activation_copy_bytes" : 0,
+    "cpu_element_by_element_activation_copy_status" : "none; persistent buffer-backed MLMultiArray views",
+    "device_name" : "Apple M5 Pro",
+    "raw_paired_records" : [
+      {
+        "b2_milliseconds" : 1.7435833360650577,
+        "b2_minus_c1_milliseconds" : 0.10591666796244681,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6376666681026109,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 48,
+        "source_sample_id" : "stress-16"
+      },
+      {
+        "b2_milliseconds" : 1.7967083331313916,
+        "b2_minus_c1_milliseconds" : 0.0996249946183525,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.697083338513039,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 49,
+        "source_sample_id" : "stress-17"
+      },
+      {
+        "b2_milliseconds" : 1.7440833325963467,
+        "b2_minus_c1_milliseconds" : -0.0335000004270114,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7775833330233581,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 50,
+        "source_sample_id" : "stress-18"
+      },
+      {
+        "b2_milliseconds" : 1.8160416657337919,
+        "b2_minus_c1_milliseconds" : 0.09666667028795928,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7193749954458326,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 51,
+        "source_sample_id" : "stress-19"
+      },
+      {
+        "b2_milliseconds" : 1.7500416724942625,
+        "b2_minus_c1_milliseconds" : -0.31437499274034053,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 2.064416665234603,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 52,
+        "source_sample_id" : "stress-20"
+      },
+      {
+        "b2_milliseconds" : 1.7887916692416184,
+        "b2_minus_c1_milliseconds" : 0.06295833736658096,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7258333318750374,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 53,
+        "source_sample_id" : "stress-21"
+      },
+      {
+        "b2_milliseconds" : 1.805083331419155,
+        "b2_minus_c1_milliseconds" : 0.06404166197171435,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7410416694474407,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 54,
+        "source_sample_id" : "stress-22"
+      },
+      {
+        "b2_milliseconds" : 1.7898749938467517,
+        "b2_minus_c1_milliseconds" : 0.03583332727430388,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7540416665724479,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 55,
+        "source_sample_id" : "stress-23"
+      },
+      {
+        "b2_milliseconds" : 1.7750833358149976,
+        "b2_minus_c1_milliseconds" : 0.18058333080261946,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.594500005012378,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 56,
+        "source_sample_id" : "stress-24"
+      },
+      {
+        "b2_milliseconds" : 1.4478333323495463,
+        "b2_minus_c1_milliseconds" : -0.015666664694435894,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.4634999970439821,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 57,
+        "source_sample_id" : "stress-25"
+      },
+      {
+        "b2_milliseconds" : 1.483166663092561,
+        "b2_minus_c1_milliseconds" : 0.052291667088866234,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.4308749960036948,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 58,
+        "source_sample_id" : "stress-26"
+      },
+      {
+        "b2_milliseconds" : 1.4611250007874332,
+        "b2_minus_c1_milliseconds" : 0.04333333345130086,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.4177916673361324,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 59,
+        "source_sample_id" : "stress-27"
+      },
+      {
+        "b2_milliseconds" : 1.473874996008817,
+        "b2_minus_c1_milliseconds" : 0.061666665715165436,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.4122083302936517,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 60,
+        "source_sample_id" : "stress-28"
+      },
+      {
+        "b2_milliseconds" : 1.4769583285669796,
+        "b2_minus_c1_milliseconds" : 0.035958328226115555,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.441000000340864,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 61,
+        "source_sample_id" : "stress-29"
+      },
+      {
+        "b2_milliseconds" : 1.4675833299406804,
+        "b2_minus_c1_milliseconds" : -0.14075000217417255,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.608333332114853,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 62,
+        "source_sample_id" : "stress-30"
+      },
+      {
+        "b2_milliseconds" : 1.7661250021774322,
+        "b2_minus_c1_milliseconds" : 0.15966666251188144,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6064583396655507,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 63,
+        "source_sample_id" : "stress-31"
+      },
+      {
+        "b2_milliseconds" : 1.765250002790708,
+        "b2_minus_c1_milliseconds" : 0.15012500807642937,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6151249947142787,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 0,
+        "source_sample_id" : "legacy-cat-dog-r7-derivative"
+      },
+      {
+        "b2_milliseconds" : 1.7211666636285372,
+        "b2_minus_c1_milliseconds" : 0.09658333146944642,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6245833321590908,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 1,
+        "source_sample_id" : "legacy-cat-flower-pot-r7-derivative"
+      },
+      {
+        "b2_milliseconds" : 1.725583329971414,
+        "b2_minus_c1_milliseconds" : 0.09054166002897546,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6350416699424386,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 2,
+        "source_sample_id" : "legacy-closeup-cat-r7-derivative"
+      },
+      {
+        "b2_milliseconds" : 1.7719999959808774,
+        "b2_minus_c1_milliseconds" : 0.14599999849451706,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6259999974863604,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 3,
+        "source_sample_id" : "wikimedia-52039728"
+      },
+      {
+        "b2_milliseconds" : 1.7717916707624681,
+        "b2_minus_c1_milliseconds" : 0.04833333514397964,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7234583356184885,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 4,
+        "source_sample_id" : "wikimedia-146178257"
+      },
+      {
+        "b2_milliseconds" : 2.0626249970518984,
+        "b2_minus_c1_milliseconds" : 0.4466666650841944,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.615958331967704,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 5,
+        "source_sample_id" : "wikimedia-146178286"
+      },
+      {
+        "b2_milliseconds" : 1.7627916677156463,
+        "b2_minus_c1_milliseconds" : -1.178458333015442,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 2.941250000731088,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 6,
+        "source_sample_id" : "wikimedia-25211371"
+      },
+      {
+        "b2_milliseconds" : 1.8142916669603437,
+        "b2_minus_c1_milliseconds" : -0.0540416658623144,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.8683333328226581,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 7,
+        "source_sample_id" : "wikimedia-35048409"
+      },
+      {
+        "b2_milliseconds" : 1.8473333329893649,
+        "b2_minus_c1_milliseconds" : 0.11420833470765501,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7331249982817098,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 8,
+        "source_sample_id" : "stocksnap-food-gourmet-RZ5FO2XO9F"
+      },
+      {
+        "b2_milliseconds" : 1.7810416684369557,
+        "b2_minus_c1_milliseconds" : 0.05958333349553868,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.721458334941417,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 9,
+        "source_sample_id" : "wikimedia-145712499"
+      },
+      {
+        "b2_milliseconds" : 1.8200833292212337,
+        "b2_minus_c1_milliseconds" : 0.0762083291192539,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7438750001019798,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 10,
+        "source_sample_id" : "wikimedia-150958414"
+      },
+      {
+        "b2_milliseconds" : 1.7818333290051669,
+        "b2_minus_c1_milliseconds" : 0.06641666550422087,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.715416663500946,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 11,
+        "source_sample_id" : "wikimedia-150958429"
+      },
+      {
+        "b2_milliseconds" : 1.7420833319192752,
+        "b2_minus_c1_milliseconds" : 0.23454166512237862,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.5075416667968966,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 12,
+        "source_sample_id" : "wikimedia-114005486"
+      },
+      {
+        "b2_milliseconds" : 1.5478333298233338,
+        "b2_minus_c1_milliseconds" : -0.007916671165730804,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.5557500009890646,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 13,
+        "source_sample_id" : "wikimedia-114005489"
+      },
+      {
+        "b2_milliseconds" : 1.5449999991687946,
+        "b2_minus_c1_milliseconds" : 0.08937499660532922,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.4556250025634654,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 14,
+        "source_sample_id" : "wikimedia-141540996"
+      },
+      {
+        "b2_milliseconds" : 1.5475000036531128,
+        "b2_minus_c1_milliseconds" : 0.09475000842940062,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.4527499952237122,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 15,
+        "source_sample_id" : "wikimedia-141541159"
+      },
+      {
+        "b2_milliseconds" : 1.5559166713501327,
+        "b2_minus_c1_milliseconds" : 0.053916672186460346,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.5019999991636723,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 16,
+        "source_sample_id" : "wikimedia-52050816"
+      },
+      {
+        "b2_milliseconds" : 1.5189166661002673,
+        "b2_minus_c1_milliseconds" : 0.010083327651955187,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.5088333384483121,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 17,
+        "source_sample_id" : "wikimedia-52050912"
+      },
+      {
+        "b2_milliseconds" : 1.7078333330573514,
+        "b2_minus_c1_milliseconds" : 0.06458333518821746,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.643249997869134,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 18,
+        "source_sample_id" : "wikimedia-52050956"
+      },
+      {
+        "b2_milliseconds" : 1.7229166624019854,
+        "b2_minus_c1_milliseconds" : 0.07587499567307532,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.64704166672891,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 19,
+        "source_sample_id" : "wikimedia-52052040"
+      },
+      {
+        "b2_milliseconds" : 1.7571249991306104,
+        "b2_minus_c1_milliseconds" : 0.14108332834439352,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6160416707862169,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 20,
+        "source_sample_id" : "wikimedia-145562107"
+      },
+      {
+        "b2_milliseconds" : 1.6931666687014513,
+        "b2_minus_c1_milliseconds" : 0.053625000873580575,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6395416678278707,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 21,
+        "source_sample_id" : "wikimedia-150797087"
+      },
+      {
+        "b2_milliseconds" : 1.7264999987673946,
+        "b2_minus_c1_milliseconds" : 0.09233333548763767,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.634166663279757,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 22,
+        "source_sample_id" : "wikimedia-151232217"
+      },
+      {
+        "b2_milliseconds" : 1.8672083388082683,
+        "b2_minus_c1_milliseconds" : 0.21979166922392324,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.647416669584345,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 23,
+        "source_sample_id" : "wikimedia-155739988"
+      },
+      {
+        "b2_milliseconds" : 1.769583330315072,
+        "b2_minus_c1_milliseconds" : 0.08745832747081295,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6821250028442591,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 24,
+        "source_sample_id" : "legacy-flower-r7-derivative"
+      },
+      {
+        "b2_milliseconds" : 1.7609166607144289,
+        "b2_minus_c1_milliseconds" : 0.1192499985336326,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6416666621807963,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 25,
+        "source_sample_id" : "wikimedia-107696546"
+      },
+      {
+        "b2_milliseconds" : 1.736708334647119,
+        "b2_minus_c1_milliseconds" : 0.11458333028713241,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6221250043599866,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 26,
+        "source_sample_id" : "wikimedia-107696548"
+      },
+      {
+        "b2_milliseconds" : 1.7644583349465393,
+        "b2_minus_c1_milliseconds" : 0.11833333701360971,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6461249979329295,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 27,
+        "source_sample_id" : "wikimedia-107696549"
+      },
+      {
+        "b2_milliseconds" : 1.753458331222646,
+        "b2_minus_c1_milliseconds" : 0.10166666470468044,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6517916665179655,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 28,
+        "source_sample_id" : "wikimedia-130325596"
+      },
+      {
+        "b2_milliseconds" : 1.7733333370415494,
+        "b2_minus_c1_milliseconds" : 0.11358333722455427,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6597499998169951,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 29,
+        "source_sample_id" : "wikimedia-130325605"
+      },
+      {
+        "b2_milliseconds" : 1.755791665345896,
+        "b2_minus_c1_milliseconds" : -0.004583336703944951,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.760375002049841,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 30,
+        "source_sample_id" : "wikimedia-130325628"
+      },
+      {
+        "b2_milliseconds" : 1.8082916649291292,
+        "b2_minus_c1_milliseconds" : 0.07949999417178333,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7287916707573459,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 31,
+        "source_sample_id" : "wikimedia-130325636"
+      },
+      {
+        "b2_milliseconds" : 1.8073333339998499,
+        "b2_minus_c1_milliseconds" : -0.023333333956543356,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.8306666679563932,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 32,
+        "source_sample_id" : "stress-00"
+      },
+      {
+        "b2_milliseconds" : 1.7952083289856091,
+        "b2_minus_c1_milliseconds" : 0.07474999438272789,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7204583346028812,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 33,
+        "source_sample_id" : "stress-01"
+      },
+      {
+        "b2_milliseconds" : 1.7931249967659824,
+        "b2_minus_c1_milliseconds" : 0.0815833336673677,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7115416630986147,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 34,
+        "source_sample_id" : "stress-02"
+      },
+      {
+        "b2_milliseconds" : 1.7832083321991377,
+        "b2_minus_c1_milliseconds" : 0.015541663742624223,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7676666684565134,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 35,
+        "source_sample_id" : "stress-03"
+      },
+      {
+        "b2_milliseconds" : 1.766333334671799,
+        "b2_minus_c1_milliseconds" : 0.05587500345427543,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7104583312175237,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 36,
+        "source_sample_id" : "stress-04"
+      },
+      {
+        "b2_milliseconds" : 1.4435833290917799,
+        "b2_minus_c1_milliseconds" : -0.18420833657728508,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.627791665669065,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 37,
+        "source_sample_id" : "stress-05"
+      },
+      {
+        "b2_milliseconds" : 1.436999998986721,
+        "b2_minus_c1_milliseconds" : 0.0113333371700719,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.4256666618166491,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 38,
+        "source_sample_id" : "stress-06"
+      },
+      {
+        "b2_milliseconds" : 1.4916250001988374,
+        "b2_minus_c1_milliseconds" : 0.06429166387533769,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.4273333363234997,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 39,
+        "source_sample_id" : "stress-07"
+      },
+      {
+        "b2_milliseconds" : 1.4900416645104997,
+        "b2_minus_c1_milliseconds" : 0.06491666863439605,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.4251249958761036,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 40,
+        "source_sample_id" : "stress-08"
+      },
+      {
+        "b2_milliseconds" : 1.4755416705156676,
+        "b2_minus_c1_milliseconds" : 0.04754167457576841,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.4279999959398992,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 41,
+        "source_sample_id" : "stress-09"
+      },
+      {
+        "b2_milliseconds" : 1.469958333473187,
+        "b2_minus_c1_milliseconds" : 0.01887500548036769,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.4510833279928192,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 42,
+        "source_sample_id" : "stress-10"
+      },
+      {
+        "b2_milliseconds" : 1.5118749943212606,
+        "b2_minus_c1_milliseconds" : 0.08783332305029035,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.4240416712709703,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 43,
+        "source_sample_id" : "stress-11"
+      },
+      {
+        "b2_milliseconds" : 1.465374996769242,
+        "b2_minus_c1_milliseconds" : 0.019291663193143904,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.446083333576098,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 44,
+        "source_sample_id" : "stress-12"
+      },
+      {
+        "b2_milliseconds" : 1.4566666650353,
+        "b2_minus_c1_milliseconds" : -0.019458333554212004,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.476124998589512,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 45,
+        "source_sample_id" : "stress-13"
+      },
+      {
+        "b2_milliseconds" : 1.7461250026826747,
+        "b2_minus_c1_milliseconds" : 0.1157916703959927,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.630333332286682,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 46,
+        "source_sample_id" : "stress-14"
+      },
+      {
+        "b2_milliseconds" : 1.7349166664644144,
+        "b2_minus_c1_milliseconds" : 0.03837500116787851,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.696541665296536,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 47,
+        "source_sample_id" : "stress-15"
+      },
+      {
+        "b2_milliseconds" : 1.7708750019664876,
+        "b2_minus_c1_milliseconds" : 0.10916667088167742,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6617083310848102,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 48,
+        "source_sample_id" : "stress-16"
+      },
+      {
+        "b2_milliseconds" : 1.7523333299322985,
+        "b2_minus_c1_milliseconds" : 0.12016666732961312,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6321666626026854,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 49,
+        "source_sample_id" : "stress-17"
+      },
+      {
+        "b2_milliseconds" : 1.746916663250886,
+        "b2_minus_c1_milliseconds" : 0.08129166235448793,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.665625000896398,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 50,
+        "source_sample_id" : "stress-18"
+      },
+      {
+        "b2_milliseconds" : 1.7716250004014,
+        "b2_minus_c1_milliseconds" : 0.12479166616685688,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6468333342345431,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 51,
+        "source_sample_id" : "stress-19"
+      },
+      {
+        "b2_milliseconds" : 1.786958338925615,
+        "b2_minus_c1_milliseconds" : 0.13841666805092245,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6485416708746925,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 52,
+        "source_sample_id" : "stress-20"
+      },
+      {
+        "b2_milliseconds" : 1.998208332224749,
+        "b2_minus_c1_milliseconds" : 0.23708333173999563,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7611250004847534,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 53,
+        "source_sample_id" : "stress-21"
+      },
+      {
+        "b2_milliseconds" : 1.8124583366443403,
+        "b2_minus_c1_milliseconds" : 0.06175000453367829,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.750708332110662,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 54,
+        "source_sample_id" : "stress-22"
+      },
+      {
+        "b2_milliseconds" : 1.7895416676765308,
+        "b2_minus_c1_milliseconds" : 0.058125006034970284,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7314166616415605,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 55,
+        "source_sample_id" : "stress-23"
+      },
+      {
+        "b2_milliseconds" : 1.743458335113246,
+        "b2_minus_c1_milliseconds" : 0.10866666707443073,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6347916680388153,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 56,
+        "source_sample_id" : "stress-24"
+      },
+      {
+        "b2_milliseconds" : 1.7505833311588503,
+        "b2_minus_c1_milliseconds" : -0.03608333645388484,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7866666676127352,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 57,
+        "source_sample_id" : "stress-25"
+      },
+      {
+        "b2_milliseconds" : 1.7900416714837775,
+        "b2_minus_c1_milliseconds" : 0.07812500552972779,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7119166659540497,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 58,
+        "source_sample_id" : "stress-26"
+      },
+      {
+        "b2_milliseconds" : 1.7834999962360598,
+        "b2_minus_c1_milliseconds" : 0.07158333028201014,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7119166659540497,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 59,
+        "source_sample_id" : "stress-27"
+      },
+      {
+        "b2_milliseconds" : 1.7760416667442769,
+        "b2_minus_c1_milliseconds" : 0.09975000284612179,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.676291663898155,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 60,
+        "source_sample_id" : "stress-28"
+      },
+      {
+        "b2_milliseconds" : 1.5444166710949503,
+        "b2_minus_c1_milliseconds" : 0.024583336198702455,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.5198333348962478,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 61,
+        "source_sample_id" : "stress-29"
+      },
+      {
+        "b2_milliseconds" : 1.5524583286605775,
+        "b2_minus_c1_milliseconds" : 0.034874996345024556,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.517583332315553,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 62,
+        "source_sample_id" : "stress-30"
+      },
+      {
+        "b2_milliseconds" : 1.5745833370601758,
+        "b2_minus_c1_milliseconds" : -0.18179166363552213,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.756375000695698,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 63,
+        "source_sample_id" : "stress-31"
+      },
+      {
+        "b2_milliseconds" : 1.549583328596782,
+        "b2_minus_c1_milliseconds" : 0.013499993656296283,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.5360833349404857,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 0,
+        "source_sample_id" : "legacy-cat-dog-r7-derivative"
+      },
+      {
+        "b2_milliseconds" : 1.555041664687451,
+        "b2_minus_c1_milliseconds" : 0.023125001462176442,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.5319166632252745,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 1,
+        "source_sample_id" : "legacy-cat-flower-pot-r7-derivative"
+      },
+      {
+        "b2_milliseconds" : 1.5595833319821395,
+        "b2_minus_c1_milliseconds" : 0.11816666665254161,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.441416665329598,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 2,
+        "source_sample_id" : "legacy-closeup-cat-r7-derivative"
+      },
+      {
+        "b2_milliseconds" : 1.5086249986779876,
+        "b2_minus_c1_milliseconds" : 0.03412499791011214,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.4745000007678755,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 3,
+        "source_sample_id" : "wikimedia-52039728"
+      },
+      {
+        "b2_milliseconds" : 1.5139999959501438,
+        "b2_minus_c1_milliseconds" : 0.017458332877140492,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.4965416630730033,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 4,
+        "source_sample_id" : "wikimedia-146178257"
+      },
+      {
+        "b2_milliseconds" : 1.5197083339444362,
+        "b2_minus_c1_milliseconds" : 0.026875000912696123,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.49283333303174,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 5,
+        "source_sample_id" : "wikimedia-146178286"
+      },
+      {
+        "b2_milliseconds" : 1.5054166651680134,
+        "b2_minus_c1_milliseconds" : 0.028124995878897607,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.4772916692891158,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 6,
+        "source_sample_id" : "wikimedia-25211371"
+      },
+      {
+        "b2_milliseconds" : 1.5304166663554497,
+        "b2_minus_c1_milliseconds" : 0.05408333527157083,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.4763333310838789,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 7,
+        "source_sample_id" : "wikimedia-35048409"
+      },
+      {
+        "b2_milliseconds" : 1.4896666689310223,
+        "b2_minus_c1_milliseconds" : 0.06837499677203596,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.4212916721589863,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 8,
+        "source_sample_id" : "stocksnap-food-gourmet-RZ5FO2XO9F"
+      },
+      {
+        "b2_milliseconds" : 1.4847916681901552,
+        "b2_minus_c1_milliseconds" : 0.0010416697477921844,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.483749998442363,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 9,
+        "source_sample_id" : "wikimedia-145712499"
+      },
+      {
+        "b2_milliseconds" : 1.5040416692500003,
+        "b2_minus_c1_milliseconds" : 0.03724999987753108,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.4667916693724692,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 10,
+        "source_sample_id" : "wikimedia-150958414"
+      },
+      {
+        "b2_milliseconds" : 1.4547083337674849,
+        "b2_minus_c1_milliseconds" : 0.01974999759113416,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.4349583361763507,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 11,
+        "source_sample_id" : "wikimedia-150958429"
+      },
+      {
+        "b2_milliseconds" : 1.456083329685498,
+        "b2_minus_c1_milliseconds" : 0.01741665619192645,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.4386666734935716,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 12,
+        "source_sample_id" : "wikimedia-114005486"
+      },
+      {
+        "b2_milliseconds" : 1.765666667779442,
+        "b2_minus_c1_milliseconds" : 0.01858333416748792,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.747083333611954,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 13,
+        "source_sample_id" : "wikimedia-114005489"
+      },
+      {
+        "b2_milliseconds" : 1.7455416673328727,
+        "b2_minus_c1_milliseconds" : 0.1102499954868108,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.635291671846062,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 14,
+        "source_sample_id" : "wikimedia-141540996"
+      },
+      {
+        "b2_milliseconds" : 1.7620833314140327,
+        "b2_minus_c1_milliseconds" : 0.13449999823933467,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.627583333174698,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 15,
+        "source_sample_id" : "wikimedia-141541159"
+      },
+      {
+        "b2_milliseconds" : 1.7480833339504898,
+        "b2_minus_c1_milliseconds" : 0.12379166582832113,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6242916681221686,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 16,
+        "source_sample_id" : "wikimedia-52050816"
+      },
+      {
+        "b2_milliseconds" : 1.720874999591615,
+        "b2_minus_c1_milliseconds" : 0.09020833385875449,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6306666657328606,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 17,
+        "source_sample_id" : "wikimedia-52050912"
+      },
+      {
+        "b2_milliseconds" : 1.7600416613277048,
+        "b2_minus_c1_milliseconds" : 0.11966665624640882,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.640375005081296,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 18,
+        "source_sample_id" : "wikimedia-52050956"
+      },
+      {
+        "b2_milliseconds" : 1.8338333393330686,
+        "b2_minus_c1_milliseconds" : 0.15600000187987462,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.677833337453194,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 19,
+        "source_sample_id" : "wikimedia-52052040"
+      },
+      {
+        "b2_milliseconds" : 1.8144583300454542,
+        "b2_minus_c1_milliseconds" : 0.09804165893001482,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7164166711154394,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 20,
+        "source_sample_id" : "wikimedia-145562107"
+      },
+      {
+        "b2_milliseconds" : 1.7342916689813137,
+        "b2_minus_c1_milliseconds" : 0.10275000386172906,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6315416651195846,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 21,
+        "source_sample_id" : "wikimedia-150797087"
+      },
+      {
+        "b2_milliseconds" : 1.7542500063427724,
+        "b2_minus_c1_milliseconds" : 0.032000003557186574,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7222500027855858,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 22,
+        "source_sample_id" : "wikimedia-151232217"
+      },
+      {
+        "b2_milliseconds" : 2.512208331609145,
+        "b2_minus_c1_milliseconds" : 0.2190416635130532,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 2.2931666680960916,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 23,
+        "source_sample_id" : "wikimedia-155739988"
+      },
+      {
+        "b2_milliseconds" : 1.8609583348734304,
+        "b2_minus_c1_milliseconds" : 0.09125000360654667,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7697083312668838,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 24,
+        "source_sample_id" : "legacy-flower-r7-derivative"
+      },
+      {
+        "b2_milliseconds" : 1.80704166268697,
+        "b2_minus_c1_milliseconds" : 0.05712499842047691,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7499166642664932,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 25,
+        "source_sample_id" : "wikimedia-107696546"
+      },
+      {
+        "b2_milliseconds" : 1.7441666714148596,
+        "b2_minus_c1_milliseconds" : 0.09762500849319622,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6465416629216634,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 26,
+        "source_sample_id" : "wikimedia-107696548"
+      },
+      {
+        "b2_milliseconds" : 1.7254166668863036,
+        "b2_minus_c1_milliseconds" : -0.011999996786471456,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.737416663672775,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 27,
+        "source_sample_id" : "wikimedia-107696549"
+      },
+      {
+        "b2_milliseconds" : 1.7537083331262693,
+        "b2_minus_c1_milliseconds" : 0.09295833297073841,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6607500001555309,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 28,
+        "source_sample_id" : "wikimedia-130325596"
+      },
+      {
+        "b2_milliseconds" : 1.7637499986449257,
+        "b2_minus_c1_milliseconds" : 0.020541665435303003,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7432083332096227,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 29,
+        "source_sample_id" : "wikimedia-130325605"
+      },
+      {
+        "b2_milliseconds" : 1.8339166635996662,
+        "b2_minus_c1_milliseconds" : 0.026958332455251366,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.8069583311444148,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 30,
+        "source_sample_id" : "wikimedia-130325628"
+      },
+      {
+        "b2_milliseconds" : 1.783250001608394,
+        "b2_minus_c1_milliseconds" : 0.051250004617031664,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7319999969913624,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 31,
+        "source_sample_id" : "wikimedia-130325636"
+      },
+      {
+        "b2_milliseconds" : 1.788749999832362,
+        "b2_minus_c1_milliseconds" : 0.10979166836477816,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6789583314675838,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 32,
+        "source_sample_id" : "stress-00"
+      },
+      {
+        "b2_milliseconds" : 1.7781249989639036,
+        "b2_minus_c1_milliseconds" : 0.020041668904013932,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7580833300598897,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 33,
+        "source_sample_id" : "stress-01"
+      },
+      {
+        "b2_milliseconds" : 1.7686666687950492,
+        "b2_minus_c1_milliseconds" : 0.12504166807048023,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.643625000724569,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 34,
+        "source_sample_id" : "stress-02"
+      },
+      {
+        "b2_milliseconds" : 1.7359166668029502,
+        "b2_minus_c1_milliseconds" : 0.07312500383704901,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6627916629659012,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 35,
+        "source_sample_id" : "stress-03"
+      },
+      {
+        "b2_milliseconds" : 1.7224166658706963,
+        "b2_minus_c1_milliseconds" : 0.29333333077374846,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.4290833350969478,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 36,
+        "source_sample_id" : "stress-04"
+      },
+      {
+        "b2_milliseconds" : 1.489208334533032,
+        "b2_minus_c1_milliseconds" : 0.08075000368990004,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.408458330843132,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 37,
+        "source_sample_id" : "stress-05"
+      },
+      {
+        "b2_milliseconds" : 1.463375003368128,
+        "b2_minus_c1_milliseconds" : 0.04145833372604102,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.421916669642087,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 38,
+        "source_sample_id" : "stress-06"
+      },
+      {
+        "b2_milliseconds" : 1.426833332516253,
+        "b2_minus_c1_milliseconds" : 0.00825000461190939,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.4185833279043436,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 39,
+        "source_sample_id" : "stress-07"
+      },
+      {
+        "b2_milliseconds" : 1.4558749971911311,
+        "b2_minus_c1_milliseconds" : 0.049541660700924695,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.4063333364902064,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 40,
+        "source_sample_id" : "stress-08"
+      },
+      {
+        "b2_milliseconds" : 1.4311249979073182,
+        "b2_minus_c1_milliseconds" : 0.024125001800712198,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.406999996106606,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 41,
+        "source_sample_id" : "stress-09"
+      },
+      {
+        "b2_milliseconds" : 1.5542500041192397,
+        "b2_minus_c1_milliseconds" : -0.14054166240384802,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6947916665230878,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 42,
+        "source_sample_id" : "stress-10"
+      },
+      {
+        "b2_milliseconds" : 1.7196666667587124,
+        "b2_minus_c1_milliseconds" : 0.08954166696639732,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.630124999792315,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 43,
+        "source_sample_id" : "stress-11"
+      },
+      {
+        "b2_milliseconds" : 1.7229583390871994,
+        "b2_minus_c1_milliseconds" : 0.038333339034579694,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6846250000526197,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 44,
+        "source_sample_id" : "stress-12"
+      },
+      {
+        "b2_milliseconds" : 3.818249999312684,
+        "b2_minus_c1_milliseconds" : 2.1289583382895216,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6892916610231623,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 45,
+        "source_sample_id" : "stress-13"
+      },
+      {
+        "b2_milliseconds" : 2.0674583356594667,
+        "b2_minus_c1_milliseconds" : 0.43395833927206695,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6334999963873997,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 46,
+        "source_sample_id" : "stress-14"
+      },
+      {
+        "b2_milliseconds" : 1.750333329255227,
+        "b2_minus_c1_milliseconds" : 0.04999999509891495,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.700333334156312,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 47,
+        "source_sample_id" : "stress-15"
+      },
+      {
+        "b2_milliseconds" : 1.7625000036787242,
+        "b2_minus_c1_milliseconds" : 0.08112499926937744,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6813750044093467,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 48,
+        "source_sample_id" : "stress-16"
+      },
+      {
+        "b2_milliseconds" : 1.7268333322135732,
+        "b2_minus_c1_milliseconds" : 0.04404166975291446,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6827916624606587,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 49,
+        "source_sample_id" : "stress-17"
+      },
+      {
+        "b2_milliseconds" : 1.787666667951271,
+        "b2_minus_c1_milliseconds" : 0.05679166497429833,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7308750029769726,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 50,
+        "source_sample_id" : "stress-18"
+      },
+      {
+        "b2_milliseconds" : 1.7966250015888363,
+        "b2_minus_c1_milliseconds" : 0.060375001339707524,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7362500002491288,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 51,
+        "source_sample_id" : "stress-19"
+      },
+      {
+        "b2_milliseconds" : 2.8855833370471373,
+        "b2_minus_c1_milliseconds" : 0.9220000065397471,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.9635833305073902,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 52,
+        "source_sample_id" : "stress-20"
+      },
+      {
+        "b2_milliseconds" : 1.8346249999012798,
+        "b2_minus_c1_milliseconds" : 0.052749994210898876,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.781875005690381,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 53,
+        "source_sample_id" : "stress-21"
+      },
+      {
+        "b2_milliseconds" : 1.7792083308449946,
+        "b2_minus_c1_milliseconds" : 0.020874998881481588,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.758333331963513,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 54,
+        "source_sample_id" : "stress-22"
+      },
+      {
+        "b2_milliseconds" : 1.7020833329297602,
+        "b2_minus_c1_milliseconds" : -0.05316666647559032,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7552499994053505,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 55,
+        "source_sample_id" : "stress-23"
+      },
+      {
+        "b2_milliseconds" : 1.5127500009839423,
+        "b2_minus_c1_milliseconds" : 0.017583341104909778,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.4951666598790325,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 56,
+        "source_sample_id" : "stress-24"
+      },
+      {
+        "b2_milliseconds" : 1.4650416633230634,
+        "b2_minus_c1_milliseconds" : 0.03395832754904404,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.4310833357740194,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 57,
+        "source_sample_id" : "stress-25"
+      },
+      {
+        "b2_milliseconds" : 1.482458334066905,
+        "b2_minus_c1_milliseconds" : -0.06312500045169145,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.5455833345185965,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 58,
+        "source_sample_id" : "stress-26"
+      },
+      {
+        "b2_milliseconds" : 1.502999999502208,
+        "b2_minus_c1_milliseconds" : -0.014708333765156567,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.5177083332673647,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 59,
+        "source_sample_id" : "stress-27"
+      },
+      {
+        "b2_milliseconds" : 1.4609583304263651,
+        "b2_minus_c1_milliseconds" : 0.036624995118472725,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.4243333353078924,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 60,
+        "source_sample_id" : "stress-28"
+      },
+      {
+        "b2_milliseconds" : 1.7251249955734238,
+        "b2_minus_c1_milliseconds" : 0.2949166591861285,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.4302083363872953,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 61,
+        "source_sample_id" : "stress-29"
+      },
+      {
+        "b2_milliseconds" : 1.7184999960591085,
+        "b2_minus_c1_milliseconds" : 0.19141666416544467,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.5270833318936639,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 62,
+        "source_sample_id" : "stress-30"
+      },
+      {
+        "b2_milliseconds" : 1.5951666646287777,
+        "b2_minus_c1_milliseconds" : 0.07770833326503634,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.5174583313637413,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 63,
+        "source_sample_id" : "stress-31"
+      },
+      {
+        "b2_milliseconds" : 1.7596250036149286,
+        "b2_minus_c1_milliseconds" : 0.14158333942759782,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6180416641873308,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 0,
+        "source_sample_id" : "legacy-cat-dog-r7-derivative"
+      },
+      {
+        "b2_milliseconds" : 1.5822500063222833,
+        "b2_minus_c1_milliseconds" : 0.04550000448944047,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.5367500018328428,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 1,
+        "source_sample_id" : "legacy-cat-flower-pot-r7-derivative"
+      },
+      {
+        "b2_milliseconds" : 1.574166672071442,
+        "b2_minus_c1_milliseconds" : -0.059791665989905596,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6339583380613476,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 2,
+        "source_sample_id" : "legacy-closeup-cat-r7-derivative"
+      },
+      {
+        "b2_milliseconds" : 1.652541664952878,
+        "b2_minus_c1_milliseconds" : 0.05954167136223987,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.592999993590638,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 3,
+        "source_sample_id" : "wikimedia-52039728"
+      },
+      {
+        "b2_milliseconds" : 1.595416666532401,
+        "b2_minus_c1_milliseconds" : 0.06683333776891232,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.5285833287634887,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 4,
+        "source_sample_id" : "wikimedia-146178257"
+      },
+      {
+        "b2_milliseconds" : 3.4057916709571145,
+        "b2_minus_c1_milliseconds" : 1.694916674750857,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7108749962062575,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 5,
+        "source_sample_id" : "wikimedia-146178286"
+      },
+      {
+        "b2_milliseconds" : 1.868416671641171,
+        "b2_minus_c1_milliseconds" : 0.1647916724323295,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7036249992088415,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 6,
+        "source_sample_id" : "wikimedia-25211371"
+      },
+      {
+        "b2_milliseconds" : 1.739083330903668,
+        "b2_minus_c1_milliseconds" : 0.03116665902780369,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7079166718758643,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 7,
+        "source_sample_id" : "wikimedia-35048409"
+      },
+      {
+        "b2_milliseconds" : 1.7462499963585287,
+        "b2_minus_c1_milliseconds" : 0.12891666119685397,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6173333351616748,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 8,
+        "source_sample_id" : "stocksnap-food-gourmet-RZ5FO2XO9F"
+      },
+      {
+        "b2_milliseconds" : 1.756166668201331,
+        "b2_minus_c1_milliseconds" : 0.07179167005233467,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6843749981489964,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 9,
+        "source_sample_id" : "wikimedia-145712499"
+      },
+      {
+        "b2_milliseconds" : 1.778583333361894,
+        "b2_minus_c1_milliseconds" : 0.10474999726284295,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.673833336099051,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 10,
+        "source_sample_id" : "wikimedia-150958414"
+      },
+      {
+        "b2_milliseconds" : 1.7595833342056721,
+        "b2_minus_c1_milliseconds" : 0.13749999925494194,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6220833349507302,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 11,
+        "source_sample_id" : "wikimedia-150958429"
+      },
+      {
+        "b2_milliseconds" : 1.7693749978207052,
+        "b2_minus_c1_milliseconds" : 0.06691666203550994,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7024583357851952,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 12,
+        "source_sample_id" : "wikimedia-114005486"
+      },
+      {
+        "b2_milliseconds" : 1.6995833357213996,
+        "b2_minus_c1_milliseconds" : 0.09129166573984548,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6082916699815542,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 13,
+        "source_sample_id" : "wikimedia-114005489"
+      },
+      {
+        "b2_milliseconds" : 1.7305000001215376,
+        "b2_minus_c1_milliseconds" : 0.05016666545998305,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6803333346615545,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 14,
+        "source_sample_id" : "wikimedia-141540996"
+      },
+      {
+        "b2_milliseconds" : 1.804583334887866,
+        "b2_minus_c1_milliseconds" : 0.06579166802112013,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7387916668667458,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 15,
+        "source_sample_id" : "wikimedia-141541159"
+      },
+      {
+        "b2_milliseconds" : 1.7890833332785405,
+        "b2_minus_c1_milliseconds" : 0.07483333320124075,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7142500000772998,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 16,
+        "source_sample_id" : "wikimedia-52050816"
+      },
+      {
+        "b2_milliseconds" : 2.355041666305624,
+        "b2_minus_c1_milliseconds" : 0.6215416651684791,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7335000011371449,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 17,
+        "source_sample_id" : "wikimedia-52050912"
+      },
+      {
+        "b2_milliseconds" : 1.865124999312684,
+        "b2_minus_c1_milliseconds" : 0.12766666623065248,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7374583330820315,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 18,
+        "source_sample_id" : "wikimedia-52050956"
+      },
+      {
+        "b2_milliseconds" : 1.7514166684122756,
+        "b2_minus_c1_milliseconds" : 0.02866666909540072,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.722749999316875,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 19,
+        "source_sample_id" : "wikimedia-52052040"
+      },
+      {
+        "b2_milliseconds" : 1.7477500005043112,
+        "b2_minus_c1_milliseconds" : 0.15608333342242986,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.5916666670818813,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 20,
+        "source_sample_id" : "wikimedia-145562107"
+      },
+      {
+        "b2_milliseconds" : 1.7273333287448622,
+        "b2_minus_c1_milliseconds" : 0.12579166650539264,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6015416622394696,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 21,
+        "source_sample_id" : "wikimedia-150797087"
+      },
+      {
+        "b2_milliseconds" : 1.7282500048168004,
+        "b2_minus_c1_milliseconds" : 0.1430000047548674,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.585250000061933,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 22,
+        "source_sample_id" : "wikimedia-151232217"
+      },
+      {
+        "b2_milliseconds" : 1.6940833374974318,
+        "b2_minus_c1_milliseconds" : 0.11816666665254161,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.5759166708448902,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 23,
+        "source_sample_id" : "wikimedia-155739988"
+      },
+      {
+        "b2_milliseconds" : 1.7009583316394128,
+        "b2_minus_c1_milliseconds" : -0.0030000010156072676,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.70395833265502,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 24,
+        "source_sample_id" : "legacy-flower-r7-derivative"
+      },
+      {
+        "b2_milliseconds" : 1.74779166263761,
+        "b2_minus_c1_milliseconds" : 0.06029166252119467,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6875000001164153,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 25,
+        "source_sample_id" : "wikimedia-107696546"
+      },
+      {
+        "b2_milliseconds" : 1.7476249995524995,
+        "b2_minus_c1_milliseconds" : 0.1277083356399089,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6199166639125906,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 26,
+        "source_sample_id" : "wikimedia-107696548"
+      },
+      {
+        "b2_milliseconds" : 1.7428333376301453,
+        "b2_minus_c1_milliseconds" : 0.12620833877008408,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6166249988600612,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 27,
+        "source_sample_id" : "wikimedia-107696549"
+      },
+      {
+        "b2_milliseconds" : 1.6238333337241784,
+        "b2_minus_c1_milliseconds" : -0.05124999734107405,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6750833310652524,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 28,
+        "source_sample_id" : "wikimedia-130325596"
+      },
+      {
+        "b2_milliseconds" : 2.3913333352538757,
+        "b2_minus_c1_milliseconds" : 0.6945833374629728,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6967499977909029,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 29,
+        "source_sample_id" : "wikimedia-130325605"
+      },
+      {
+        "b2_milliseconds" : 1.7644583276705816,
+        "b2_minus_c1_milliseconds" : 0.08712499402463436,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6773333336459473,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 30,
+        "source_sample_id" : "wikimedia-130325628"
+      },
+      {
+        "b2_milliseconds" : 1.7024583357851952,
+        "b2_minus_c1_milliseconds" : 0.03487500362098217,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.667583332164213,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 31,
+        "source_sample_id" : "wikimedia-130325636"
+      },
+      {
+        "b2_milliseconds" : 1.7245416674995795,
+        "b2_minus_c1_milliseconds" : 0.10233333159703761,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6222083359025419,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 32,
+        "source_sample_id" : "stress-00"
+      },
+      {
+        "b2_milliseconds" : 1.7145000019809231,
+        "b2_minus_c1_milliseconds" : 0.03220833605155349,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6822916659293696,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 33,
+        "source_sample_id" : "stress-01"
+      },
+      {
+        "b2_milliseconds" : 1.637791661778465,
+        "b2_minus_c1_milliseconds" : -0.1255416718777269,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7633333336561918,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 34,
+        "source_sample_id" : "stress-02"
+      },
+      {
+        "b2_milliseconds" : 1.7604166641831398,
+        "b2_minus_c1_milliseconds" : 0.0466666606371291,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7137500035460107,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 35,
+        "source_sample_id" : "stress-03"
+      },
+      {
+        "b2_milliseconds" : 1.7861666710814461,
+        "b2_minus_c1_milliseconds" : -0.8516666639479809,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 2.637833335029427,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 36,
+        "source_sample_id" : "stress-04"
+      },
+      {
+        "b2_milliseconds" : 1.8500833321013488,
+        "b2_minus_c1_milliseconds" : 0.035458331694826484,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.8146250004065223,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 37,
+        "source_sample_id" : "stress-05"
+      },
+      {
+        "b2_milliseconds" : 1.7895416676765308,
+        "b2_minus_c1_milliseconds" : -0.035291661333758384,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.8248333290102892,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 38,
+        "source_sample_id" : "stress-06"
+      },
+      {
+        "b2_milliseconds" : 1.7962083366001025,
+        "b2_minus_c1_milliseconds" : 0.060999998822808266,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7352083377772942,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 39,
+        "source_sample_id" : "stress-07"
+      },
+      {
+        "b2_milliseconds" : 1.778541671228595,
+        "b2_minus_c1_milliseconds" : -0.0010833318810909986,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.779625003109686,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 40,
+        "source_sample_id" : "stress-08"
+      },
+      {
+        "b2_milliseconds" : 1.7467916695750318,
+        "b2_minus_c1_milliseconds" : 0.02420833334326744,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.7225833362317644,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 41,
+        "source_sample_id" : "stress-09"
+      },
+      {
+        "b2_milliseconds" : 1.737999999022577,
+        "b2_minus_c1_milliseconds" : 0.24816665973048657,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.4898333392920904,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 42,
+        "source_sample_id" : "stress-10"
+      },
+      {
+        "b2_milliseconds" : 1.5022500010672957,
+        "b2_minus_c1_milliseconds" : 0.03395833482500166,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.468291666242294,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 43,
+        "source_sample_id" : "stress-11"
+      },
+      {
+        "b2_milliseconds" : 1.4550416672136635,
+        "b2_minus_c1_milliseconds" : 0.013791664969176054,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.4412500022444874,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 44,
+        "source_sample_id" : "stress-12"
+      },
+      {
+        "b2_milliseconds" : 1.527541666291654,
+        "b2_minus_c1_milliseconds" : 0.07704166637267917,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.450499999918975,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 45,
+        "source_sample_id" : "stress-13"
+      },
+      {
+        "b2_milliseconds" : 1.5363749989774078,
+        "b2_minus_c1_milliseconds" : 0.06691666203550994,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.4694583369418979,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 46,
+        "source_sample_id" : "stress-14"
+      },
+      {
+        "b2_milliseconds" : 1.4587500045308843,
+        "b2_minus_c1_milliseconds" : -0.004749999789055437,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.4635000043199398,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 47,
+        "source_sample_id" : "stress-15"
+      },
+      {
+        "b2_milliseconds" : 1.4796666655456647,
+        "b2_minus_c1_milliseconds" : -0.16708332987036556,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6467499954160303,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 48,
+        "source_sample_id" : "stress-16"
+      },
+      {
+        "b2_milliseconds" : 1.7387499974574894,
+        "b2_minus_c1_milliseconds" : 0.11841666128020734,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.620333336177282,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 49,
+        "source_sample_id" : "stress-17"
+      },
+      {
+        "b2_milliseconds" : 1.7402916710125282,
+        "b2_minus_c1_milliseconds" : 0.14583333540940657,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.5944583356031217,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 50,
+        "source_sample_id" : "stress-18"
+      },
+      {
+        "b2_milliseconds" : 2.8319999983068556,
+        "b2_minus_c1_milliseconds" : 1.1709583341144025,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.661041664192453,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 51,
+        "source_sample_id" : "stress-19"
+      },
+      {
+        "b2_milliseconds" : 1.706124996417202,
+        "b2_minus_c1_milliseconds" : 0.012541662727016956,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.693583333690185,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 52,
+        "source_sample_id" : "stress-20"
+      },
+      {
+        "b2_milliseconds" : 1.7937083321157843,
+        "b2_minus_c1_milliseconds" : 0.09062499884748831,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.703083333268296,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 53,
+        "source_sample_id" : "stress-21"
+      },
+      {
+        "b2_milliseconds" : 1.787958331988193,
+        "b2_minus_c1_milliseconds" : 0.19270832854090258,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.5952500034472905,
+        "execution_order" : "B2_then_C1",
+        "frame_index" : 54,
+        "source_sample_id" : "stress-22"
+      },
+      {
+        "b2_milliseconds" : 1.7459583323216066,
+        "b2_minus_c1_milliseconds" : 0.08174999675247818,
+        "batch_id" : "batch-04",
+        "c1_milliseconds" : 1.6642083355691284,
+        "execution_order" : "C1_then_B2",
+        "frame_index" : 55,
+        "source_sample_id" : "stress-23"
+      }
+    ],
+    "schema_version" : 1,
+    "source_sample_i_ds" : [
+      "legacy-cat-dog-r7-derivative",
+      "legacy-cat-flower-pot-r7-derivative",
+      "legacy-closeup-cat-r7-derivative",
+      "wikimedia-52039728",
+      "wikimedia-146178257",
+      "wikimedia-146178286",
+      "wikimedia-25211371",
+      "wikimedia-35048409",
+      "stocksnap-food-gourmet-RZ5FO2XO9F",
+      "wikimedia-145712499",
+      "wikimedia-150958414",
+      "wikimedia-150958429",
+      "wikimedia-114005486",
+      "wikimedia-114005489",
+      "wikimedia-141540996",
+      "wikimedia-141541159",
+      "wikimedia-52050816",
+      "wikimedia-52050912",
+      "wikimedia-52050956",
+      "wikimedia-52052040",
+      "wikimedia-145562107",
+      "wikimedia-150797087",
+      "wikimedia-151232217",
+      "wikimedia-155739988",
+      "legacy-flower-r7-derivative",
+      "wikimedia-107696546",
+      "wikimedia-107696548",
+      "wikimedia-107696549",
+      "wikimedia-130325596",
+      "wikimedia-130325605",
+      "wikimedia-130325628",
+      "wikimedia-130325636",
+      "stress-00",
+      "stress-01",
+      "stress-02",
+      "stress-03",
+      "stress-04",
+      "stress-05",
+      "stress-06",
+      "stress-07",
+      "stress-08",
+      "stress-09",
+      "stress-10",
+      "stress-11",
+      "stress-12",
+      "stress-13",
+      "stress-14",
+      "stress-15",
+      "stress-16",
+      "stress-17",
+      "stress-18",
+      "stress-19",
+      "stress-20",
+      "stress-21",
+      "stress-22",
+      "stress-23",
+      "stress-24",
+      "stress-25",
+      "stress-26",
+      "stress-27",
+      "stress-28",
+      "stress-29",
+      "stress-30",
+      "stress-31"
+    ],
+    "statistics_algorithm_version" : "r6.1-hierarchical-block-bootstrap-v1",
+    "status" : "mobilenetv2_direct_b2_c1_shared_batch",
+    "top1_agreement" : 1,
+    "validation_sample_count" : 64
+  },
+  "model" : {
+    "activation_shape" : [
+      48,
+      112,
+      112
+    ],
+    "derived_manifest" : "models\/derived\/manifest.json",
+    "model_identifier" : "Apple MobileNetV2 ImageNet",
+    "padding_mode" : "sameBottomRight",
+    "source_model_file" : "MobileNetV2.mlmodel",
+    "source_sha256" : "cb5a35f593582232140556bbfa4618e66b37b8ff2fc33ba17db909e1050fd144",
+    "source_url" : "https:\/\/developer.apple.com\/machine-learning\/models\/?q=MobileNetV2",
+    "tail_input_name" : "planefuse_mobilenetv2_stem_features",
+    "tail_model_directory" : "models\/derived\/tail-compiled\/MobileNetV2Tail.mlmodelc",
+    "tail_output_name" : "classLabelProbs",
+    "validation_corpus_manifest" : "proof\/m5-validation-corpus.json"
+  },
+  "schema_version" : 1,
+  "status" : "mobilenetv2_direct_b2_c1_shared_batch"
+}

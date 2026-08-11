@@ -7,9 +7,9 @@ accept R7 or claim a competition target.
 |---|---|---|---|---|---|
 | A | Original Core ML image input | Framework-managed image path | `proof/r7-final-pipeline-a-current.json`; p50 1.1483 ms | Contextual only; distinct boundary | No |
 | B1 | NV12 → RGBA32Float RGB stem; historical boxed/current bridge | Float32; full RGBA image | `benchmarks/results/r1-mobilenetv2-components.json` | Superseded by compact B2 | No |
-| B2 | NV12 → normalized CHW RGB stem; persistent shared activation | Float32; 602112 logical / 606208 allocated RGB bytes | `proof/r7-final-b2-c1-shared-repaired.json`; repaired p50 2.4832 ms | Strongest credible conventional B, pending review | Yes |
+| B2 | NV12 → normalized CHW RGB stem; persistent shared activation | Float32; 602112 logical / 606208 allocated RGB bytes | `proof/r7-final-b2-c1-shared-repaired-conditions.json`; condition-complete p50 1.5952 ms | Strongest credible conventional B, pending review | Yes |
 | C0 | NV12 → native stem; boxed MLMultiArray | Float32; no full RGB, boxed bridge | `benchmarks/results/r1-mobilenetv2-components.json`, `proof/r2-shared-bridge.md` | Superseded boxed ablation | No |
-| C1 | NV12 → native-plane stem; persistent shared activation | Float32; no full RGB | `proof/r7-final-b2-c1-shared-repaired.json`; repaired p50 2.4135 ms | Strongest stable C, pending review | Yes |
+| C1 | NV12 → native-plane stem; persistent shared activation | Float32; no full RGB | `proof/r7-final-b2-c1-shared-repaired-conditions.json`; condition-complete p50 1.5614 ms | Strongest stable C, pending review | Yes |
 | C2 | Native stem + IOSurface/Float16 bridge | Float16 candidate | `proof/r3-float16-feasibility.json` | Rejected on quality threshold | No |
 | C3 | Native stem + Metal 4 tail | Intended Float32 | `proof/r4-metal4-feasibility.json` | Infeasible on stable toolchain | No |
 | C4 | Polyphase native-plane stem | Float32; no full RGB | `proof/r5-polyphase.json` and corrected confirmations | No stable e2e win; rejected/superseded | No |

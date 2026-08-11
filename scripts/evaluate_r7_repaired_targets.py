@@ -11,6 +11,7 @@ from pathlib import Path
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--performance", default="proof/r7-final-b2-c1-shared-repaired.json")
+    parser.add_argument("--quality", default="proof/r7-b2-c1-shared-quality-repaired.json")
     parser.add_argument("--camera", default="proof/r7-camera-evidence.json")
     parser.add_argument("--output", default="proof/r7-competition-targets-repaired.json")
     args = parser.parse_args()
@@ -32,7 +33,7 @@ def main() -> int:
         "headline_candidate": "C1",
         "performance_artifact": args.performance,
         "performance_artifact_commit": performance["commit"],
-        "quality_artifact": "proof/r7-b2-c1-shared-quality-repaired.json",
+        "quality_artifact": args.quality,
         "camera_artifact": args.camera,
         "quality_gate": {
             "top1_agreement": measurement["top1_agreement"],

@@ -4,11 +4,15 @@
 from __future__ import annotations
 
 import json
+import argparse
 from pathlib import Path
 
 
 def main() -> int:
-    target = json.loads(Path("proof/r7-competition-targets-repaired.json").read_text())
+    parser = argparse.ArgumentParser()
+    parser.add_argument("artifact", nargs="?", default="proof/r7-competition-targets-repaired.json")
+    args = parser.parse_args()
+    target = json.loads(Path(args.artifact).read_text())
     performance = json.loads(Path(target["performance_artifact"]).read_text())
     if target["status"] != "r7_repaired_all_measured_targets_evaluated_pending_hostile_review":
         raise SystemExit("FAIL repaired target evaluation status")

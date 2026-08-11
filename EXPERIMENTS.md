@@ -251,3 +251,15 @@ Production source repair: B2 `executeCHW` and C1 `execute` now encode/commit/wai
 Result: B2 p50 2.483208 ms; C1 p50 2.413458 ms; difference of marginal p50s 0.069750 ms; C1 lower 2.808866%; median paired difference 0.077167 ms; paired-median bootstrap CI [0.068625, 0.091542] ms.
 Outcome: QUALIFIED PENDING FRESH HOSTILE REVIEW; below the ≥10% target. The old 2.5013% artifact remains historical/superseded for final CI.
 Lesson: Independent batch initialization and independent source/order rotation change the final measured result, so the repaired raw protocol is authoritative for the review decision.
+
+## E018 - R7 F-004/F-007 profiler and environment repair
+
+Date: 2026-08-11
+Source repair commit: `b6285f2eb6b9329f925cde81db5936f5f2a8de98`
+Evidence: `proof/r7-final-b2-c1-shared-repaired-conditions.json`, `proof/r7-b2-c1-shared-quality-conditions.json`, `proof/r7-final-shared-path-profile-repaired-conditions.json`, `proof/profiler/r7-b2-c1-shared-repaired-events-full.json`
+
+F-007 repair: Reran the unchanged five-process Release protocol and recorded AC Power, Low Power Mode, and thermal state at batch start/end. The fail-closed aggregator/checker requires all five batches to contain valid condition fields.
+Result: B2 p50 1.595167 ms; C1 p50 1.561417 ms; marginal-p50 C1 improvement 2.115766%; below the ≥10% target. The prior 2.808866% conditionless result remains historical/superseded.
+F-004 repair: Replaced sampled profiler rows with complete resolved command/GPU/encoder rows, source-export hashes, and a row-level temporal attribution table binding 25 B2 and 25 C1 invocations. The checker derives cardinality/order and runs negative truncation, wrong-path, and schema-only tests.
+Outcome: EVIDENCE REPAIRED PENDING FRESH HOSTILE RE-REVIEW.
+Lesson: Small matched performance differences require explicit power/thermal provenance, and profiler summaries must preserve enough event structure for an independent reviewer to reconstruct attribution.
