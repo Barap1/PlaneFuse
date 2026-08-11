@@ -263,3 +263,11 @@ Result: B2 p50 1.595167 ms; C1 p50 1.561417 ms; marginal-p50 C1 improvement 2.11
 F-004 repair: Replaced inferred/generic profiler attribution with observed Metal command-buffer labels, observed combined B2 ordered encoder labels, observed C1 native-stem labels, command-buffer-ID joins, 100 nonzero GPU rows joined through 100 observed submission mappings, source-export hashes, and clean completion. The checker now requires exact 50/100/50/100 cardinalities, complete per-command joins, observed alternating order, generating-commit/hash binding, and rehashed negative blank-row, truncation, wrong-path, wrong-cardinality, broken-join, wrong-commit, wrong-encoder, and schema-only tests.
 Outcome: EVIDENCE REPAIRED PENDING FRESH HOSTILE RE-REVIEW.
 Lesson: Small matched performance differences require explicit power/thermal provenance, and profiler summaries must preserve enough event structure for an independent reviewer to reconstruct attribution.
+
+## E019 - Final R7 hostile closure and R7.5 gate
+
+Date: 2026-08-11
+Evidence: `proof/reviews/R7-F004-REPAIRED-5-COMPACT-HOSTILE-20260811.md`, `proof/reviews/R7-REVIEW-PACKET-REPAIRED-5.md`, `proof/r7-competition-targets-repaired-conditions.json`
+
+Final compact hostile review verified F-004 profiler closure and found no regression in benchmark fairness, conditions, quality, Pipeline A qualification, source lineage, historical camera provenance, privacy, or the A/B/C matrix. It returned RETHINK only for F-001: all four preregistered targets remain false/pending and the 2.115766% result is below the 10% target.
+Outcome: R7 evidence repair complete; R7 remains formally unaccepted. Under the explicit human authorization, exactly one same-workload R7.5 source-reuse investigation may now be prepared. Before coding, confirm repeated camera/source sampling remains a credible profiler cost, derive the execution schedule with the high-complexity worker, obtain compact architecture review if available, and preregister comparison against strongest B2 and accepted C1. If it does not materially beat C1, freeze performance research and productize the strongest honest result.
