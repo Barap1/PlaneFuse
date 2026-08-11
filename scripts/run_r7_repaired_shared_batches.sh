@@ -24,7 +24,7 @@ for batch_index in 0 1 2 3 4; do
   PF_R7_ORDER_PHASE="$((batch_index % 2))" \
   PF_R7_EXECUTION_ID="r7-${COMMIT}-run-${RUN_ID}-batch-${batch_index}" \
   PF_AC_POWER_STATE="$(pmset -g batt | sed -n "s/.*'\\([^']*\\)'.*/\\1/p" | head -n 1)" \
-  PF_LOW_POWER_MODE="$(pmset -g custom | awk '$1 == "lowpowermode" { print $2; exit }')" \
+  PF_LOW_POWER_MODE="$(pmset -g custom | sed -n 's/^[[:space:]]*lowpowermode[[:space:]]*//p' | head -n 1)" \
   PF_BENCHMARK_OUTPUT="$output" \
   "$ROOT/pf" bench mobilenetv2 shared-batch
 done
