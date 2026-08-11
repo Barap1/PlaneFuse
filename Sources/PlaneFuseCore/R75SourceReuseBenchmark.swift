@@ -63,6 +63,11 @@ public final class R75SourceReuseBenchmark {
         public let activationMaxAbsoluteError: Double
         public let c1Top1Agreement: Double
         public let c1SourceReuseTop1Agreement: Double
+        public let c1SourceReuseTop5SetAgreement: Double
+        public let c1SourceReuseTop5RankingAgreement: Double
+        public let c1SourceReuseProbabilityMaximumAbsoluteError: Double
+        public let c1SourceReuseProbabilityMeanL1Distance: Double
+        public let c1SourceReuseQualitySamples: [QualitySample]
         public let c1SourceReuseRGBLogicalBytes: Int
         public let c1SourceReuseRGBAllocatedBytes: Int
         public let cpuElementByElementActivationCopyBytes: Int
@@ -79,6 +84,18 @@ public final class R75SourceReuseBenchmark {
             public let acPowerState: String
             public let lowPowerMode: String
             public let thermalState: String
+        }
+
+        public struct QualitySample: Codable, Equatable {
+            public let sourceSampleID: String
+            public let c1Top1: String?
+            public let sourceReuseTop1: String?
+            public let c1Top5: [String]
+            public let sourceReuseTop5: [String]
+            public let top5SetMatch: Bool
+            public let top5RankingMatch: Bool
+            public let probabilityMaximumAbsoluteError: Double
+            public let probabilityL1Distance: Double
         }
     }
 
@@ -155,6 +172,11 @@ public final class R75SourceReuseBenchmark {
         return Measurement(schemaVersion: 1, status: "r7_5_source_reuse_batch", configuration: configuration,
             rawTripleRecords: records, activationMaxAbsoluteError: quality.maxError,
             c1Top1Agreement: quality.c1Agreement, c1SourceReuseTop1Agreement: quality.srAgreement,
+            c1SourceReuseTop5SetAgreement: quality.top5SetAgreement,
+            c1SourceReuseTop5RankingAgreement: quality.top5RankingAgreement,
+            c1SourceReuseProbabilityMaximumAbsoluteError: quality.probabilityMaximumAbsoluteError,
+            c1SourceReuseProbabilityMeanL1Distance: quality.probabilityMeanL1Distance,
+            c1SourceReuseQualitySamples: quality.samples,
             c1SourceReuseRGBLogicalBytes: 0, c1SourceReuseRGBAllocatedBytes: 0,
             cpuElementByElementActivationCopyBytes: 0, computeUnitsPolicy: tail.computeUnitsPolicyLabel,
             sourceSampleIDs: frames.map(\.id), bootstrapAlgorithmVersion: Self.algorithmVersion,
@@ -163,7 +185,16 @@ public final class R75SourceReuseBenchmark {
             conditionsAtEnd: try Self.conditionSnapshot())
     }
 
-    private struct Quality { let maxError: Double; let c1Agreement: Double; let srAgreement: Double }
+    private struct Quality {
+        let maxError: Double
+        let c1Agreement: Double
+        let srAgreement: Double
+        let top5SetAgreement: Double
+        let top5RankingAgreement: Double
+        let probabilityMaximumAbsoluteError: Double
+        let probabilityMeanL1Distance: Double
+        let samples: [Measurement.QualitySample]
+    }
     private struct Timed { let milliseconds: Double; let probabilities: [String: Double] }
 
     private func validate(frames: [MobileNetV2CorpusFrame], inputs: [MetalRGBBaseline.NV12Textures],
@@ -171,7 +202,9 @@ public final class R75SourceReuseBenchmark {
                           b2RGB: MTLBuffer, b2Activation: MTLBuffer, c1Activation: MTLBuffer,
                           srActivation: MTLBuffer, b2Tail: BufferBackedMultiArray,
                           c1Tail: BufferBackedMultiArray, srTail: BufferBackedMultiArray) throws -> Quality {
-        var maxError = 0.0, srMatches = 0
+        var maxError = 0.0, srMatches = 0, top5SetMatches = 0, top5RankingMatches = 0
+        var probabilityMaximumAbsoluteError = 0.0, probabilityL1Total = 0.0
+        var qualitySamples: [Measurement.QualitySample] = []
         for index in frames.indices {
             try b2.executeCHW(inputs[index], normalizedRGB: b2RGB, into: b2Activation)
             _ = try tail.predict(sharedActivation: b2Tail)
@@ -179,7 +212,24 @@ public final class R75SourceReuseBenchmark {
             let c1Probabilities = try tail.predict(sharedActivation: c1Tail)
             try c1.executeSourceReuse(inputs[index], into: srActivation)
             let srProbabilities = try tail.predict(sharedActivation: srTail)
+            let c1Top5 = Self.topLabels(c1Probabilities, count: 5)
+            let srTop5 = Self.topLabels(srProbabilities, count: 5)
+            let top5SetMatch = Set(c1Top5) == Set(srTop5)
+            let top5RankingMatch = c1Top5 == srTop5
             if Self.topLabel(c1Probabilities) == Self.topLabel(srProbabilities) { srMatches += 1 }
+            if top5SetMatch { top5SetMatches += 1 }
+            if top5RankingMatch { top5RankingMatches += 1 }
+            let probabilityErrors = c1Probabilities.keys.map { abs((c1Probabilities[$0] ?? 0) - (srProbabilities[$0] ?? 0)) }
+            let probabilityMaximumError = probabilityErrors.max() ?? 0
+            let probabilityL1 = probabilityErrors.reduce(0, +)
+            probabilityMaximumAbsoluteError = max(probabilityMaximumAbsoluteError, probabilityMaximumError)
+            probabilityL1Total += probabilityL1
+            qualitySamples.append(Measurement.QualitySample(
+                sourceSampleID: frames[index].id, c1Top1: Self.topLabel(c1Probabilities), sourceReuseTop1: Self.topLabel(srProbabilities),
+                c1Top5: c1Top5, sourceReuseTop5: srTop5, top5SetMatch: top5SetMatch,
+                top5RankingMatch: top5RankingMatch, probabilityMaximumAbsoluteError: probabilityMaximumError,
+                probabilityL1Distance: probabilityL1
+            ))
             let c1Values = try c1.readActivation(from: c1Activation)
             let srValues = try c1.readActivation(from: srActivation)
             maxError = max(maxError, zip(c1Values, srValues).map { abs(Double($0 - $1)) }.max() ?? 0)
@@ -187,7 +237,11 @@ public final class R75SourceReuseBenchmark {
         let srAgreement = Double(srMatches) / Double(frames.count)
         guard maxError <= Double(FairABCBenchmark.featureParityTolerance) else { throw Error.activationParityFailed(maxError) }
         guard srAgreement >= MobileNetV2OutputAgreement.requiredTop1Agreement else { throw Error.outputAgreementFailed("C1-SR", srAgreement) }
-        return Quality(maxError: maxError, c1Agreement: 1.0, srAgreement: srAgreement)
+        return Quality(maxError: maxError, c1Agreement: 1.0, srAgreement: srAgreement,
+                       top5SetAgreement: Double(top5SetMatches) / Double(frames.count),
+                       top5RankingAgreement: Double(top5RankingMatches) / Double(frames.count),
+                       probabilityMaximumAbsoluteError: probabilityMaximumAbsoluteError,
+                       probabilityMeanL1Distance: probabilityL1Total / Double(frames.count), samples: qualitySamples)
     }
 
     private func execute(order: [String], input: MetalRGBBaseline.NV12Textures,
@@ -213,6 +267,11 @@ public final class R75SourceReuseBenchmark {
 
     private static func topLabel(_ probabilities: [String: Double]) -> String? {
         probabilities.max { lhs, rhs in lhs.value == rhs.value ? lhs.key > rhs.key : lhs.value < rhs.value }?.key
+    }
+
+    private static func topLabels(_ probabilities: [String: Double], count: Int) -> [String] {
+        probabilities.sorted { lhs, rhs in lhs.value == rhs.value ? lhs.key < rhs.key : lhs.value > rhs.value }
+            .prefix(count).map(\.key)
     }
 
     private static func conditionSnapshot() throws -> Measurement.ConditionSnapshot {
