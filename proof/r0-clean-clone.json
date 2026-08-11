@@ -2,9 +2,9 @@
   "schema_version": 1,
   "status": "PASS",
   "branch": "phase2/continuum",
-  "commit": "820ed815188bd29cf4c6155d1f99743958640c94",
-  "elapsed_seconds": 157,
-  "log": "artifacts/logs/r0-clean-clone-820ed815188bd29cf4c6155d1f99743958640c94.log",
+  "commit": "a2b8c47c9cea07582ded4c475557a0651fb720ad",
+  "elapsed_seconds": 158,
+  "log": "artifacts/logs/r0-clean-clone-a2b8c47c9cea07582ded4c475557a0651fb720ad.log",
   "commands": [
     "./pf setup mobilenetv2",
     "python3 scripts/check_benchmark_index.py",
