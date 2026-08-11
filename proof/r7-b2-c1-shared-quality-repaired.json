@@ -1,0 +1,2040 @@
+{
+  "commit" : "fbebf546fb7d76b531c0e7b6653f509a0d9cbfec",
+  "environment" : {
+    "architecture" : "arm64",
+    "build_configuration" : "release",
+    "operating_system" : "Version 26.6.1 (Build 25G76)",
+    "swift_version" : "Apple Swift version 6.3.3 (swiftlang-6.3.3.1.3 clang-2100.1.1.101)",
+    "xcode_version" : "Xcode 26.6"
+  },
+  "measurement" : {
+    "comparison" : "B2 shared Float32 CHW materialized-RGB stem versus C1 shared Float32 native-plane stem; same persistent buffer-backed MLMultiArray tail adapter.",
+    "declared_thresholds" : {
+      "deployed_metal_activation_maximum_absolute_error" : 9.999999747378752e-06,
+      "source_derived_cpu_activation_maximum_absolute_error" : 0.0001,
+      "task_agreement" : 0.995
+    },
+    "device_name" : "Apple M5 Pro",
+    "disagreements" : [
+      {
+        "activation_cosine_similarity" : 0.9999999999998844,
+        "activation_maximum_absolute_error" : 5.245208740234375e-06,
+        "activation_mean_absolute_error" : 1.774313213859349e-07,
+        "b2_top1_label" : "lakeside, lakeshore",
+        "b2_top5_labels" : [
+          "lakeside, lakeshore",
+          "hip, rose hip, rosehip",
+          "beacon, lighthouse, beacon light, pharos",
+          "birdhouse",
+          "cliff, drop, drop-off"
+        ],
+        "c1_top1_label" : "lakeside, lakeshore",
+        "c1_top5_labels" : [
+          "lakeside, lakeshore",
+          "hip, rose hip, rosehip",
+          "beacon, lighthouse, beacon light, pharos",
+          "birdhouse",
+          "alp"
+        ],
+        "category" : "landscapes_nature",
+        "corpus_kind" : "real",
+        "id" : "wikimedia-52052040",
+        "probability_l1_distance" : 0.0028783679008483887,
+        "probability_maximum_absolute_error" : 0.00054931640625,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : false,
+        "top5_set_agreement" : false
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999999251,
+        "activation_maximum_absolute_error" : 5.7220458984375e-06,
+        "activation_mean_absolute_error" : 1.7825121638136863e-07,
+        "b2_top1_label" : "daisy",
+        "b2_top5_labels" : [
+          "daisy",
+          "umbrella",
+          "pot, flowerpot",
+          "greenhouse, nursery, glasshouse",
+          "picket fence, paling"
+        ],
+        "c1_top1_label" : "daisy",
+        "c1_top5_labels" : [
+          "daisy",
+          "pot, flowerpot",
+          "umbrella",
+          "greenhouse, nursery, glasshouse",
+          "picket fence, paling"
+        ],
+        "category" : "plants_flowers",
+        "corpus_kind" : "real",
+        "id" : "wikimedia-107696548",
+        "probability_l1_distance" : 0.0018084049224853516,
+        "probability_maximum_absolute_error" : 0.0006103515625,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : false,
+        "top5_set_agreement" : true
+      }
+    ],
+    "established_gates_passed" : true,
+    "limitations" : [
+      "This command measures B2\/C1 activation and classification outputs, not source-model lineage or the CPU-only source-derived stem threshold; that threshold is recorded without claiming it was remeasured.",
+      "MLComputeUnits.all is the explicit requested Core ML policy. Core ML runtime hardware placement and any internal copy are not observable through this adapter and are not inferred."
+    ],
+    "output_blind_corpus_selection" : "All 64 samples from proof\/m5-validation-corpus.json are evaluated once in manifest order. Sample inclusion, real\/procedural classification, and category are determined before inference from manifest metadata or the fixed stress-* procedural namespace; no model output affects selection.",
+    "requested_core_ml_compute_units" : "MLComputeUnits.all",
+    "resources" : {
+      "b2_rgb_logical_payload_bytes" : 602112,
+      "b2_rgb_metal_allocated_bytes" : 606208,
+      "c1_rgb_logical_payload_bytes" : 0,
+      "c1_rgb_metal_allocated_bytes" : 0,
+      "cpu_element_by_element_activation_copy_bytes" : 0,
+      "cpu_element_by_element_activation_copy_status" : "none; both B2 and C1 pass persistent shared Metal activation buffers through BufferBackedMultiArray, with no PlaneFuse CPU element-by-element activation population. Core ML internal-copy behavior is not measured by this artifact.",
+      "precision" : "Float32 activations; B2 materializes normalized RGB as Float32 CHW; C1 has no full RGB resource."
+    },
+    "samples" : [
+      {
+        "activation_cosine_similarity" : 0.9999999999998906,
+        "activation_maximum_absolute_error" : 7.62939453125e-06,
+        "activation_mean_absolute_error" : 2.0111579494141164e-07,
+        "b2_top1_label" : "Labrador retriever",
+        "b2_top5_labels" : [
+          "Labrador retriever",
+          "Saluki, gazelle hound",
+          "dingo, warrigal, warragal, Canis dingo",
+          "golden retriever",
+          "Eskimo dog, husky"
+        ],
+        "c1_top1_label" : "Labrador retriever",
+        "c1_top5_labels" : [
+          "Labrador retriever",
+          "Saluki, gazelle hound",
+          "dingo, warrigal, warragal, Canis dingo",
+          "golden retriever",
+          "Eskimo dog, husky"
+        ],
+        "category" : "animals",
+        "corpus_kind" : "real",
+        "id" : "legacy-cat-dog-r7-derivative",
+        "probability_l1_distance" : 0.002435445785522461,
+        "probability_maximum_absolute_error" : 0.000732421875,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 1.0000000000000062,
+        "activation_maximum_absolute_error" : 5.7220458984375e-06,
+        "activation_mean_absolute_error" : 1.8133913761074284e-07,
+        "b2_top1_label" : "toilet tissue, toilet paper, bathroom tissue",
+        "b2_top5_labels" : [
+          "toilet tissue, toilet paper, bathroom tissue",
+          "bucket, pail",
+          "paper towel",
+          "tabby, tabby cat",
+          "cup"
+        ],
+        "c1_top1_label" : "toilet tissue, toilet paper, bathroom tissue",
+        "c1_top5_labels" : [
+          "toilet tissue, toilet paper, bathroom tissue",
+          "bucket, pail",
+          "paper towel",
+          "tabby, tabby cat",
+          "cup"
+        ],
+        "category" : "animals",
+        "corpus_kind" : "real",
+        "id" : "legacy-cat-flower-pot-r7-derivative",
+        "probability_l1_distance" : 0.0040035247802734375,
+        "probability_maximum_absolute_error" : 0.00146484375,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999999165,
+        "activation_maximum_absolute_error" : 6.67572021484375e-06,
+        "activation_mean_absolute_error" : 1.9652288450244048e-07,
+        "b2_top1_label" : "Egyptian cat",
+        "b2_top5_labels" : [
+          "Egyptian cat",
+          "tiger cat",
+          "Siamese cat, Siamese",
+          "lynx, catamount",
+          "tabby, tabby cat"
+        ],
+        "c1_top1_label" : "Egyptian cat",
+        "c1_top5_labels" : [
+          "Egyptian cat",
+          "tiger cat",
+          "Siamese cat, Siamese",
+          "lynx, catamount",
+          "tabby, tabby cat"
+        ],
+        "category" : "animals",
+        "corpus_kind" : "real",
+        "id" : "legacy-closeup-cat-r7-derivative",
+        "probability_l1_distance" : 0.00016230344772338867,
+        "probability_maximum_absolute_error" : 1.9073486328125e-05,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999998671,
+        "activation_maximum_absolute_error" : 5.9604644775390625e-06,
+        "activation_mean_absolute_error" : 1.8280520887871911e-07,
+        "b2_top1_label" : "Great Pyrenees",
+        "b2_top5_labels" : [
+          "Great Pyrenees",
+          "white wolf, Arctic wolf, Canis lupus tundrarum",
+          "ox",
+          "kuvasz",
+          "dogsled, dog sled, dog sleigh"
+        ],
+        "c1_top1_label" : "Great Pyrenees",
+        "c1_top5_labels" : [
+          "Great Pyrenees",
+          "white wolf, Arctic wolf, Canis lupus tundrarum",
+          "ox",
+          "kuvasz",
+          "dogsled, dog sled, dog sleigh"
+        ],
+        "category" : "animals",
+        "corpus_kind" : "real",
+        "id" : "wikimedia-52039728",
+        "probability_l1_distance" : 0.003694891929626465,
+        "probability_maximum_absolute_error" : 0.001708984375,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999999042,
+        "activation_maximum_absolute_error" : 4.76837158203125e-06,
+        "activation_mean_absolute_error" : 1.6472336303440302e-07,
+        "b2_top1_label" : "container ship, containership, container vessel",
+        "b2_top5_labels" : [
+          "container ship, containership, container vessel",
+          "drilling platform, offshore rig",
+          "space shuttle",
+          "crane",
+          "liner, ocean liner"
+        ],
+        "c1_top1_label" : "container ship, containership, container vessel",
+        "c1_top5_labels" : [
+          "container ship, containership, container vessel",
+          "drilling platform, offshore rig",
+          "space shuttle",
+          "crane",
+          "liner, ocean liner"
+        ],
+        "category" : "architecture_streets",
+        "corpus_kind" : "real",
+        "id" : "wikimedia-146178257",
+        "probability_l1_distance" : 0.0010654330253601074,
+        "probability_maximum_absolute_error" : 0.00018310546875,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999998845,
+        "activation_maximum_absolute_error" : 5.7220458984375e-06,
+        "activation_mean_absolute_error" : 1.6626922160782663e-07,
+        "b2_top1_label" : "crane",
+        "b2_top5_labels" : [
+          "crane",
+          "drilling platform, offshore rig",
+          "space shuttle",
+          "aircraft carrier, carrier, flattop, attack aircraft carrier",
+          "hook, claw"
+        ],
+        "c1_top1_label" : "crane",
+        "c1_top5_labels" : [
+          "crane",
+          "drilling platform, offshore rig",
+          "space shuttle",
+          "aircraft carrier, carrier, flattop, attack aircraft carrier",
+          "hook, claw"
+        ],
+        "category" : "architecture_streets",
+        "corpus_kind" : "real",
+        "id" : "wikimedia-146178286",
+        "probability_l1_distance" : 0.001484215259552002,
+        "probability_maximum_absolute_error" : 0.00018310546875,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999999006,
+        "activation_maximum_absolute_error" : 6.67572021484375e-06,
+        "activation_mean_absolute_error" : 1.8551196655027168e-07,
+        "b2_top1_label" : "beach wagon, station wagon, wagon, estate car, beach waggon, station waggon, waggon",
+        "b2_top5_labels" : [
+          "beach wagon, station wagon, wagon, estate car, beach waggon, station waggon, waggon",
+          "jeep, landrover",
+          "pickup, pickup truck",
+          "convertible",
+          "cab, hack, taxi, taxicab"
+        ],
+        "c1_top1_label" : "beach wagon, station wagon, wagon, estate car, beach waggon, station waggon, waggon",
+        "c1_top5_labels" : [
+          "beach wagon, station wagon, wagon, estate car, beach waggon, station waggon, waggon",
+          "jeep, landrover",
+          "pickup, pickup truck",
+          "convertible",
+          "cab, hack, taxi, taxicab"
+        ],
+        "category" : "architecture_streets",
+        "corpus_kind" : "real",
+        "id" : "wikimedia-25211371",
+        "probability_l1_distance" : 0.002541780471801758,
+        "probability_maximum_absolute_error" : 0.0009765625,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999999122,
+        "activation_maximum_absolute_error" : 5.245208740234375e-06,
+        "activation_mean_absolute_error" : 1.8129062003038895e-07,
+        "b2_top1_label" : "seashore, coast, seacoast, sea-coast",
+        "b2_top5_labels" : [
+          "seashore, coast, seacoast, sea-coast",
+          "crane",
+          "flagpole, flagstaff",
+          "bell cote, bell cot",
+          "obelisk"
+        ],
+        "c1_top1_label" : "seashore, coast, seacoast, sea-coast",
+        "c1_top5_labels" : [
+          "seashore, coast, seacoast, sea-coast",
+          "crane",
+          "flagpole, flagstaff",
+          "bell cote, bell cot",
+          "obelisk"
+        ],
+        "category" : "architecture_streets",
+        "corpus_kind" : "real",
+        "id" : "wikimedia-35048409",
+        "probability_l1_distance" : 0.001538097858428955,
+        "probability_maximum_absolute_error" : 0.00030517578125,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999998908,
+        "activation_maximum_absolute_error" : 7.62939453125e-06,
+        "activation_mean_absolute_error" : 1.9044296802287015e-07,
+        "b2_top1_label" : "bakery, bakeshop, bakehouse",
+        "b2_top5_labels" : [
+          "bakery, bakeshop, bakehouse",
+          "corn",
+          "grocery store, grocery, food market, market",
+          "hamper",
+          "ear, spike, capitulum"
+        ],
+        "c1_top1_label" : "bakery, bakeshop, bakehouse",
+        "c1_top5_labels" : [
+          "bakery, bakeshop, bakehouse",
+          "corn",
+          "grocery store, grocery, food market, market",
+          "hamper",
+          "ear, spike, capitulum"
+        ],
+        "category" : "food_drink",
+        "corpus_kind" : "real",
+        "id" : "stocksnap-food-gourmet-RZ5FO2XO9F",
+        "probability_l1_distance" : 0.0034134387969970703,
+        "probability_maximum_absolute_error" : 0.00146484375,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.999999999999918,
+        "activation_maximum_absolute_error" : 8.58306884765625e-06,
+        "activation_mean_absolute_error" : 1.9759174918778776e-07,
+        "b2_top1_label" : "plate",
+        "b2_top5_labels" : [
+          "plate",
+          "restaurant, eating house, eating place, eatery",
+          "potpie",
+          "tray",
+          "hot pot, hotpot"
+        ],
+        "c1_top1_label" : "plate",
+        "c1_top5_labels" : [
+          "plate",
+          "restaurant, eating house, eating place, eatery",
+          "potpie",
+          "tray",
+          "hot pot, hotpot"
+        ],
+        "category" : "food_drink",
+        "corpus_kind" : "real",
+        "id" : "wikimedia-145712499",
+        "probability_l1_distance" : 0.003555119037628174,
+        "probability_maximum_absolute_error" : 0.001953125,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999998761,
+        "activation_maximum_absolute_error" : 6.9141387939453125e-06,
+        "activation_mean_absolute_error" : 1.899594656388596e-07,
+        "b2_top1_label" : "wok",
+        "b2_top5_labels" : [
+          "wok",
+          "hot pot, hotpot",
+          "caldron, cauldron",
+          "consomme",
+          "frying pan, frypan, skillet"
+        ],
+        "c1_top1_label" : "wok",
+        "c1_top5_labels" : [
+          "wok",
+          "hot pot, hotpot",
+          "caldron, cauldron",
+          "consomme",
+          "frying pan, frypan, skillet"
+        ],
+        "category" : "food_drink",
+        "corpus_kind" : "real",
+        "id" : "wikimedia-150958414",
+        "probability_l1_distance" : 0.0017070174217224121,
+        "probability_maximum_absolute_error" : 0.0009765625,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999998749,
+        "activation_maximum_absolute_error" : 6.67572021484375e-06,
+        "activation_mean_absolute_error" : 1.9482532974656844e-07,
+        "b2_top1_label" : "Dutch oven",
+        "b2_top5_labels" : [
+          "Dutch oven",
+          "wok",
+          "plate",
+          "frying pan, frypan, skillet",
+          "caldron, cauldron"
+        ],
+        "c1_top1_label" : "Dutch oven",
+        "c1_top5_labels" : [
+          "Dutch oven",
+          "wok",
+          "plate",
+          "frying pan, frypan, skillet",
+          "caldron, cauldron"
+        ],
+        "category" : "food_drink",
+        "corpus_kind" : "real",
+        "id" : "wikimedia-150958429",
+        "probability_l1_distance" : 0.0037818551063537598,
+        "probability_maximum_absolute_error" : 0.001708984375,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999998906,
+        "activation_maximum_absolute_error" : 4.76837158203125e-06,
+        "activation_mean_absolute_error" : 1.8371365490706123e-07,
+        "b2_top1_label" : "shovel",
+        "b2_top5_labels" : [
+          "shovel",
+          "carpenter's kit, tool kit",
+          "screwdriver",
+          "hammer",
+          "can opener, tin opener"
+        ],
+        "c1_top1_label" : "shovel",
+        "c1_top5_labels" : [
+          "shovel",
+          "carpenter's kit, tool kit",
+          "screwdriver",
+          "hammer",
+          "can opener, tin opener"
+        ],
+        "category" : "household_tools_electronics",
+        "corpus_kind" : "real",
+        "id" : "wikimedia-114005486",
+        "probability_l1_distance" : 0.001375734806060791,
+        "probability_maximum_absolute_error" : 0.00048828125,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999998969,
+        "activation_maximum_absolute_error" : 5.9604644775390625e-06,
+        "activation_mean_absolute_error" : 1.816884801698692e-07,
+        "b2_top1_label" : "screwdriver",
+        "b2_top5_labels" : [
+          "screwdriver",
+          "carpenter's kit, tool kit",
+          "cleaver, meat cleaver, chopper",
+          "letter opener, paper knife, paperknife",
+          "hammer"
+        ],
+        "c1_top1_label" : "screwdriver",
+        "c1_top5_labels" : [
+          "screwdriver",
+          "carpenter's kit, tool kit",
+          "cleaver, meat cleaver, chopper",
+          "letter opener, paper knife, paperknife",
+          "hammer"
+        ],
+        "category" : "household_tools_electronics",
+        "corpus_kind" : "real",
+        "id" : "wikimedia-114005489",
+        "probability_l1_distance" : 0.00030982494354248047,
+        "probability_maximum_absolute_error" : 4.76837158203125e-05,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999998803,
+        "activation_maximum_absolute_error" : 5.4836273193359375e-06,
+        "activation_mean_absolute_error" : 1.8603829812119123e-07,
+        "b2_top1_label" : "broom",
+        "b2_top5_labels" : [
+          "broom",
+          "hammer",
+          "paintbrush",
+          "plane, carpenter's plane, woodworking plane",
+          "schooner"
+        ],
+        "c1_top1_label" : "broom",
+        "c1_top5_labels" : [
+          "broom",
+          "hammer",
+          "paintbrush",
+          "plane, carpenter's plane, woodworking plane",
+          "schooner"
+        ],
+        "category" : "household_tools_electronics",
+        "corpus_kind" : "real",
+        "id" : "wikimedia-141540996",
+        "probability_l1_distance" : 0.002479851245880127,
+        "probability_maximum_absolute_error" : 0.00030517578125,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999999023,
+        "activation_maximum_absolute_error" : 6.4373016357421875e-06,
+        "activation_mean_absolute_error" : 1.9062998536930163e-07,
+        "b2_top1_label" : "hammer",
+        "b2_top5_labels" : [
+          "hammer",
+          "nail",
+          "plane, carpenter's plane, woodworking plane",
+          "dumbbell",
+          "lumbermill, sawmill"
+        ],
+        "c1_top1_label" : "hammer",
+        "c1_top5_labels" : [
+          "hammer",
+          "nail",
+          "plane, carpenter's plane, woodworking plane",
+          "dumbbell",
+          "lumbermill, sawmill"
+        ],
+        "category" : "household_tools_electronics",
+        "corpus_kind" : "real",
+        "id" : "wikimedia-141541159",
+        "probability_l1_distance" : 0.0015867948532104492,
+        "probability_maximum_absolute_error" : 0.0009765625,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999998678,
+        "activation_maximum_absolute_error" : 5.7220458984375e-06,
+        "activation_mean_absolute_error" : 2.0021136787151596e-07,
+        "b2_top1_label" : "valley, vale",
+        "b2_top5_labels" : [
+          "valley, vale",
+          "cliff, drop, drop-off",
+          "alp",
+          "seashore, coast, seacoast, sea-coast",
+          "promontory, headland, head, foreland"
+        ],
+        "c1_top1_label" : "valley, vale",
+        "c1_top5_labels" : [
+          "valley, vale",
+          "cliff, drop, drop-off",
+          "alp",
+          "seashore, coast, seacoast, sea-coast",
+          "promontory, headland, head, foreland"
+        ],
+        "category" : "landscapes_nature",
+        "corpus_kind" : "real",
+        "id" : "wikimedia-52050816",
+        "probability_l1_distance" : 0.0019843578338623047,
+        "probability_maximum_absolute_error" : 0.000244140625,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 1.0000000000000018,
+        "activation_maximum_absolute_error" : 6.4373016357421875e-06,
+        "activation_mean_absolute_error" : 1.761580112996917e-07,
+        "b2_top1_label" : "corn",
+        "b2_top5_labels" : [
+          "corn",
+          "ear, spike, capitulum",
+          "golf ball",
+          "maze, labyrinth",
+          "lakeside, lakeshore"
+        ],
+        "c1_top1_label" : "corn",
+        "c1_top5_labels" : [
+          "corn",
+          "ear, spike, capitulum",
+          "golf ball",
+          "maze, labyrinth",
+          "lakeside, lakeshore"
+        ],
+        "category" : "landscapes_nature",
+        "corpus_kind" : "real",
+        "id" : "wikimedia-52050912",
+        "probability_l1_distance" : 0.0013973712921142578,
+        "probability_maximum_absolute_error" : 0.00048828125,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999998997,
+        "activation_maximum_absolute_error" : 5.7220458984375e-06,
+        "activation_mean_absolute_error" : 1.7077794546316758e-07,
+        "b2_top1_label" : "cliff, drop, drop-off",
+        "b2_top5_labels" : [
+          "cliff, drop, drop-off",
+          "valley, vale",
+          "cliff dwelling",
+          "alp",
+          "promontory, headland, head, foreland"
+        ],
+        "c1_top1_label" : "cliff, drop, drop-off",
+        "c1_top5_labels" : [
+          "cliff, drop, drop-off",
+          "valley, vale",
+          "cliff dwelling",
+          "alp",
+          "promontory, headland, head, foreland"
+        ],
+        "category" : "landscapes_nature",
+        "corpus_kind" : "real",
+        "id" : "wikimedia-52050956",
+        "probability_l1_distance" : 0.0034554004669189453,
+        "probability_maximum_absolute_error" : 0.00146484375,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999998844,
+        "activation_maximum_absolute_error" : 5.245208740234375e-06,
+        "activation_mean_absolute_error" : 1.774313213859349e-07,
+        "b2_top1_label" : "lakeside, lakeshore",
+        "b2_top5_labels" : [
+          "lakeside, lakeshore",
+          "hip, rose hip, rosehip",
+          "beacon, lighthouse, beacon light, pharos",
+          "birdhouse",
+          "cliff, drop, drop-off"
+        ],
+        "c1_top1_label" : "lakeside, lakeshore",
+        "c1_top5_labels" : [
+          "lakeside, lakeshore",
+          "hip, rose hip, rosehip",
+          "beacon, lighthouse, beacon light, pharos",
+          "birdhouse",
+          "alp"
+        ],
+        "category" : "landscapes_nature",
+        "corpus_kind" : "real",
+        "id" : "wikimedia-52052040",
+        "probability_l1_distance" : 0.0028783679008483887,
+        "probability_maximum_absolute_error" : 0.00054931640625,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : false,
+        "top5_set_agreement" : false
+      },
+      {
+        "activation_cosine_similarity" : 0.999999999999888,
+        "activation_maximum_absolute_error" : 5.245208740234375e-06,
+        "activation_mean_absolute_error" : 1.7455606800059112e-07,
+        "b2_top1_label" : "toyshop",
+        "b2_top5_labels" : [
+          "toyshop",
+          "altar",
+          "tobacco shop, tobacconist shop, tobacconist",
+          "comic book",
+          "throne"
+        ],
+        "c1_top1_label" : "toyshop",
+        "c1_top5_labels" : [
+          "toyshop",
+          "altar",
+          "tobacco shop, tobacconist shop, tobacconist",
+          "comic book",
+          "throne"
+        ],
+        "category" : "miscellaneous_objects_textures",
+        "corpus_kind" : "real",
+        "id" : "wikimedia-145562107",
+        "probability_l1_distance" : 0.001832425594329834,
+        "probability_maximum_absolute_error" : 0.0006103515625,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999999026,
+        "activation_maximum_absolute_error" : 7.62939453125e-06,
+        "activation_mean_absolute_error" : 2.1530633588327448e-07,
+        "b2_top1_label" : "stage",
+        "b2_top5_labels" : [
+          "stage",
+          "loudspeaker, speaker, speaker unit, loudspeaker system, speaker system",
+          "picket fence, paling",
+          "cinema, movie theater, movie theatre, movie house, picture palace",
+          "altar"
+        ],
+        "c1_top1_label" : "stage",
+        "c1_top5_labels" : [
+          "stage",
+          "loudspeaker, speaker, speaker unit, loudspeaker system, speaker system",
+          "picket fence, paling",
+          "cinema, movie theater, movie theatre, movie house, picture palace",
+          "altar"
+        ],
+        "category" : "miscellaneous_objects_textures",
+        "corpus_kind" : "real",
+        "id" : "wikimedia-150797087",
+        "probability_l1_distance" : 0.0027055740356445312,
+        "probability_maximum_absolute_error" : 0.00054931640625,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999999016,
+        "activation_maximum_absolute_error" : 5.7220458984375e-06,
+        "activation_mean_absolute_error" : 1.7674862287898705e-07,
+        "b2_top1_label" : "totem pole",
+        "b2_top5_labels" : [
+          "totem pole",
+          "library",
+          "restaurant, eating house, eating place, eatery",
+          "tobacco shop, tobacconist shop, tobacconist",
+          "coil, spiral, volute, whorl, helix"
+        ],
+        "c1_top1_label" : "totem pole",
+        "c1_top5_labels" : [
+          "totem pole",
+          "library",
+          "restaurant, eating house, eating place, eatery",
+          "tobacco shop, tobacconist shop, tobacconist",
+          "coil, spiral, volute, whorl, helix"
+        ],
+        "category" : "miscellaneous_objects_textures",
+        "corpus_kind" : "real",
+        "id" : "wikimedia-151232217",
+        "probability_l1_distance" : 0.0023716092109680176,
+        "probability_maximum_absolute_error" : 0.0006103515625,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999999056,
+        "activation_maximum_absolute_error" : 6.9141387939453125e-06,
+        "activation_mean_absolute_error" : 2.0084157910392202e-07,
+        "b2_top1_label" : "volcano",
+        "b2_top5_labels" : [
+          "volcano",
+          "jellyfish",
+          "sea cucumber, holothurian",
+          "eel",
+          "goldfish, Carassius auratus"
+        ],
+        "c1_top1_label" : "volcano",
+        "c1_top5_labels" : [
+          "volcano",
+          "jellyfish",
+          "sea cucumber, holothurian",
+          "eel",
+          "goldfish, Carassius auratus"
+        ],
+        "category" : "miscellaneous_objects_textures",
+        "corpus_kind" : "real",
+        "id" : "wikimedia-155739988",
+        "probability_l1_distance" : 0.00019437074661254883,
+        "probability_maximum_absolute_error" : 7.62939453125e-06,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 1.0000000000005902,
+        "activation_maximum_absolute_error" : 1.9073486328125e-06,
+        "activation_mean_absolute_error" : 1.8378387740456822e-07,
+        "b2_top1_label" : "matchstick",
+        "b2_top5_labels" : [
+          "matchstick",
+          "nematode, nematode worm, roundworm",
+          "lighter, light, igniter, ignitor",
+          "digital clock",
+          "spotlight, spot"
+        ],
+        "c1_top1_label" : "matchstick",
+        "c1_top5_labels" : [
+          "matchstick",
+          "nematode, nematode worm, roundworm",
+          "lighter, light, igniter, ignitor",
+          "digital clock",
+          "spotlight, spot"
+        ],
+        "category" : "plants_flowers",
+        "corpus_kind" : "real",
+        "id" : "legacy-flower-r7-derivative",
+        "probability_l1_distance" : 0,
+        "probability_maximum_absolute_error" : 0,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999998842,
+        "activation_maximum_absolute_error" : 7.62939453125e-06,
+        "activation_mean_absolute_error" : 1.7807346995305952e-07,
+        "b2_top1_label" : "umbrella",
+        "b2_top5_labels" : [
+          "umbrella",
+          "daisy",
+          "pot, flowerpot",
+          "greenhouse, nursery, glasshouse",
+          "picket fence, paling"
+        ],
+        "c1_top1_label" : "umbrella",
+        "c1_top5_labels" : [
+          "umbrella",
+          "daisy",
+          "pot, flowerpot",
+          "greenhouse, nursery, glasshouse",
+          "picket fence, paling"
+        ],
+        "category" : "plants_flowers",
+        "corpus_kind" : "real",
+        "id" : "wikimedia-107696546",
+        "probability_l1_distance" : 0.0009295344352722168,
+        "probability_maximum_absolute_error" : 0.0003662109375,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999999251,
+        "activation_maximum_absolute_error" : 5.7220458984375e-06,
+        "activation_mean_absolute_error" : 1.7825121638136863e-07,
+        "b2_top1_label" : "daisy",
+        "b2_top5_labels" : [
+          "daisy",
+          "umbrella",
+          "pot, flowerpot",
+          "greenhouse, nursery, glasshouse",
+          "picket fence, paling"
+        ],
+        "c1_top1_label" : "daisy",
+        "c1_top5_labels" : [
+          "daisy",
+          "pot, flowerpot",
+          "umbrella",
+          "greenhouse, nursery, glasshouse",
+          "picket fence, paling"
+        ],
+        "category" : "plants_flowers",
+        "corpus_kind" : "real",
+        "id" : "wikimedia-107696548",
+        "probability_l1_distance" : 0.0018084049224853516,
+        "probability_maximum_absolute_error" : 0.0006103515625,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : false,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999998613,
+        "activation_maximum_absolute_error" : 5.781650543212891e-06,
+        "activation_mean_absolute_error" : 1.7951471726654137e-07,
+        "b2_top1_label" : "pot, flowerpot",
+        "b2_top5_labels" : [
+          "pot, flowerpot",
+          "umbrella",
+          "lakeside, lakeshore",
+          "daisy",
+          "greenhouse, nursery, glasshouse"
+        ],
+        "c1_top1_label" : "pot, flowerpot",
+        "c1_top5_labels" : [
+          "pot, flowerpot",
+          "umbrella",
+          "lakeside, lakeshore",
+          "daisy",
+          "greenhouse, nursery, glasshouse"
+        ],
+        "category" : "plants_flowers",
+        "corpus_kind" : "real",
+        "id" : "wikimedia-107696549",
+        "probability_l1_distance" : 0.0020858049392700195,
+        "probability_maximum_absolute_error" : 0.00048828125,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999998869,
+        "activation_maximum_absolute_error" : 4.76837158203125e-06,
+        "activation_mean_absolute_error" : 1.5978019270782263e-07,
+        "b2_top1_label" : "dam, dike, dyke",
+        "b2_top5_labels" : [
+          "dam, dike, dyke",
+          "aircraft carrier, carrier, flattop, attack aircraft carrier",
+          "steel arch bridge",
+          "submarine, pigboat, sub, U-boat",
+          "amphibian, amphibious vehicle"
+        ],
+        "c1_top1_label" : "dam, dike, dyke",
+        "c1_top5_labels" : [
+          "dam, dike, dyke",
+          "aircraft carrier, carrier, flattop, attack aircraft carrier",
+          "steel arch bridge",
+          "submarine, pigboat, sub, U-boat",
+          "amphibian, amphibious vehicle"
+        ],
+        "category" : "vehicles",
+        "corpus_kind" : "real",
+        "id" : "wikimedia-130325596",
+        "probability_l1_distance" : 0.0007976293563842773,
+        "probability_maximum_absolute_error" : 0.00048828125,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999999047,
+        "activation_maximum_absolute_error" : 5.7220458984375e-06,
+        "activation_mean_absolute_error" : 1.7965620970788756e-07,
+        "b2_top1_label" : "scale, weighing machine",
+        "b2_top5_labels" : [
+          "scale, weighing machine",
+          "parking meter",
+          "trolleybus, trolley coach, trackless trolley",
+          "gas pump, gasoline pump, petrol pump, island dispenser",
+          "school bus"
+        ],
+        "c1_top1_label" : "scale, weighing machine",
+        "c1_top5_labels" : [
+          "scale, weighing machine",
+          "parking meter",
+          "trolleybus, trolley coach, trackless trolley",
+          "gas pump, gasoline pump, petrol pump, island dispenser",
+          "school bus"
+        ],
+        "category" : "vehicles",
+        "corpus_kind" : "real",
+        "id" : "wikimedia-130325605",
+        "probability_l1_distance" : 0.0022533535957336426,
+        "probability_maximum_absolute_error" : 0.000732421875,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999999168,
+        "activation_maximum_absolute_error" : 5.245208740234375e-06,
+        "activation_mean_absolute_error" : 1.7472849750286245e-07,
+        "b2_top1_label" : "crane",
+        "b2_top5_labels" : [
+          "crane",
+          "lumbermill, sawmill",
+          "container ship, containership, container vessel",
+          "harvester, reaper",
+          "drilling platform, offshore rig"
+        ],
+        "c1_top1_label" : "crane",
+        "c1_top5_labels" : [
+          "crane",
+          "lumbermill, sawmill",
+          "container ship, containership, container vessel",
+          "harvester, reaper",
+          "drilling platform, offshore rig"
+        ],
+        "category" : "vehicles",
+        "corpus_kind" : "real",
+        "id" : "wikimedia-130325628",
+        "probability_l1_distance" : 0.00032979249954223633,
+        "probability_maximum_absolute_error" : 0.0001068115234375,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999998912,
+        "activation_maximum_absolute_error" : 5.7220458984375e-06,
+        "activation_mean_absolute_error" : 1.761421990966708e-07,
+        "b2_top1_label" : "lumbermill, sawmill",
+        "b2_top5_labels" : [
+          "lumbermill, sawmill",
+          "trailer truck, tractor trailer, trucking rig, rig, articulated lorry, semi",
+          "container ship, containership, container vessel",
+          "mountain tent",
+          "freight car"
+        ],
+        "c1_top1_label" : "lumbermill, sawmill",
+        "c1_top5_labels" : [
+          "lumbermill, sawmill",
+          "trailer truck, tractor trailer, trucking rig, rig, articulated lorry, semi",
+          "container ship, containership, container vessel",
+          "mountain tent",
+          "freight car"
+        ],
+        "category" : "vehicles",
+        "corpus_kind" : "real",
+        "id" : "wikimedia-130325636",
+        "probability_l1_distance" : 0.0032067298889160156,
+        "probability_maximum_absolute_error" : 0.000732421875,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 1.0000000000005902,
+        "activation_maximum_absolute_error" : 1.9073486328125e-06,
+        "activation_mean_absolute_error" : 1.8378387740456822e-07,
+        "b2_top1_label" : "matchstick",
+        "b2_top5_labels" : [
+          "matchstick",
+          "nematode, nematode worm, roundworm",
+          "lighter, light, igniter, ignitor",
+          "digital clock",
+          "spotlight, spot"
+        ],
+        "c1_top1_label" : "matchstick",
+        "c1_top5_labels" : [
+          "matchstick",
+          "nematode, nematode worm, roundworm",
+          "lighter, light, igniter, ignitor",
+          "digital clock",
+          "spotlight, spot"
+        ],
+        "category" : "procedural-stress",
+        "corpus_kind" : "procedural",
+        "id" : "stress-00",
+        "probability_l1_distance" : 0,
+        "probability_maximum_absolute_error" : 0,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 1.0000000000005063,
+        "activation_maximum_absolute_error" : 1.6689300537109375e-06,
+        "activation_mean_absolute_error" : 1.688285981824457e-07,
+        "b2_top1_label" : "envelope",
+        "b2_top5_labels" : [
+          "envelope",
+          "corkscrew, bottle screw",
+          "screw",
+          "ballpoint, ballpoint pen, ballpen, Biro",
+          "can opener, tin opener"
+        ],
+        "c1_top1_label" : "envelope",
+        "c1_top5_labels" : [
+          "envelope",
+          "corkscrew, bottle screw",
+          "screw",
+          "ballpoint, ballpoint pen, ballpen, Biro",
+          "can opener, tin opener"
+        ],
+        "category" : "procedural-stress",
+        "corpus_kind" : "procedural",
+        "id" : "stress-01",
+        "probability_l1_distance" : 0,
+        "probability_maximum_absolute_error" : 0,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999981093,
+        "activation_maximum_absolute_error" : 1.1920928955078125e-06,
+        "activation_mean_absolute_error" : 1.6848217350665202e-07,
+        "b2_top1_label" : "nematode, nematode worm, roundworm",
+        "b2_top5_labels" : [
+          "nematode, nematode worm, roundworm",
+          "matchstick",
+          "table lamp",
+          "hatchet",
+          "spatula"
+        ],
+        "c1_top1_label" : "nematode, nematode worm, roundworm",
+        "c1_top5_labels" : [
+          "nematode, nematode worm, roundworm",
+          "matchstick",
+          "table lamp",
+          "hatchet",
+          "spatula"
+        ],
+        "category" : "procedural-stress",
+        "corpus_kind" : "procedural",
+        "id" : "stress-02",
+        "probability_l1_distance" : 0,
+        "probability_maximum_absolute_error" : 0,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.999999999997659,
+        "activation_maximum_absolute_error" : 1.430511474609375e-06,
+        "activation_mean_absolute_error" : 1.4608307612100047e-07,
+        "b2_top1_label" : "theater curtain, theatre curtain",
+        "b2_top5_labels" : [
+          "theater curtain, theatre curtain",
+          "envelope",
+          "hourglass",
+          "lipstick, lip rouge",
+          "matchstick"
+        ],
+        "c1_top1_label" : "theater curtain, theatre curtain",
+        "c1_top5_labels" : [
+          "theater curtain, theatre curtain",
+          "envelope",
+          "hourglass",
+          "lipstick, lip rouge",
+          "matchstick"
+        ],
+        "category" : "procedural-stress",
+        "corpus_kind" : "procedural",
+        "id" : "stress-03",
+        "probability_l1_distance" : 0,
+        "probability_maximum_absolute_error" : 0,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 1.0000000000020082,
+        "activation_maximum_absolute_error" : 1.430511474609375e-06,
+        "activation_mean_absolute_error" : 1.357814786623297e-07,
+        "b2_top1_label" : "nematode, nematode worm, roundworm",
+        "b2_top5_labels" : [
+          "nematode, nematode worm, roundworm",
+          "whistle",
+          "binder, ring-binder",
+          "can opener, tin opener",
+          "cleaver, meat cleaver, chopper"
+        ],
+        "c1_top1_label" : "nematode, nematode worm, roundworm",
+        "c1_top5_labels" : [
+          "nematode, nematode worm, roundworm",
+          "whistle",
+          "binder, ring-binder",
+          "can opener, tin opener",
+          "cleaver, meat cleaver, chopper"
+        ],
+        "category" : "procedural-stress",
+        "corpus_kind" : "procedural",
+        "id" : "stress-04",
+        "probability_l1_distance" : 0,
+        "probability_maximum_absolute_error" : 0,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 1.0000000000004756,
+        "activation_maximum_absolute_error" : 2.384185791015625e-06,
+        "activation_mean_absolute_error" : 1.8387292745383773e-07,
+        "b2_top1_label" : "jellyfish",
+        "b2_top5_labels" : [
+          "jellyfish",
+          "parachute, chute",
+          "hammerhead, hammerhead shark",
+          "matchstick",
+          "space shuttle"
+        ],
+        "c1_top1_label" : "jellyfish",
+        "c1_top5_labels" : [
+          "jellyfish",
+          "parachute, chute",
+          "hammerhead, hammerhead shark",
+          "matchstick",
+          "space shuttle"
+        ],
+        "category" : "procedural-stress",
+        "corpus_kind" : "procedural",
+        "id" : "stress-05",
+        "probability_l1_distance" : 0,
+        "probability_maximum_absolute_error" : 0,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 1.0000000000017315,
+        "activation_maximum_absolute_error" : 9.5367431640625e-07,
+        "activation_mean_absolute_error" : 1.0801113294168267e-07,
+        "b2_top1_label" : "jellyfish",
+        "b2_top5_labels" : [
+          "jellyfish",
+          "hook, claw",
+          "web site, website, internet site, site",
+          "dugong, Dugong dugon",
+          "barbell"
+        ],
+        "c1_top1_label" : "jellyfish",
+        "c1_top5_labels" : [
+          "jellyfish",
+          "hook, claw",
+          "web site, website, internet site, site",
+          "dugong, Dugong dugon",
+          "barbell"
+        ],
+        "category" : "procedural-stress",
+        "corpus_kind" : "procedural",
+        "id" : "stress-06",
+        "probability_l1_distance" : 0,
+        "probability_maximum_absolute_error" : 0,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.999999999999954,
+        "activation_maximum_absolute_error" : 1.430511474609375e-06,
+        "activation_mean_absolute_error" : 1.1489980667591931e-07,
+        "b2_top1_label" : "cleaver, meat cleaver, chopper",
+        "b2_top5_labels" : [
+          "cleaver, meat cleaver, chopper",
+          "whistle",
+          "hatchet",
+          "letter opener, paper knife, paperknife",
+          "can opener, tin opener"
+        ],
+        "c1_top1_label" : "cleaver, meat cleaver, chopper",
+        "c1_top5_labels" : [
+          "cleaver, meat cleaver, chopper",
+          "whistle",
+          "hatchet",
+          "letter opener, paper knife, paperknife",
+          "can opener, tin opener"
+        ],
+        "category" : "procedural-stress",
+        "corpus_kind" : "procedural",
+        "id" : "stress-07",
+        "probability_l1_distance" : 0,
+        "probability_maximum_absolute_error" : 0,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 1.0000000000006501,
+        "activation_maximum_absolute_error" : 1.1920928955078125e-06,
+        "activation_mean_absolute_error" : 1.79954997515686e-07,
+        "b2_top1_label" : "whistle",
+        "b2_top5_labels" : [
+          "whistle",
+          "envelope",
+          "can opener, tin opener",
+          "cleaver, meat cleaver, chopper",
+          "hatchet"
+        ],
+        "c1_top1_label" : "whistle",
+        "c1_top5_labels" : [
+          "whistle",
+          "envelope",
+          "can opener, tin opener",
+          "cleaver, meat cleaver, chopper",
+          "hatchet"
+        ],
+        "category" : "procedural-stress",
+        "corpus_kind" : "procedural",
+        "id" : "stress-08",
+        "probability_l1_distance" : 0,
+        "probability_maximum_absolute_error" : 0,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999999986,
+        "activation_maximum_absolute_error" : 4.76837158203125e-06,
+        "activation_mean_absolute_error" : 1.7748914953334533e-07,
+        "b2_top1_label" : "dishwasher, dish washer, dishwashing machine",
+        "b2_top5_labels" : [
+          "dishwasher, dish washer, dishwashing machine",
+          "beaker",
+          "milk can",
+          "lotion",
+          "nipple"
+        ],
+        "c1_top1_label" : "dishwasher, dish washer, dishwashing machine",
+        "c1_top5_labels" : [
+          "dishwasher, dish washer, dishwashing machine",
+          "beaker",
+          "milk can",
+          "lotion",
+          "nipple"
+        ],
+        "category" : "procedural-stress",
+        "corpus_kind" : "procedural",
+        "id" : "stress-09",
+        "probability_l1_distance" : 0.0002707839012145996,
+        "probability_maximum_absolute_error" : 2.288818359375e-05,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999999458,
+        "activation_maximum_absolute_error" : 2.86102294921875e-06,
+        "activation_mean_absolute_error" : 1.6457850623966534e-07,
+        "b2_top1_label" : "web site, website, internet site, site",
+        "b2_top5_labels" : [
+          "web site, website, internet site, site",
+          "envelope",
+          "digital clock",
+          "oscilloscope, scope, cathode-ray oscilloscope, CRO",
+          "analog clock"
+        ],
+        "c1_top1_label" : "web site, website, internet site, site",
+        "c1_top5_labels" : [
+          "web site, website, internet site, site",
+          "envelope",
+          "digital clock",
+          "oscilloscope, scope, cathode-ray oscilloscope, CRO",
+          "analog clock"
+        ],
+        "category" : "procedural-stress",
+        "corpus_kind" : "procedural",
+        "id" : "stress-10",
+        "probability_l1_distance" : 0,
+        "probability_maximum_absolute_error" : 0,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999997424,
+        "activation_maximum_absolute_error" : 3.814697265625e-06,
+        "activation_mean_absolute_error" : 1.717956274351185e-07,
+        "b2_top1_label" : "web site, website, internet site, site",
+        "b2_top5_labels" : [
+          "web site, website, internet site, site",
+          "nail",
+          "spotlight, spot",
+          "screen, CRT screen",
+          "digital clock"
+        ],
+        "c1_top1_label" : "web site, website, internet site, site",
+        "c1_top5_labels" : [
+          "web site, website, internet site, site",
+          "nail",
+          "spotlight, spot",
+          "screen, CRT screen",
+          "digital clock"
+        ],
+        "category" : "procedural-stress",
+        "corpus_kind" : "procedural",
+        "id" : "stress-11",
+        "probability_l1_distance" : 0.001252591609954834,
+        "probability_maximum_absolute_error" : 0.0001220703125,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 1.0000000000010951,
+        "activation_maximum_absolute_error" : 2.384185791015625e-06,
+        "activation_mean_absolute_error" : 2.2027273678227145e-07,
+        "b2_top1_label" : "binder, ring-binder",
+        "b2_top5_labels" : [
+          "binder, ring-binder",
+          "pool table, billiard table, snooker table",
+          "whistle",
+          "spotlight, spot",
+          "wall clock"
+        ],
+        "c1_top1_label" : "binder, ring-binder",
+        "c1_top5_labels" : [
+          "binder, ring-binder",
+          "pool table, billiard table, snooker table",
+          "whistle",
+          "spotlight, spot",
+          "wall clock"
+        ],
+        "category" : "procedural-stress",
+        "corpus_kind" : "procedural",
+        "id" : "stress-12",
+        "probability_l1_distance" : 0,
+        "probability_maximum_absolute_error" : 0,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999993247,
+        "activation_maximum_absolute_error" : 2.384185791015625e-06,
+        "activation_mean_absolute_error" : 1.6400420519152695e-07,
+        "b2_top1_label" : "digital clock",
+        "b2_top5_labels" : [
+          "digital clock",
+          "wool, woolen, woollen",
+          "pole",
+          "wall clock",
+          "common iguana, iguana, Iguana iguana"
+        ],
+        "c1_top1_label" : "digital clock",
+        "c1_top5_labels" : [
+          "digital clock",
+          "wool, woolen, woollen",
+          "pole",
+          "wall clock",
+          "common iguana, iguana, Iguana iguana"
+        ],
+        "category" : "procedural-stress",
+        "corpus_kind" : "procedural",
+        "id" : "stress-13",
+        "probability_l1_distance" : 0,
+        "probability_maximum_absolute_error" : 0,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999995104,
+        "activation_maximum_absolute_error" : 2.384185791015625e-06,
+        "activation_mean_absolute_error" : 1.4226368714961838e-07,
+        "b2_top1_label" : "strainer",
+        "b2_top5_labels" : [
+          "strainer",
+          "window screen",
+          "honeycomb",
+          "bib",
+          "shower curtain"
+        ],
+        "c1_top1_label" : "strainer",
+        "c1_top5_labels" : [
+          "strainer",
+          "window screen",
+          "honeycomb",
+          "bib",
+          "shower curtain"
+        ],
+        "category" : "procedural-stress",
+        "corpus_kind" : "procedural",
+        "id" : "stress-14",
+        "probability_l1_distance" : 0,
+        "probability_maximum_absolute_error" : 0,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999995443,
+        "activation_maximum_absolute_error" : 2.384185791015625e-06,
+        "activation_mean_absolute_error" : 1.3299186506703002e-07,
+        "b2_top1_label" : "shower curtain",
+        "b2_top5_labels" : [
+          "shower curtain",
+          "bib",
+          "rule, ruler",
+          "web site, website, internet site, site",
+          "nail"
+        ],
+        "c1_top1_label" : "shower curtain",
+        "c1_top5_labels" : [
+          "shower curtain",
+          "bib",
+          "rule, ruler",
+          "web site, website, internet site, site",
+          "nail"
+        ],
+        "category" : "procedural-stress",
+        "corpus_kind" : "procedural",
+        "id" : "stress-15",
+        "probability_l1_distance" : 0,
+        "probability_maximum_absolute_error" : 0,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 1.0000000000006084,
+        "activation_maximum_absolute_error" : 1.9073486328125e-06,
+        "activation_mean_absolute_error" : 1.8366260525729305e-07,
+        "b2_top1_label" : "matchstick",
+        "b2_top5_labels" : [
+          "matchstick",
+          "nematode, nematode worm, roundworm",
+          "lighter, light, igniter, ignitor",
+          "spotlight, spot",
+          "digital clock"
+        ],
+        "c1_top1_label" : "matchstick",
+        "c1_top5_labels" : [
+          "matchstick",
+          "nematode, nematode worm, roundworm",
+          "lighter, light, igniter, ignitor",
+          "spotlight, spot",
+          "digital clock"
+        ],
+        "category" : "procedural-stress",
+        "corpus_kind" : "procedural",
+        "id" : "stress-16",
+        "probability_l1_distance" : 0,
+        "probability_maximum_absolute_error" : 0,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 1.0000000000005729,
+        "activation_maximum_absolute_error" : 1.9073486328125e-06,
+        "activation_mean_absolute_error" : 1.8369291556031337e-07,
+        "b2_top1_label" : "matchstick",
+        "b2_top5_labels" : [
+          "matchstick",
+          "nematode, nematode worm, roundworm",
+          "spotlight, spot",
+          "lighter, light, igniter, ignitor",
+          "digital clock"
+        ],
+        "c1_top1_label" : "matchstick",
+        "c1_top5_labels" : [
+          "matchstick",
+          "nematode, nematode worm, roundworm",
+          "spotlight, spot",
+          "lighter, light, igniter, ignitor",
+          "digital clock"
+        ],
+        "category" : "procedural-stress",
+        "corpus_kind" : "procedural",
+        "id" : "stress-17",
+        "probability_l1_distance" : 0,
+        "probability_maximum_absolute_error" : 0,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 1.0000000000004512,
+        "activation_maximum_absolute_error" : 2.384185791015625e-06,
+        "activation_mean_absolute_error" : 1.8383450826310645e-07,
+        "b2_top1_label" : "jellyfish",
+        "b2_top5_labels" : [
+          "jellyfish",
+          "matchstick",
+          "parachute, chute",
+          "space shuttle",
+          "chambered nautilus, pearly nautilus, nautilus"
+        ],
+        "c1_top1_label" : "jellyfish",
+        "c1_top5_labels" : [
+          "jellyfish",
+          "matchstick",
+          "parachute, chute",
+          "space shuttle",
+          "chambered nautilus, pearly nautilus, nautilus"
+        ],
+        "category" : "procedural-stress",
+        "corpus_kind" : "procedural",
+        "id" : "stress-18",
+        "probability_l1_distance" : 0,
+        "probability_maximum_absolute_error" : 0,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999999556,
+        "activation_maximum_absolute_error" : 1.430511474609375e-06,
+        "activation_mean_absolute_error" : 1.1537978477098149e-07,
+        "b2_top1_label" : "envelope",
+        "b2_top5_labels" : [
+          "envelope",
+          "cleaver, meat cleaver, chopper",
+          "hatchet",
+          "nematode, nematode worm, roundworm",
+          "hook, claw"
+        ],
+        "c1_top1_label" : "envelope",
+        "c1_top5_labels" : [
+          "envelope",
+          "cleaver, meat cleaver, chopper",
+          "hatchet",
+          "nematode, nematode worm, roundworm",
+          "hook, claw"
+        ],
+        "category" : "procedural-stress",
+        "corpus_kind" : "procedural",
+        "id" : "stress-19",
+        "probability_l1_distance" : 0,
+        "probability_maximum_absolute_error" : 0,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 1.0000000000010543,
+        "activation_maximum_absolute_error" : 1.9073486328125e-06,
+        "activation_mean_absolute_error" : 1.659230039047939e-07,
+        "b2_top1_label" : "spotlight, spot",
+        "b2_top5_labels" : [
+          "spotlight, spot",
+          "theater curtain, theatre curtain",
+          "fire screen, fireguard",
+          "screen, CRT screen",
+          "drumstick"
+        ],
+        "c1_top1_label" : "spotlight, spot",
+        "c1_top5_labels" : [
+          "spotlight, spot",
+          "theater curtain, theatre curtain",
+          "fire screen, fireguard",
+          "screen, CRT screen",
+          "drumstick"
+        ],
+        "category" : "procedural-stress",
+        "corpus_kind" : "procedural",
+        "id" : "stress-20",
+        "probability_l1_distance" : 0,
+        "probability_maximum_absolute_error" : 0,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 1.000000000000325,
+        "activation_maximum_absolute_error" : 1.9073486328125e-06,
+        "activation_mean_absolute_error" : 1.651695525082823e-07,
+        "b2_top1_label" : "window screen",
+        "b2_top5_labels" : [
+          "window screen",
+          "fire screen, fireguard",
+          "binder, ring-binder",
+          "lacewing, lacewing fly",
+          "envelope"
+        ],
+        "c1_top1_label" : "window screen",
+        "c1_top5_labels" : [
+          "window screen",
+          "fire screen, fireguard",
+          "binder, ring-binder",
+          "lacewing, lacewing fly",
+          "envelope"
+        ],
+        "category" : "procedural-stress",
+        "corpus_kind" : "procedural",
+        "id" : "stress-21",
+        "probability_l1_distance" : 0,
+        "probability_maximum_absolute_error" : 0,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.999999999999914,
+        "activation_maximum_absolute_error" : 4.291534423828125e-06,
+        "activation_mean_absolute_error" : 1.4435754193229883e-07,
+        "b2_top1_label" : "apron",
+        "b2_top5_labels" : [
+          "apron",
+          "dishrag, dishcloth",
+          "tray",
+          "poncho",
+          "bib"
+        ],
+        "c1_top1_label" : "apron",
+        "c1_top5_labels" : [
+          "apron",
+          "dishrag, dishcloth",
+          "tray",
+          "poncho",
+          "bib"
+        ],
+        "category" : "procedural-stress",
+        "corpus_kind" : "procedural",
+        "id" : "stress-22",
+        "probability_l1_distance" : 0.0009281635284423828,
+        "probability_maximum_absolute_error" : 0.000244140625,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999985941,
+        "activation_maximum_absolute_error" : 1.341104507446289e-06,
+        "activation_mean_absolute_error" : 1.3338820677176182e-07,
+        "b2_top1_label" : "spotlight, spot",
+        "b2_top5_labels" : [
+          "spotlight, spot",
+          "web site, website, internet site, site",
+          "digital clock",
+          "analog clock",
+          "fire screen, fireguard"
+        ],
+        "c1_top1_label" : "spotlight, spot",
+        "c1_top5_labels" : [
+          "spotlight, spot",
+          "web site, website, internet site, site",
+          "digital clock",
+          "analog clock",
+          "fire screen, fireguard"
+        ],
+        "category" : "procedural-stress",
+        "corpus_kind" : "procedural",
+        "id" : "stress-23",
+        "probability_l1_distance" : 0,
+        "probability_maximum_absolute_error" : 0,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 1.0000000000003386,
+        "activation_maximum_absolute_error" : 1.9073486328125e-06,
+        "activation_mean_absolute_error" : 1.5732812584382973e-07,
+        "b2_top1_label" : "Windsor tie",
+        "b2_top5_labels" : [
+          "Windsor tie",
+          "shopping basket",
+          "binder, ring-binder",
+          "wall clock",
+          "bib"
+        ],
+        "c1_top1_label" : "Windsor tie",
+        "c1_top5_labels" : [
+          "Windsor tie",
+          "shopping basket",
+          "binder, ring-binder",
+          "wall clock",
+          "bib"
+        ],
+        "category" : "procedural-stress",
+        "corpus_kind" : "procedural",
+        "id" : "stress-24",
+        "probability_l1_distance" : 0,
+        "probability_maximum_absolute_error" : 0,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 1.0000000000004243,
+        "activation_maximum_absolute_error" : 1.9073486328125e-06,
+        "activation_mean_absolute_error" : 1.6043286233893708e-07,
+        "b2_top1_label" : "spotlight, spot",
+        "b2_top5_labels" : [
+          "spotlight, spot",
+          "shovel",
+          "swab, swob, mop",
+          "rule, ruler",
+          "doormat, welcome mat"
+        ],
+        "c1_top1_label" : "spotlight, spot",
+        "c1_top5_labels" : [
+          "spotlight, spot",
+          "shovel",
+          "swab, swob, mop",
+          "rule, ruler",
+          "doormat, welcome mat"
+        ],
+        "category" : "procedural-stress",
+        "corpus_kind" : "procedural",
+        "id" : "stress-25",
+        "probability_l1_distance" : 0,
+        "probability_maximum_absolute_error" : 0,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999998942,
+        "activation_maximum_absolute_error" : 5.245208740234375e-06,
+        "activation_mean_absolute_error" : 1.6320735580082235e-07,
+        "b2_top1_label" : "spotlight, spot",
+        "b2_top5_labels" : [
+          "spotlight, spot",
+          "space heater",
+          "digital clock",
+          "fire screen, fireguard",
+          "oscilloscope, scope, cathode-ray oscilloscope, CRO"
+        ],
+        "c1_top1_label" : "spotlight, spot",
+        "c1_top5_labels" : [
+          "spotlight, spot",
+          "space heater",
+          "digital clock",
+          "fire screen, fireguard",
+          "oscilloscope, scope, cathode-ray oscilloscope, CRO"
+        ],
+        "category" : "procedural-stress",
+        "corpus_kind" : "procedural",
+        "id" : "stress-26",
+        "probability_l1_distance" : 0.0004799962043762207,
+        "probability_maximum_absolute_error" : 0.000244140625,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999990123,
+        "activation_maximum_absolute_error" : 2.86102294921875e-06,
+        "activation_mean_absolute_error" : 1.2410300212427592e-07,
+        "b2_top1_label" : "cleaver, meat cleaver, chopper",
+        "b2_top5_labels" : [
+          "cleaver, meat cleaver, chopper",
+          "envelope",
+          "web site, website, internet site, site",
+          "binder, ring-binder",
+          "analog clock"
+        ],
+        "c1_top1_label" : "cleaver, meat cleaver, chopper",
+        "c1_top5_labels" : [
+          "cleaver, meat cleaver, chopper",
+          "envelope",
+          "web site, website, internet site, site",
+          "binder, ring-binder",
+          "analog clock"
+        ],
+        "category" : "procedural-stress",
+        "corpus_kind" : "procedural",
+        "id" : "stress-27",
+        "probability_l1_distance" : 0,
+        "probability_maximum_absolute_error" : 0,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 1.000000000000151,
+        "activation_maximum_absolute_error" : 3.337860107421875e-06,
+        "activation_mean_absolute_error" : 1.6257151060422167e-07,
+        "b2_top1_label" : "analog clock",
+        "b2_top5_labels" : [
+          "analog clock",
+          "candle, taper, wax light",
+          "rubber eraser, rubber, pencil eraser",
+          "cup",
+          "tennis ball"
+        ],
+        "c1_top1_label" : "analog clock",
+        "c1_top5_labels" : [
+          "analog clock",
+          "candle, taper, wax light",
+          "rubber eraser, rubber, pencil eraser",
+          "cup",
+          "tennis ball"
+        ],
+        "category" : "procedural-stress",
+        "corpus_kind" : "procedural",
+        "id" : "stress-28",
+        "probability_l1_distance" : 0.0011211633682250977,
+        "probability_maximum_absolute_error" : 0.000274658203125,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999981531,
+        "activation_maximum_absolute_error" : 1.430511474609375e-06,
+        "activation_mean_absolute_error" : 1.5207725253548524e-07,
+        "b2_top1_label" : "envelope",
+        "b2_top5_labels" : [
+          "envelope",
+          "book jacket, dust cover, dust jacket, dust wrapper",
+          "window screen",
+          "fire screen, fireguard",
+          "tray"
+        ],
+        "c1_top1_label" : "envelope",
+        "c1_top5_labels" : [
+          "envelope",
+          "book jacket, dust cover, dust jacket, dust wrapper",
+          "window screen",
+          "fire screen, fireguard",
+          "tray"
+        ],
+        "category" : "procedural-stress",
+        "corpus_kind" : "procedural",
+        "id" : "stress-29",
+        "probability_l1_distance" : 0,
+        "probability_maximum_absolute_error" : 0,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999996781,
+        "activation_maximum_absolute_error" : 2.562999725341797e-06,
+        "activation_mean_absolute_error" : 1.5506091100165935e-07,
+        "b2_top1_label" : "web site, website, internet site, site",
+        "b2_top5_labels" : [
+          "web site, website, internet site, site",
+          "lighter, light, igniter, ignitor",
+          "envelope",
+          "binder, ring-binder",
+          "theater curtain, theatre curtain"
+        ],
+        "c1_top1_label" : "web site, website, internet site, site",
+        "c1_top5_labels" : [
+          "web site, website, internet site, site",
+          "lighter, light, igniter, ignitor",
+          "envelope",
+          "binder, ring-binder",
+          "theater curtain, theatre curtain"
+        ],
+        "category" : "procedural-stress",
+        "corpus_kind" : "procedural",
+        "id" : "stress-30",
+        "probability_l1_distance" : 0,
+        "probability_maximum_absolute_error" : 0,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      },
+      {
+        "activation_cosine_similarity" : 0.9999999999994629,
+        "activation_maximum_absolute_error" : 2.86102294921875e-06,
+        "activation_mean_absolute_error" : 1.7041083590650606e-07,
+        "b2_top1_label" : "bib",
+        "b2_top5_labels" : [
+          "bib",
+          "honeycomb",
+          "tray",
+          "purse",
+          "shower curtain"
+        ],
+        "c1_top1_label" : "bib",
+        "c1_top5_labels" : [
+          "bib",
+          "honeycomb",
+          "tray",
+          "purse",
+          "shower curtain"
+        ],
+        "category" : "procedural-stress",
+        "corpus_kind" : "procedural",
+        "id" : "stress-31",
+        "probability_l1_distance" : 0,
+        "probability_maximum_absolute_error" : 0,
+        "top1_agreement" : true,
+        "top5_ranking_agreement" : true,
+        "top5_set_agreement" : true
+      }
+    ],
+    "schema_version" : 1,
+    "summary" : {
+      "activation_maximum_absolute_error" : 8.58306884765625e-06,
+      "activation_mean_absolute_error" : 1.7125193095648198e-07,
+      "activation_mean_cosine_similarity" : 0.9999999999999527,
+      "activation_minimum_cosine_similarity" : 0.999999999997659,
+      "classification_disagreement_count" : 2,
+      "corpus_sample_count" : 64,
+      "probability_maximum_absolute_error" : 0.001953125,
+      "probability_mean_l1_distance" : 0.0010534180328249931,
+      "procedural_sample_count" : 32,
+      "real_image_count" : 32,
+      "top1_agreement" : 1,
+      "top5_ranking_agreement" : 0.96875,
+      "top5_set_agreement" : 0.984375
+    },
+    "tail_compute_units_policy" : "all"
+  },
+  "model" : {
+    "activation_shape" : [
+      48,
+      112,
+      112
+    ],
+    "derived_manifest" : "models\/derived\/manifest.json",
+    "model_identifier" : "Apple MobileNetV2 ImageNet",
+    "padding_mode" : "sameBottomRight",
+    "source_model_file" : "MobileNetV2.mlmodel",
+    "source_sha256" : "cb5a35f593582232140556bbfa4618e66b37b8ff2fc33ba17db909e1050fd144",
+    "source_url" : "https:\/\/developer.apple.com\/machine-learning\/models\/?q=MobileNetV2",
+    "tail_input_name" : "planefuse_mobilenetv2_stem_features",
+    "tail_model_directory" : "models\/derived\/tail-compiled\/MobileNetV2Tail.mlmodelc",
+    "tail_output_name" : "classLabelProbs",
+    "validation_corpus_manifest" : "proof\/m5-validation-corpus.json"
+  },
+  "model_lineage" : {
+    "full_array" : {
+      "derived_from_source_classifier" : true,
+      "input" : "planefuse_mobilenetv2_normalized_rgb",
+      "input_shape" : [
+        3,
+        224,
+        224
+      ],
+      "output" : "classLabelProbs",
+      "path" : "models\/derived\/MobileNetV2FullArray.mlmodel",
+      "sha256" : "a14f4103d9386bcf26e0c6d6989b98d03868f0c76f1bc7814bc13419d3b65e69"
+    },
+    "schema_version" : 1,
+    "source" : "models\/MobileNetV2.mlmodel",
+    "source_sha256" : "cb5a35f593582232140556bbfa4618e66b37b8ff2fc33ba17db909e1050fd144",
+    "stem" : {
+      "asymmetry_mode" : "BOTTOM_RIGHT_HEAVY",
+      "input" : "planefuse_mobilenetv2_normalized_rgb",
+      "input_coordinate" : "2 * output + tap",
+      "input_shape" : [
+        3,
+        224,
+        224
+      ],
+      "layer_count" : 6,
+      "output" : "planefuse_mobilenetv2_stem_features",
+      "padding_mode" : "same_bottom_right",
+      "path" : "models\/derived\/MobileNetV2Stem.mlmodel",
+      "sha256" : "ce6e3a7ffa5abe233bfe40431ccbeb47ed39c075b433ae4885fda830913a2efa",
+      "shape" : [
+        48,
+        112,
+        112
+      ]
+    },
+    "tail" : {
+      "input" : "planefuse_mobilenetv2_stem_features",
+      "output" : "classLabelProbs",
+      "path" : "models\/derived\/MobileNetV2Tail.mlmodel",
+      "preserves_source_classifier" : true,
+      "sha256" : "95edd90b96e95aa940b2bf74c0ac9b0da190a077fd1d88b13b84f00877b4b580",
+      "shape" : [
+        48,
+        112,
+        112
+      ],
+      "source_layer_start" : 6
+    }
+  },
+  "schema_version" : 1,
+  "source_tree_state" : "clean",
+  "status" : "r7_b2_c1_shared_quality_measured"
+}

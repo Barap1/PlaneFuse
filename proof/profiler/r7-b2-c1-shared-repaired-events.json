@@ -1,0 +1,458 @@
+{
+  "canonical_payload_sha256": "5e719d932639b013e4a989ce2e6067c812a9090b21f8b24580c11d87e9436716",
+  "payload": {
+    "capture": {
+      "command": "xcrun xctrace record --template 'Metal System Trace' --output proof/profiler/r7-b2-c1-shared-repaired-labeled.trace --launch -- .build/arm64-apple-macosx/release/planefuse profile mobilenetv2 shared",
+      "format": "Metal System Trace",
+      "metadata_policy": "sanitized; no device nickname, UUID, PID, username, local path, or process inventory",
+      "raw_trace_path": "proof/profiler/r7-b2-c1-shared-repaired-labeled.trace",
+      "status": "metal-system-trace-captured-naturally-terminated",
+      "target_exit": "exit(0); Target app exited"
+    },
+    "environment": {
+      "architecture": "arm64",
+      "build_configuration": "release",
+      "operating_system": "Version 26.6.1 (Build 25G76)",
+      "swift_version": "Apple Swift version 6.3.3",
+      "xcode_version": "Xcode 26.6"
+    },
+    "event_tables": {
+      "metal_application_command_buffer_submissions": {
+        "row_count": 50,
+        "sample_rows": [
+          {
+            "command_buffer_id": {
+              "fmt": "0x6b845653",
+              "value": "1803834963"
+            },
+            "duration": {
+              "fmt": "217.62 \u00b5s",
+              "value": "217625"
+            },
+            "encoder_count_when_exported": 1,
+            "start": {
+              "fmt": "00:00.991.288",
+              "value": "991288875"
+            }
+          },
+          {
+            "command_buffer_id": {
+              "fmt": "0x6b845655",
+              "value": "1803834965"
+            },
+            "duration": {
+              "fmt": "38.00 \u00b5s",
+              "value": "38000"
+            },
+            "encoder_count_when_exported": null,
+            "start": {
+              "fmt": "00:00.996.539",
+              "value": "996539500"
+            }
+          },
+          {
+            "command_buffer_id": {
+              "fmt": "0x6b845657",
+              "value": "1803834967"
+            },
+            "duration": {
+              "fmt": "25.46 \u00b5s",
+              "value": "25458"
+            },
+            "encoder_count_when_exported": null,
+            "start": {
+              "fmt": "00:00.999.383",
+              "value": "999383333"
+            }
+          },
+          {
+            "command_buffer_id": {
+              "fmt": "0x6b845659",
+              "value": "1803834969"
+            },
+            "duration": {
+              "fmt": "17.21 \u00b5s",
+              "value": "17209"
+            },
+            "encoder_count_when_exported": null,
+            "start": {
+              "fmt": "00:01.002.111",
+              "value": "1002111791"
+            }
+          },
+          {
+            "command_buffer_id": {
+              "fmt": "0x6b84565b",
+              "value": "1803834971"
+            },
+            "duration": {
+              "fmt": "23.00 \u00b5s",
+              "value": "23000"
+            },
+            "encoder_count_when_exported": null,
+            "start": {
+              "fmt": "00:01.004.538",
+              "value": "1004538166"
+            }
+          },
+          {
+            "command_buffer_id": {
+              "fmt": "0x6b84565d",
+              "value": "1803834973"
+            },
+            "duration": {
+              "fmt": "13.04 \u00b5s",
+              "value": "13041"
+            },
+            "encoder_count_when_exported": null,
+            "start": {
+              "fmt": "00:01.007.519",
+              "value": "1007519500"
+            }
+          },
+          {
+            "command_buffer_id": {
+              "fmt": "0x6b8456b1",
+              "value": "1803835057"
+            },
+            "duration": {
+              "fmt": "",
+              "value": ""
+            },
+            "encoder_count_when_exported": null,
+            "start": {
+              "fmt": "00:01.224.070",
+              "value": "1224070583"
+            }
+          },
+          {
+            "command_buffer_id": {
+              "fmt": "0x6b8456b3",
+              "value": "1803835059"
+            },
+            "duration": {
+              "fmt": "20.54 \u00b5s",
+              "value": "20542"
+            },
+            "encoder_count_when_exported": null,
+            "start": {
+              "fmt": "00:01.232.525",
+              "value": "1232525916"
+            }
+          },
+          {
+            "command_buffer_id": {
+              "fmt": "0x6b8456b5",
+              "value": "1803835061"
+            },
+            "duration": {
+              "fmt": "12.50 \u00b5s",
+              "value": "12500"
+            },
+            "encoder_count_when_exported": null,
+            "start": {
+              "fmt": "00:01.235.198",
+              "value": "1235198916"
+            }
+          }
+        ],
+        "schema": "metal-application-command-buffer-submissions"
+      },
+      "metal_application_encoders_list": {
+        "row_count": 50,
+        "sample_rows": [
+          {
+            "command_buffer_label": {
+              "fmt": "Command Buffer 0",
+              "value": "Command Buffer 0"
+            },
+            "encoder_label": null,
+            "event_type": {
+              "fmt": "Encoding",
+              "value": "Encoding"
+            }
+          },
+          {
+            "command_buffer_label": {
+              "fmt": "",
+              "value": ""
+            },
+            "encoder_label": null,
+            "event_type": {
+              "fmt": "",
+              "value": ""
+            }
+          },
+          {
+            "command_buffer_label": {
+              "fmt": "",
+              "value": ""
+            },
+            "encoder_label": null,
+            "event_type": {
+              "fmt": "",
+              "value": ""
+            }
+          },
+          {
+            "command_buffer_label": {
+              "fmt": "",
+              "value": ""
+            },
+            "encoder_label": null,
+            "event_type": {
+              "fmt": "",
+              "value": ""
+            }
+          },
+          {
+            "command_buffer_label": {
+              "fmt": "",
+              "value": ""
+            },
+            "encoder_label": null,
+            "event_type": {
+              "fmt": "",
+              "value": ""
+            }
+          },
+          {
+            "command_buffer_label": {
+              "fmt": "",
+              "value": ""
+            },
+            "encoder_label": null,
+            "event_type": {
+              "fmt": "",
+              "value": ""
+            }
+          },
+          {
+            "command_buffer_label": {
+              "fmt": "",
+              "value": ""
+            },
+            "encoder_label": null,
+            "event_type": {
+              "fmt": "",
+              "value": ""
+            }
+          },
+          {
+            "command_buffer_label": {
+              "fmt": "",
+              "value": ""
+            },
+            "encoder_label": null,
+            "event_type": {
+              "fmt": "",
+              "value": ""
+            }
+          },
+          {
+            "command_buffer_label": {
+              "fmt": "",
+              "value": ""
+            },
+            "encoder_label": null,
+            "event_type": {
+              "fmt": "",
+              "value": ""
+            }
+          }
+        ],
+        "schema": "metal-application-encoders-list"
+      },
+      "metal_gpu_execution_points": {
+        "row_count": 164,
+        "sample_rows": [
+          {
+            "channel_id": {
+              "fmt": "0x123457",
+              "value": "1193047"
+            },
+            "gpu_submission_id": {
+              "fmt": "0x123457",
+              "value": "1193047"
+            },
+            "timestamp": {
+              "fmt": "00:00.267.069",
+              "value": "267069625"
+            }
+          },
+          {
+            "channel_id": {
+              "fmt": "",
+              "value": ""
+            },
+            "gpu_submission_id": {
+              "fmt": "",
+              "value": ""
+            },
+            "timestamp": {
+              "fmt": "00:00.267.183",
+              "value": "267183458"
+            }
+          },
+          {
+            "channel_id": {
+              "fmt": "0x123458",
+              "value": "1193048"
+            },
+            "gpu_submission_id": {
+              "fmt": "0x123458",
+              "value": "1193048"
+            },
+            "timestamp": {
+              "fmt": "00:00.267.183",
+              "value": "267183583"
+            }
+          },
+          {
+            "channel_id": {
+              "fmt": "",
+              "value": ""
+            },
+            "gpu_submission_id": {
+              "fmt": "",
+              "value": ""
+            },
+            "timestamp": {
+              "fmt": "00:00.267.609",
+              "value": "267609208"
+            }
+          },
+          {
+            "channel_id": {
+              "fmt": "",
+              "value": ""
+            },
+            "gpu_submission_id": {
+              "fmt": "",
+              "value": ""
+            },
+            "timestamp": {
+              "fmt": "00:00.302.239",
+              "value": "302239500"
+            }
+          },
+          {
+            "channel_id": {
+              "fmt": "",
+              "value": ""
+            },
+            "gpu_submission_id": {
+              "fmt": "",
+              "value": ""
+            },
+            "timestamp": {
+              "fmt": "00:00.302.356",
+              "value": "302356208"
+            }
+          },
+          {
+            "channel_id": {
+              "fmt": "",
+              "value": ""
+            },
+            "gpu_submission_id": {
+              "fmt": "",
+              "value": ""
+            },
+            "timestamp": {
+              "fmt": "00:01.233.339",
+              "value": "1233339500"
+            }
+          },
+          {
+            "channel_id": {
+              "fmt": "",
+              "value": ""
+            },
+            "gpu_submission_id": {
+              "fmt": "",
+              "value": ""
+            },
+            "timestamp": {
+              "fmt": "00:01.235.645",
+              "value": "1235645625"
+            }
+          },
+          {
+            "channel_id": {
+              "fmt": "",
+              "value": ""
+            },
+            "gpu_submission_id": {
+              "fmt": "",
+              "value": ""
+            },
+            "timestamp": {
+              "fmt": "00:01.235.884",
+              "value": "1235884750"
+            }
+          }
+        ],
+        "schema": "metal-gpu-execution-points"
+      }
+    },
+    "expected_path_structure": {
+      "b2": {
+        "command_submissions": 25,
+        "materialized_rgb_bytes": 602112,
+        "ordered_compute_encoders": [
+          "planefuse.b2.rgb",
+          "planefuse.b2.stem"
+        ],
+        "source_symbols": "MetalMobileNetV2RGBPipeline.executeCHWTimed -> encodeCHWConversion -> encodeCHWStem"
+      },
+      "c1": {
+        "command_submissions": 25,
+        "materialized_rgb_bytes": 0,
+        "ordered_compute_encoders": [
+          "planefuse.c1.native_stem"
+        ],
+        "source_symbols": "MetalMobileNetV2NativeStem.executeTimed -> encode"
+      },
+      "label_note": "Profiler-only labels are bound in source; Metal System Trace exports may normalize object labels to generic Compute Command labels, so source checker plus alternating invocation counts provide the path mapping."
+    },
+    "generating_commit": "fbebf546fb7d76b531c0e7b6653f509a0d9cbfec",
+    "persistent_activation_handoff": {
+      "b2_buffer_length_bytes": 2408448,
+      "bridge": "BufferBackedMultiArray(dataPointer:) retained over each persistent MTLBuffer; same Core ML tail adapter for B2 and C1.",
+      "c1_buffer_length_bytes": 2408448,
+      "element_type": "Float32",
+      "shape": [
+        48,
+        112,
+        112
+      ],
+      "strides": [
+        12544,
+        112,
+        1
+      ]
+    },
+    "profile_artifact": "proof/r7-final-shared-path-profile-repaired-labeled.json",
+    "resource_evidence": {
+      "b2_rgb_logical_payload_bytes": 602112,
+      "b2_rgb_metal_allocated_bytes": 606208,
+      "c1_rgb_logical_payload_bytes": 0,
+      "c1_rgb_metal_allocated_bytes": 0,
+      "c1_rgb_resource_statement": "C1 allocates no normalized RGB buffer; only its required activation buffer is retained.",
+      "cpu_element_by_element_activation_copy_bytes": 0
+    },
+    "schema_version": 1,
+    "status": "r7_sanitized_metal_event_rows",
+    "workload": {
+      "b2_path_invocations": 25,
+      "c1_path_invocations": 25,
+      "measured_iterations": 20,
+      "observed_command_buffer_rows": 50,
+      "observed_encoder_rows": 50,
+      "observed_gpu_execution_rows": 164,
+      "path_mapping": "The profiler harness executes B2 then C1 for every warmup and measured iteration; 25 expected command submissions per path.",
+      "warmup_iterations": 5
+    }
+  }
+}

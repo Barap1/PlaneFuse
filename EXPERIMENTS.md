@@ -238,3 +238,16 @@ Camera: The prior successful Release 300-frame replay/live artifact remains the 
 Competition targets: The durable target evaluation marks all four preregistered targets false or pending hostile review: T1 below 10%; T2 cadence-limited and no lower C1 frame-delivery p50; T3 below both >=2x frontend and >=5% e2e; T4 requires Sol acceptance.
 Outcome: R7 measurement complete; no competition-worthiness target is currently established. Request hostile Sol technical review. Do not activate the authorized R7.5 fallback until R7 review is complete and all four targets fail.
 Lesson: The full corpus confirms the matched path preserves top-1 and activation behavior while exposing small rank-order differences near ties; benchmark claims must retain those disagreements and the standard unsplit context.
+
+## E017 - R7 F-002/F-003 repaired final shared benchmark
+
+Date: 2026-08-11
+Base/generating commit: 3b62467f6bb4e8b0a95209f23471ecf2de722d3f
+Evidence: `proof/r7-final-b2-c1-shared-repaired.json`, `proof/r7-repaired-batches/3b62467607ba29b58c0d7205dfec06f8f7b909c4/`, `scripts/check_r7_repaired_shared_benchmark.py`
+
+Repair: Replaced the invalid one-warmup continuous run with five separate Release processes. Each process independently initialized state, warmed 20 times, measured 200 pairs, balanced 100/100 execution order, and used a rotated source offset. Aggregate raw records cover all 64 corpus inputs in both orders.
+Correctness/protocol: PASS; 5 distinct execution identities, 1,000 raw pairs, 100/100 order balance per batch, deterministic hierarchical bootstrap metadata, explicit `.all`, persistent shared B2/C1 paths, and fail-closed raw-statistics reconstruction.
+Production source repair: B2 `executeCHW` and C1 `execute` now encode/commit/wait directly. Profiler-only timing and GPU timestamps remain in separate methods sharing only the encoding helpers; `scripts/check_r7_production_instrumentation.py` passes.
+Result: B2 p50 2.483208 ms; C1 p50 2.413458 ms; difference of marginal p50s 0.069750 ms; C1 lower 2.808866%; median paired difference 0.077167 ms; paired-median bootstrap CI [0.068625, 0.091542] ms.
+Outcome: QUALIFIED PENDING FRESH HOSTILE REVIEW; below the ≥10% target. The old 2.5013% artifact remains historical/superseded for final CI.
+Lesson: Independent batch initialization and independent source/order rotation change the final measured result, so the repaired raw protocol is authoritative for the review decision.

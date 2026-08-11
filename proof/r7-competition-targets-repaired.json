@@ -1,0 +1,69 @@
+{
+  "schema_version": 2,
+  "status": "r7_repaired_all_measured_targets_evaluated_pending_hostile_review",
+  "headline_candidate": "C1",
+  "performance_artifact": "proof/r7-final-b2-c1-shared-repaired.json",
+  "performance_artifact_commit": "3b62467f6bb4e8b0a95209f23471ecf2de722d3f",
+  "quality_artifact": "proof/r7-b2-c1-shared-quality-repaired.json",
+  "camera_artifact": "proof/r7-camera-evidence.json",
+  "quality_gate": {
+    "top1_agreement": 1,
+    "activation_max_absolute_error": 8.58306884765625e-06,
+    "activation_threshold": 9.999999747378752e-06,
+    "c_full_rgb_intermediate_bytes": 0,
+    "cpu_element_by_element_activation_copy_bytes": 0,
+    "status": "pass"
+  },
+  "targets": [
+    {
+      "id": "T1",
+      "criterion": "strongest B2/C1 end-to-end p50 improvement >= 10% with positive paired CI",
+      "estimand": "direct B2-minus-C1 post-resize-to-result paired latency; positive favors C1",
+      "b2_p50_ms": 2.4832083327055443,
+      "c1_p50_ms": 2.4134583327395376,
+      "difference_between_marginal_p50s_ms": 0.06974999996600673,
+      "median_of_paired_differences_ms": 0.07716666732449085,
+      "aggregate_percentage_c1_lower": 2.8088662174394208,
+      "paired_median_bootstrap_ci_ms": [
+        0.0686249986756593,
+        0.09154166400549002
+      ],
+      "passes": false,
+      "reason": "The repaired positive paired interval is stable, but the measured improvement remains below 10%."
+    },
+    {
+      "id": "T2",
+      "criterion": "sustained camera throughput >= 20% higher or materially lower true frame-delivery-to-result with matched quality",
+      "estimand": "separate successful historical Release physical-camera sessions; not the serial paired run",
+      "b2_live_sustained_fps": 30.018391518022003,
+      "c1_live_sustained_fps": 29.994465396250156,
+      "c1_throughput_change_percent": -0.07970487611730359,
+      "b2_live_frame_delivery_p50_ms": 3.1173333336482756,
+      "c1_live_frame_delivery_p50_ms": 3.7975833329255693,
+      "c1_frame_delivery_change_percent": -21.82153547503962,
+      "passes": false,
+      "reason": "The successful historical Release sessions are cadence-limited and C1 has a higher, not lower, frame-delivery p50. The fresh R7 camera attempt received zero callbacks and is not substituted."
+    },
+    {
+      "id": "T3",
+      "criterion": "frontend improvement >= 2x, zero full RGB, zero element-by-element CPU copy, and end-to-end improvement >= 5% with positive paired CI",
+      "frontend_basis": "successful historical Release replay sessions; not fresh camera acquisition",
+      "b2_frontend_p50_ms": 0.5043749997639679,
+      "c1_frontend_p50_ms": 0.43416666630946565,
+      "frontend_improvement_percent": 13.9198678537512,
+      "end_to_end_improvement_percent": 2.8088662174394208,
+      "zero_full_rgb_intermediate": true,
+      "zero_element_by_element_cpu_copy": true,
+      "passes": false,
+      "reason": "The zero-resource conditions pass, but the historical frontend result is below 2x and the repaired end-to-end result is below 5%."
+    },
+    {
+      "id": "T4",
+      "criterion": "another comparably strong result explicitly accepted by hostile technical review",
+      "passes": false,
+      "review_status": "pending",
+      "reason": "No alternative result is pre-accepted; Sol must independently decide whether any measured result is genuinely equivalent."
+    }
+  ],
+  "interpretation": "The repaired protocol changes the authoritative performance result; it does not change any threshold. Before fresh hostile review, none of the four preregistered targets is established."
+}
