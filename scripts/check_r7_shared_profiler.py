@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import subprocess
 from pathlib import Path
 
@@ -14,37 +15,50 @@ def fail(message: str) -> None:
     raise SystemExit(f"FAIL r7 shared profiler: {message}")
 
 
-def validate_event_export(data: dict) -> None:
+EXPECTED_SOURCE_EXPORT_SHA256 = {
+    "trace_toc": "f6c70b539f2f70481a169541af859a55571b77c98c05b378a35d575046a92a41",
+    "command_events": "cb31c002c4b0f21e03c699b70a276fccf091aa5e0de9f701541062f56fe12097",
+    "gpu_events": "cb4ae56ef21da2d70e2671c05e7037b10702460a945d0db93d03380b263010e9",
+    "encoder_events": "5de72d4723e633ba1512a5d8de527a0facbacd6783f451d4ab17461e5ef10c91",
+    "submission_map": "133433771e53ac0dfccfe61c0a79cdb0c04c97809877e2bf555196fdda2cf6a2",
+}
+
+
+def canonical_hash(payload: dict) -> str:
+    canonical = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
+    return hashlib.sha256(canonical).hexdigest()
+
+
+def validate_event_export(data: dict, *, expected_commit: str | None = None, profile_commit: str | None = None) -> None:
     payload = data.get("payload", {})
     if data.get("canonical_payload_sha256") is None:
         fail("event export hash is missing")
-    canonical = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
-    if hashlib.sha256(canonical).hexdigest() != data["canonical_payload_sha256"]:
+    if canonical_hash(payload) != data["canonical_payload_sha256"]:
         fail("event export canonical hash mismatch")
     if payload.get("status") != "r7_sanitized_metal_event_rows":
         fail("event export status is not sanitized Metal event rows")
     tables = payload.get("event_tables", {})
     required = {
-        "metal_application_command_buffer_submissions": 1,
-        "metal_gpu_execution_points": 1,
-        "metal_application_encoders_list": 1,
-        "metal_gpu_submission_to_command_buffer_id": 1,
+        "metal_application_command_buffer_submissions": 50,
+        "metal_gpu_execution_points": 100,
+        "metal_application_encoders_list": 50,
+        "metal_gpu_submission_to_command_buffer_id": 100,
     }
     for name, minimum in required.items():
         table = tables.get(name, {})
-        if table.get("row_count", 0) < minimum or len(table.get("rows", [])) != table.get("row_count"):
-            fail(f"event table {name} is empty, truncated, or schema-only")
+        if table.get("row_count") != minimum or len(table.get("rows", [])) != minimum:
+            fail(f"event table {name} does not have exact expected cardinality {minimum}")
     workload = payload.get("workload", {})
-    if workload.get("observed_command_buffer_rows") != 50:
-        fail("expected 50 shared B2/C1 command submissions was not observed")
-    if workload.get("observed_gpu_execution_rows", 0) <= 0 or workload.get("observed_encoder_rows", 0) <= 0:
-        fail("GPU/encoder event rows are not nonzero")
+    if (workload.get("observed_command_buffer_rows"), workload.get("observed_gpu_execution_rows"), workload.get("observed_encoder_rows")) != (50, 100, 50):
+        fail("workload event counts do not match exact observed 50/100/50 rows")
     command_rows = tables["metal_application_command_buffer_submissions"]["rows"]
     encoder_rows = tables["metal_application_encoders_list"]["rows"]
     gpu_rows = tables["metal_gpu_execution_points"]["rows"]
     mapping_rows = tables["metal_gpu_submission_to_command_buffer_id"]["rows"]
     if any(not row.get("command_buffer_id") or not row.get("event_label") for row in command_rows):
         fail("command rows lack observed command-buffer IDs or labels")
+    if any(row.get("encoder_count") not in (None, 1) for row in command_rows):
+        fail("command rows contain an unexpected encoder count")
     if any(not row.get("command_buffer_id") or not row.get("command_buffer_label") or not row.get("encoder_label") for row in encoder_rows):
         fail("encoder rows are blank/generic-only or lack observed labels")
     if any(row.get("timestamp", 0) in (None, 0) or row.get("gpu_submission_id") in (None, 0) for row in gpu_rows):
@@ -71,12 +85,26 @@ def validate_event_export(data: dict) -> None:
             fail("command row has no observed B2/C1 path label")
     if observed_paths.count("B2") != 25 or observed_paths.count("C1") != 25:
         fail("observed command-buffer labels do not show 25 B2 and 25 C1 events")
+    if observed_paths != ["B2" if index % 2 == 0 else "C1" for index in range(50)]:
+        fail("observed command-buffer labels do not preserve the alternating B2/C1 profiler schedule")
     mapped_ids = {row["command_buffer_id"] for row in mapping_rows}
     if mapped_ids != set(command_by_id):
         fail("observed submission mapping does not cover every command buffer")
+    mapping_by_command = {}
+    for row in mapping_rows:
+        mapping_by_command.setdefault(row["command_buffer_id"], []).append(row)
+    if set(mapping_by_command) != set(command_by_id) or any(len(rows) != 2 for rows in mapping_by_command.values()):
+        fail("each observed command buffer must have exactly two submission mappings")
     mapped_submissions = {row["gpu_submission_id"] for row in mapping_rows}
-    if not mapped_submissions or not any(row.get("gpu_submission_id_text") in mapped_submissions for row in gpu_rows):
-        fail("GPU rows are not joined to observed submission mappings")
+    gpu_by_submission = {}
+    for row in gpu_rows:
+        gpu_by_submission.setdefault(row["gpu_submission_id_text"], []).append(row)
+    if not set(gpu_by_submission).issubset(mapped_submissions) or any(len(rows) != 2 for rows in gpu_by_submission.values()):
+        fail("GPU rows do not form a complete two-point join with observed submission mappings")
+    for command_id, mappings in mapping_by_command.items():
+        gpu_mappings = [row for row in mappings if row["gpu_submission_id"] in gpu_by_submission]
+        if len(gpu_mappings) != 1:
+            fail("each command buffer must have exactly one mapped GPU submission with two observed execution points")
     expected = payload.get("expected_path_structure", {})
     invocations = workload.get("invocations", [])
     if len(invocations) != 50:
@@ -94,8 +122,14 @@ def validate_event_export(data: dict) -> None:
         fail("B2 expected two-encoder structure is missing")
     if expected.get("c1", {}).get("ordered_compute_encoders") != ["planefuse.c1.native_stem"]:
         fail("C1 expected native-stem structure is missing")
-    if set(payload.get("source_export_sha256", {})) != {"trace_toc", "command_events", "gpu_events", "encoder_events", "submission_map"}:
-        fail("source export hashes are missing")
+    if payload.get("source_export_sha256") != EXPECTED_SOURCE_EXPORT_SHA256:
+        fail("source export hashes are missing, malformed, or do not match the captured exports")
+    if not re.fullmatch(r"[0-9a-f]{40}", payload.get("generating_commit", "")):
+        fail("generating commit is not a valid full Git commit")
+    if expected_commit is not None and payload.get("generating_commit") != expected_commit:
+        fail("event export generating commit does not match the requested commit")
+    if profile_commit is not None and payload.get("generating_commit") != profile_commit:
+        fail("event export generating commit does not match the profile artifact")
     capture = payload.get("capture", {})
     if capture.get("target_exit") != "exit(0); Target app exited":
         fail("profiler workload completion is not recorded as clean")
@@ -103,7 +137,7 @@ def validate_event_export(data: dict) -> None:
         fail("profiler capture status is not the clean terminating status")
 
 
-def run_negative_schema_only_test() -> None:
+def run_negative_schema_only_test(expected_commit: str, profile_commit: str) -> None:
     schema_only = {
         "payload": {
             "status": "r7_sanitized_metal_event_rows",
@@ -116,38 +150,56 @@ def run_negative_schema_only_test() -> None:
         "canonical_payload_sha256": hashlib.sha256(b"{}").hexdigest(),
     }
     try:
-        validate_event_export(schema_only)
+        validate_event_export(schema_only, expected_commit=expected_commit, profile_commit=profile_commit)
     except SystemExit:
         return
     fail("negative schema-only export test did not fail")
 
 
-def run_negative_attribution_tests(data: dict) -> None:
+def expect_semantic_rejection(label: str, data: dict, expected_commit: str, profile_commit: str) -> None:
+    data["canonical_payload_sha256"] = canonical_hash(data["payload"])
+    try:
+        validate_event_export(data, expected_commit=expected_commit, profile_commit=profile_commit)
+    except SystemExit as error:
+        if "canonical hash mismatch" in str(error):
+            fail(f"negative {label} test failed only at the integrity layer")
+        return
+    fail(f"negative {label} export test did not fail semantic validation")
+
+
+def run_negative_attribution_tests(data: dict, expected_commit: str, profile_commit: str) -> None:
     altered = json.loads(json.dumps(data))
     altered["payload"]["workload"]["invocations"] = altered["payload"]["workload"]["invocations"][:-1]
-    try:
-        validate_event_export(altered)
-    except SystemExit:
-        pass
-    else:
-        fail("negative truncated-attribution export test did not fail")
+    expect_semantic_rejection("truncated-attribution", altered, expected_commit, profile_commit)
     altered = json.loads(json.dumps(data))
-    altered["payload"]["workload"]["invocations"][1]["path"] = "B2"
-    try:
-        validate_event_export(altered)
-    except SystemExit:
-        pass
-    else:
-        fail("negative wrong-path attribution export test did not fail")
+    altered["payload"]["event_tables"]["metal_application_command_buffer_submissions"]["rows"][1]["event_label"] = 'Committed " planefuse.b2.shared " with  1  encoders'
+    expect_semantic_rejection("wrong-observed-path", altered, expected_commit, profile_commit)
+    altered = json.loads(json.dumps(data))
+    gpu_table = altered["payload"]["event_tables"]["metal_gpu_execution_points"]
+    gpu_table["rows"] = gpu_table["rows"][:2]
+    gpu_table["row_count"] = 2
+    altered["payload"]["workload"]["observed_gpu_execution_rows"] = 2
+    expect_semantic_rejection("wrong-GPU-cardinality", altered, expected_commit, profile_commit)
+    altered = json.loads(json.dumps(data))
+    map_table = altered["payload"]["event_tables"]["metal_gpu_submission_to_command_buffer_id"]
+    map_table["rows"] = map_table["rows"][:50]
+    map_table["row_count"] = 50
+    expect_semantic_rejection("incomplete-submission-join", altered, expected_commit, profile_commit)
+    altered = json.loads(json.dumps(data))
+    altered["payload"]["source_export_sha256"]["gpu_events"] = "0" * 64
+    expect_semantic_rejection("fake-source-hash", altered, expected_commit, profile_commit)
+    altered = json.loads(json.dumps(data))
+    altered["payload"]["generating_commit"] = "0" * 40
+    expect_semantic_rejection("wrong-generating-commit", altered, expected_commit, profile_commit)
+    altered = json.loads(json.dumps(data))
+    for row in altered["payload"]["event_tables"]["metal_application_command_buffer_submissions"]["rows"]:
+        row["encoder_count"] = 999
+    expect_semantic_rejection("wrong-encoder-count", altered, expected_commit, profile_commit)
     altered = json.loads(json.dumps(data))
     for table in altered["payload"]["event_tables"].values():
         table["rows"] = [{} for _ in table["rows"]]
     altered["payload"]["workload"]["invocations"] = [{} for _ in altered["payload"]["workload"]["invocations"]]
-    try:
-        validate_event_export(altered)
-    except SystemExit:
-        return
-    fail("negative blank/generic event-row export test did not fail")
+    expect_semantic_rejection("blank-generic-event-row", altered, expected_commit, profile_commit)
 
 
 def main() -> int:
@@ -187,9 +239,10 @@ def main() -> int:
     for key in ("pipeline_b2_shared", "pipeline_c1_shared"):
         if data.get(key, {}).get("gpu_timestamp_samples", 0) <= 0 or data.get(key, {}).get("input_to_result", {}).get("count", 0) <= 0:
             fail(f"{key} lacks measured GPU/input-to-result samples")
-    validate_event_export(json.loads(event_path.read_text()))
-    run_negative_schema_only_test()
-    run_negative_attribution_tests(json.loads(event_path.read_text()))
+    event_data = json.loads(event_path.read_text())
+    validate_event_export(event_data, expected_commit=expected_commit, profile_commit=data.get("commit"))
+    run_negative_schema_only_test(expected_commit, data.get("commit"))
+    run_negative_attribution_tests(event_data, expected_commit, data.get("commit"))
     print(f"PASS r7 shared profiler: {artifact_path}")
     print(f"head: {expected_commit}; event export: {event_path}")
     print("complete event rows, derived B2/C1 attribution, clean completion, source hashes, and negative tests verified")
