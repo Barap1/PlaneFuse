@@ -43,7 +43,9 @@
     "r5-polyphase-corrected-confirm-3.json": "ACCEPTED",
     "r6-camera-replay.manifest.json": "EXPERIMENTAL",
     "r6-camera.json": "EXPERIMENTAL",
-    "r6.2-mobilenetv2-direct-shared.json": "EXPERIMENTAL",
-    "r6.3-pipeline-a.json": "EXPERIMENTAL"
+    "r6.2-mobilenetv2-direct-shared.json": "ACCEPTED",
+    "r6.3-pipeline-a.json": "ACCEPTED",
+    "r6.5-camera-source-replay.manifest.json": "ACCEPTED",
+    "r6.5-camera-space.json": "ACCEPTED"
   }
 }
