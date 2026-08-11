@@ -565,6 +565,17 @@ private struct DirectSharedBatchArtifact: Codable {
     let model: MobileNetV2AssetManifest
 }
 
+private struct R75SourceReuseBatchArtifact: Codable {
+    let schemaVersion: Int
+    let status: String
+    let commit: String?
+    let executionIdentity: String
+    let command: String
+    let environment: EnvironmentSnapshot
+    let measurement: R75SourceReuseBenchmark.Measurement
+    let model: MobileNetV2AssetManifest
+}
+
 /// R7 output-quality evidence is intentionally separate from the latency
 /// artifact. It uses the same B2/C1 shared resources but runs each selected
 /// corpus sample once, outside benchmark timing, and never overwrites proof.
@@ -690,6 +701,45 @@ func runMobileNetV2DirectSharedBatch() throws -> Int32 {
     emit("pairs: \(measurement.rawPairedRecords.count)")
     emit("order_phase: \(configuration.orderPhase)")
     return 0
+}
+
+func runR75SourceReuseBatch() throws -> Int32 {
+    let root = URL(fileURLWithPath: FileManager.default.currentDirectoryPath, isDirectory: true)
+    let environment = ProcessInfo.processInfo.environment
+    guard let batchIndex = Int(environment["PF_R75_BATCH_INDEX"] ?? ""),
+          let sourceOffset = Int(environment["PF_R75_SOURCE_OFFSET"] ?? ""),
+          let orderPhase = Int(environment["PF_R75_ORDER_PHASE"] ?? "") else {
+        throw NSError(domain: "PlaneFuseCLI", code: 2, userInfo: [NSLocalizedDescriptionKey: "PF_R75_BATCH_INDEX, PF_R75_SOURCE_OFFSET, and PF_R75_ORDER_PHASE are required"])
+    }
+    let coefficientPath = environment["PF_MOBILENET_COEFFICIENTS"] ?? "models/derived/MobileNetV2StemCoefficients.json"
+    let tailPath = environment["PF_MOBILENET_TAIL"] ?? "models/derived/tail-compiled/MobileNetV2Tail.mlmodelc"
+    let manifest = MobileNetV2AssetManifest.inspected
+    try manifest.validate(at: root)
+    let corpus = try MobileNetV2Corpus(manifestURL: root.appendingPathComponent(manifest.validationCorpusManifest), root: root)
+    let tail = try CoreMLMobileNetV2TailAdapter(modelURL: URL(fileURLWithPath: tailPath), manifest: manifest, computeUnits: .all)
+    let configuration = try R75SourceReuseBenchmark.Configuration(batchIndex: batchIndex, sourceOffset: sourceOffset, orderPhase: orderPhase)
+    let measurement = try R75SourceReuseBenchmark(configuration: configuration, coefficientsURL: URL(fileURLWithPath: coefficientPath), tail: tail, corpus: corpus).run()
+    let artifact = R75SourceReuseBatchArtifact(
+        schemaVersion: 1,
+        status: "r7_5_source_reuse_batch",
+        commit: environment["PF_GIT_COMMIT"],
+        executionIdentity: environment["PF_R75_EXECUTION_ID"] ?? "r7.5-(batchIndex)",
+        command: "planefuse bench mobilenetv2 r75-batch",
+        environment: EnvironmentSnapshot(),
+        measurement: measurement,
+        model: manifest
+    )
+    let outputPath = environment["PF_BENCHMARK_OUTPUT"] ?? "proof/r7.5-source-reuse-batches/batch-\(String(format: "%02d", batchIndex)).json"
+    let url = URL(fileURLWithPath: outputPath)
+    try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+    try JSONEncoder.benchmark.encode(artifact).write(to: url, options: .atomic)
+    emit("PlaneFuse R7.5 source reuse batch (batchIndex): RECORDED")
+    emit("result: \(outputPath)")
+    emit("execution_identity: \(artifact.executionIdentity)")
+    emit("warmup_triples: \(configuration.warmupTriples)")
+    emit("measured_triples: \(measurement.rawTripleRecords.count)")
+    emit(String(format: "c1_source_reuse_activation_max_abs_error: %.8f", measurement.activationMaxAbsoluteError))
+    return measurement.activationMaxAbsoluteError <= Double(FairABCBenchmark.featureParityTolerance) ? 0 : 1
 }
 
 func runMobileNetV2SharedQualityEvidence() throws -> Int32 {
@@ -1119,6 +1169,9 @@ do {
         }
         if benchmarkArguments == ["mobilenetv2", "shared-batch"] {
             exit(try runMobileNetV2DirectSharedBatch())
+        }
+        if benchmarkArguments == ["mobilenetv2", "r75-batch"] {
+            exit(try runR75SourceReuseBatch())
         }
         if benchmarkArguments == ["mobilenetv2", "pipeline-a"] {
             exit(try runPipelineABench())
