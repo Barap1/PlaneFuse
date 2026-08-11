@@ -1,44 +1,65 @@
 # PlaneFuse
 
-PlaneFuse Continuum is an experimental native-plane vision-inference compiler/runtime for Arm client devices, initially targeting Apple Silicon. Phase 2 is in R6.1 release-grade camera benchmarking: the permitted 300-frame camera-delivery gate passes in the current Debug path, while the fair Release B2/C1 benchmark and judge-facing UI remain unfinished.
+PlaneFuse is a local Apple-Silicon compiler/runtime experiment for camera AI. It selectively removes a camera/model representation boundary when materializing that representation costs more than the reuse value it provides.
 
-The hypothesis: many camera AI pipelines convert native NV12/YUV frames into a full RGB representation before a pretrained vision model immediately transforms those values again. For compatible model stems, PlaneFuse aims to compile/fuse the input transform toward the camera's native Y and UV planes so the model's first features can be produced without materializing a full RGB intermediate.
+## See it first
 
-The first real pretrained proof is Apple MobileNetV2 ImageNet: PlaneFuse transforms its 3x3 stride-2 Conv+BatchNorm+ReLU6 stem to consume NV12 Y+UV planes, then hands the activation to the unchanged model tail. The accepted M5 evidence is in [`proof/m5-mobilenetv2.md`](proof/m5-mobilenetv2.md); M6 records two rejected shader-tuning experiments and a measured plateau rather than claiming an unsupported win.
-
-The reusable inspection contract currently supports the 224x224 → 112x112, 3x3/stride-2, SAME-bottom/right family. It includes a non-pretrained reference fixture to test parameterization; it does not claim a second pretrained model.
-
-The accepted pre-Phase-2 MobileNetV2 result remains historical control evidence. It is not the final Phase 2 camera claim: the current camera run uses B1 RGBA32Float, Debug, serial B-then-C execution, and post-resize timing. Final claims are gated on Release B2/C1 measurements.
-
-## Reproduce the supported workflow
+On a permitted macOS camera machine with the local MobileNetV2 assets installed:
 
 ```bash
 ./pf setup mobilenetv2
-./pf doctor
-./pf inspect mobilenetv2
-./pf inspect fixture
-./pf compile mobilenetv2
-./pf test quick
-./pf bench mobilenetv2 confirm
+./pf live --app
 ```
 
-`setup mobilenetv2` creates/reuses the project-local environment, verifies the official Apple source hash, derives the stem/tail assets, and compiles the three local Core ML artifacts. `compile mobilenetv2` remains an inspection/preparation report. `verify mobilenetv2` runs the real proof when those assets are present. See [`proof/m7-reusability.md`](proof/m7-reusability.md) for compatibility limits and [`proof/m5-mobilenetv2.md`](proof/m5-mobilenetv2.md) for the benchmark contract.
+The PlaneFuse Live dashboard shows a real NV12 camera preview, top-3 predictions, live measured timing, FPS/drop counters, parity, and resource-boundary indicators. If the camera is unavailable, it reports that state and does not invent live metrics. The stored benchmark panel is labeled `STORED EVIDENCE`.
 
-## Current scope and limitations
+## The technical idea
 
-- Apple MobileNetV2 is the only pretrained workload claimed.
-- The accepted tail handoff is CPU-visible Float32 `MLMultiArray`; it is not called zero-copy.
-- The R6 camera path maps CVPixelBuffer Y/UV planes with CVMetalTextureCache and resizes on the GPU with persistent B/C resources; its 300-frame physical-camera delivery gate passed in Debug. Release-grade B2/C1 timing, frame-delivery boundaries, dropped-frame/thermal metadata, and the final UI are still pending.
-- Power, peak-memory, bandwidth, population-accuracy, and universal-model claims are intentionally excluded.
+The accepted MobileNetV2 workload has a 3x3 stride-2 stem. B2 materializes normalized RGB before the learned stem. PlaneFuse C1-SR keeps the exact NV12 Y/UV mapping and transformed pretrained operator, but cooperatively loads source tiles and reuses those taps across output channels before handing the persistent Float32 activation to the unchanged Core ML tail.
 
-## Start development
+Architecture source: [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
-See `START_HERE.md`.
+## Verified evidence
 
-## Project rules
+| Comparison | Result | Status |
+| --- | ---: | --- |
+| R7.5 C1-SR versus accepted C1, matched Release p50 | 6.1755% lower | VERIFIED / Sol SHIP |
+| R7.5 C1-SR versus fresh strongest B2, matched Release p50 | 11.8128% lower | VERIFIED / T1 passed |
+| R7.5 C1-SR activation max error | 5.960464e-6 | VERIFIED |
+| R7.5 top-1 / top-5 set / top-5 ranking agreement | 1.0 / 1.0 / 1.0 | VERIFIED |
+| Repaired R7 B2 versus C1 matched p50 | 2.115766% C1 lower | QUALIFIED; below 10% |
+| Pipeline A | faster under a distinct pre-rendered image-input boundary | QUALIFIED CONTEXT |
 
-Codex should follow `AGENTS.md`, `SPEC.md`, `SPEC_V2_ADDENDUM.md`, `MILESTONES_V2.md`, and `BENCHMARK_CONTRACT_V2.md`.
+The authoritative R7.5 confirmation is [`proof/r7.5-source-reuse-final-52db138-20260811T1605Z-confirm.json`](proof/r7.5-source-reuse-final-52db138-20260811T1605Z-confirm.json), independently reviewed in [`proof/reviews/R7-R75-HOSTILE-9DAFDBC-20260811.md`](proof/reviews/R7-R75-HOSTILE-9DAFDBC-20260811.md). The paired CI and the difference of marginal p50s are different estimands; see [`CLAIMS.md`](CLAIMS.md).
 
-## License
+## Reproduce and inspect
 
-MIT. See `LICENSE`.
+```bash
+./pf doctor
+./pf inspect mobilenetv2
+./pf test quick
+./pf bench mobilenetv2 quick
+python3 -B scripts/check_r75_source_reuse.py \
+  proof/r7.5-source-reuse-final-52db138-20260811T1605Z-confirm.json \
+  --expected-commit 52db138feef3d6fc52bcb5839a419423fd992019
+```
+
+The compact evidence map is [`proof/evidence-index.md`](proof/evidence-index.md). The clean-clone validation command is [`scripts/release_validate.sh`](scripts/release_validate.sh).
+
+## Honest limits
+
+- MobileNetV2 is the only claimed pretrained workload.
+- T2 and T3 were not met or established; T4 was not used as an escape hatch.
+- R6.5 direct camera-space fusion is retained as a negative result: eliminating an intermediate can lose useful reuse.
+- A fresh R7 physical-camera attempt received zero callbacks; no current camera performance value was inferred.
+- No power, bandwidth, universal-model, or publication claim is made.
+
+## Project state
+
+Performance research is frozen after the independent SHIP review. R8/R9 work is limited to the judge-facing app, reproducibility, evidence navigation, claims audit, and submission preparation. Repository publication, video publication, and Devpost submission remain human gates.
+
+See [`STATUS.md`](STATUS.md), [`SPEC_V2_ADDENDUM.md`](SPEC_V2_ADDENDUM.md), and [`BENCHMARK_CONTRACT_V2.md`](BENCHMARK_CONTRACT_V2.md).
+
+## License and notices
+
+PlaneFuse source is MIT licensed. Model/source attribution and third-party terms are collected in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
