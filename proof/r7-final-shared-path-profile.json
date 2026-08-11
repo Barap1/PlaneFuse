@@ -1,0 +1,152 @@
+{
+  "activation_max_absolute_error" : 8.58306884765625e-06,
+  "command" : "PF_GIT_COMMIT=f615847fe6e1aa6e56fbfc442b17f25fda5d5d83 .build\/arm64-apple-macosx\/release\/planefuse profile mobilenetv2 shared",
+  "commit" : "f615847fe6e1aa6e56fbfc442b17f25fda5d5d83",
+  "comparison" : "Exact accepted R7 B2-shared Float32 CHW materialized-RGB path versus C1-shared Float32 native-plane path; profiling is separate from the five-batch final benchmark.",
+  "configuration" : {
+    "measured_iterations" : 20,
+    "warmup_iterations" : 5
+  },
+  "device_class" : "AGXG17SDevice",
+  "device_name" : "Apple M5 Pro",
+  "environment" : {
+    "architecture" : "arm64",
+    "build_configuration" : "release",
+    "operating_system" : "Version 26.6.1 (Build 25G76)",
+    "swift_version" : "Apple Swift version 6.3.3 (swiftlang-6.3.3.1.3 clang-2100.1.1.101)",
+    "xcode_version" : "Xcode 26.6"
+  },
+  "persistent_activation_handoff" : {
+    "b2_buffer_length_bytes" : 2408448,
+    "bridge" : "BufferBackedMultiArray(dataPointer:) retained over each persistent MTLBuffer; same Core ML tail adapter for B2 and C1.",
+    "c1_buffer_length_bytes" : 2408448,
+    "element_type" : "Float32",
+    "shape" : [
+      48,
+      112,
+      112
+    ],
+    "strides" : [
+      12544,
+      112,
+      1
+    ]
+  },
+  "pipeline_b2_shared" : {
+    "encode" : {
+      "count" : 20,
+      "mean_milliseconds" : 0.007124999865482096,
+      "median_absolute_deviation_milliseconds" : 0.0012499986041802913,
+      "p50_milliseconds" : 0.00670833105687052,
+      "p95_milliseconds" : 0.010916668543359265
+    },
+    "gpu_execution" : {
+      "count" : 20,
+      "mean_milliseconds" : 0.4092687500815373,
+      "median_absolute_deviation_milliseconds" : 0.007166669092839584,
+      "p50_milliseconds" : 0.30558333310182206,
+      "p95_milliseconds" : 0.9805416666495148
+    },
+    "gpu_timestamp_samples" : 20,
+    "input_to_result" : {
+      "count" : 20,
+      "mean_milliseconds" : 2.2328770834064926,
+      "median_absolute_deviation_milliseconds" : 0.07408333476632833,
+      "p50_milliseconds" : 2.1870833334105555,
+      "p95_milliseconds" : 2.5766666694835294
+    },
+    "synchronization_wait" : {
+      "count" : 20,
+      "mean_milliseconds" : 0.8769104164457531,
+      "median_absolute_deviation_milliseconds" : 0.053333329560700804,
+      "p50_milliseconds" : 0.8437916658294853,
+      "p95_milliseconds" : 1.1604999999690335
+    },
+    "tail_prediction" : {
+      "count" : 20,
+      "mean_milliseconds" : 1.3448000001517357,
+      "median_absolute_deviation_milliseconds" : 0.03841666693915613,
+      "p50_milliseconds" : 1.3379166666709352,
+      "p95_milliseconds" : 1.4066666662984062
+    },
+    "wall_frontend" : {
+      "count" : 20,
+      "mean_milliseconds" : 0.8840354163112352,
+      "median_absolute_deviation_milliseconds" : 0.05254166535451077,
+      "p50_milliseconds" : 0.8507916645612568,
+      "p95_milliseconds" : 1.1675416681100614
+    }
+  },
+  "pipeline_c1_shared" : {
+    "encode" : {
+      "count" : 20,
+      "mean_milliseconds" : 0.00464791628473904,
+      "median_absolute_deviation_milliseconds" : 0.0007083363016135991,
+      "p50_milliseconds" : 0.00420833021053113,
+      "p95_milliseconds" : 0.006624999514315277
+    },
+    "gpu_execution" : {
+      "count" : 20,
+      "mean_milliseconds" : 0.23329166633629939,
+      "median_absolute_deviation_milliseconds" : 0.000500003807246685,
+      "p50_milliseconds" : 0.23962499835761264,
+      "p95_milliseconds" : 0.2406249986961484
+    },
+    "gpu_timestamp_samples" : 20,
+    "input_to_result" : {
+      "count" : 20,
+      "mean_milliseconds" : 1.9630458333267597,
+      "median_absolute_deviation_milliseconds" : 0.11933333371416666,
+      "p50_milliseconds" : 1.9924166663258802,
+      "p95_milliseconds" : 2.171958334656665
+    },
+    "synchronization_wait" : {
+      "count" : 20,
+      "mean_milliseconds" : 0.6668604164588032,
+      "median_absolute_deviation_milliseconds" : 0.08162499580066651,
+      "p50_milliseconds" : 0.7019166696409229,
+      "p95_milliseconds" : 0.8161666664818767
+    },
+    "tail_prediction" : {
+      "count" : 20,
+      "mean_milliseconds" : 1.28295624981547,
+      "median_absolute_deviation_milliseconds" : 0.030833332857582718,
+      "p50_milliseconds" : 1.2810833322873805,
+      "p95_milliseconds" : 1.3528749987017363
+    },
+    "wall_frontend" : {
+      "count" : 20,
+      "mean_milliseconds" : 0.6772354163331329,
+      "median_absolute_deviation_milliseconds" : 0.08045833237702027,
+      "p50_milliseconds" : 0.7152083344408311,
+      "p95_milliseconds" : 0.829166663606884
+    }
+  },
+  "requested_core_ml_compute_units" : "all",
+  "resources" : {
+    "b2_rgb_logical_payload_bytes" : 602112,
+    "b2_rgb_metal_allocated_bytes" : 606208,
+    "c1_rgb_logical_payload_bytes" : 0,
+    "c1_rgb_metal_allocated_bytes" : 0,
+    "c1_rgb_resource_statement" : "C1 allocates no normalized RGB buffer; only its required activation buffer is retained.",
+    "cpu_element_by_element_activation_copy_bytes" : 0
+  },
+  "schema_version" : 1,
+  "source_symbols" : {
+    "b2_pipeline" : "MetalMobileNetV2RGBPipeline.executeCHWTimed \/ encodeCHWConversion \/ encodeCHWStem",
+    "b2_shader" : "Sources\/PlaneFuseCore\/Shaders\/NV12MobileNetV2RGB.metal (nv12ToMobileNetV2NormalizedRGBCHW, mobileNetV2RGBCHWStem)",
+    "c1_pipeline" : "MetalMobileNetV2NativeStem.executeTimed \/ encode",
+    "c1_shader" : "Sources\/PlaneFuseCore\/Shaders\/NV12MobileNetV2Stem.metal (nv12ToMobileNetV2Stem)",
+    "shared_tail" : "CoreMLMobileNetV2TailAdapter.predict(sharedActivation:)"
+  },
+  "status" : "r7_final_shared_path_profiler",
+  "top1_agreement" : 1,
+  "trace" : {
+    "capture_command" : "xcrun xctrace record --template 'Metal System Trace' --time-limit 45s --output proof\/profiler\/r7-b2-c1-shared.trace --launch -- .build\/arm64-apple-macosx\/release\/planefuse profile mobilenetv2 shared",
+    "exported_summary_path" : "proof\/profiler\/r7-b2-c1-shared-toc.xml",
+    "format" : "Metal System Trace",
+    "raw_trace_path" : "proof\/profiler\/r7-b2-c1-shared.trace",
+    "status" : "metal-system-trace-captured"
+  },
+  "validation_sample_count" : 20
+}
