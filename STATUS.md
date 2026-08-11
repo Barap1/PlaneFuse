@@ -2,7 +2,7 @@
 
 Current milestone: R7 - final adversarial evaluation (R6.5 accepted negative; C1 retained)
 
-Overall status: PHASE 2 R7 evidence repair iteration 4 complete; compact hostile re-review pending
+Overall status: PHASE 2 R7 evidence repair iteration 5 complete; compact hostile re-review pending
 
 Current branch: phase2/continuum
 
@@ -20,9 +20,9 @@ Real model: Apple MobileNetV2 ImageNet integrated; unchanged 252-layer Core ML t
 
 PlaneFuse Live: Release replay/paired/live benchmark path built and previously completed successfully; a fresh R7 physical-camera invocation received zero callbacks before timeout, so no new camera result is inferred. Judge-facing UI remains unfinished
 
-Known blockers: fresh hostile review `R7-FINAL-REPAIRED-20260811-04-HOSTILE` returned RETHINK, keeping F-001 open and identifying a valid checker-hardening scope under F-004. The semantic checker repair now passes exact cardinality, join, order, hash, commit, encoder, and rehashed-negative tests; compact independent closure is pending. All four condition-complete R7 competition targets are false/pending; F-001 remains strategically open. Do not accept R7, activate R7.5, or proceed to R8/R9 until fresh independent re-review. The profiler privacy publication blocker remains. Public push/submission remains human-controlled.
+Known blockers: fresh compact hostile review `R7-F004-REPAIRED-4-COMPACT-HOSTILE-20260811` returned RETHINK, keeping F-001 open and identifying one final checker-hardening scope under F-004. The checker now requires exact workload 5/20, non-null encoder counts, invocation-to-mapping binding, unique mapped submissions, rehashed schema fixtures, and named semantic negative failures; compact independent closure is pending. All four condition-complete R7 competition targets are false/pending; F-001 remains strategically open. Do not accept R7, activate R7.5, or proceed to R8/R9 until fresh independent re-review. The profiler privacy publication blocker remains. Public push/submission remains human-controlled.
 
-Next highest-leverage action: commit the F-004 checker hardening and response, update the compact packet, and obtain fresh behaviorally read-only Sol re-review; no R7.5 coding is authorized before that verdict.
+Next highest-leverage action: commit the final F-004 checker hardening and response, refresh the compact packet, and obtain fresh behaviorally read-only Sol re-review; no R7.5 coding is authorized before that verdict.
 
 Human decision currently required: after fresh Sol review, decide only the contract-defined next step. Publication, repository visibility, video upload, history rewrite, and submission remain human-controlled.
 

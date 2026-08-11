@@ -51,14 +51,16 @@ def validate_event_export(data: dict, *, expected_commit: str | None = None, pro
     workload = payload.get("workload", {})
     if (workload.get("observed_command_buffer_rows"), workload.get("observed_gpu_execution_rows"), workload.get("observed_encoder_rows")) != (50, 100, 50):
         fail("workload event counts do not match exact observed 50/100/50 rows")
+    if (workload.get("warmup_iterations"), workload.get("measured_iterations")) != (5, 20):
+        fail("profiler workload configuration must be exactly 5 warmups and 20 measured iterations")
     command_rows = tables["metal_application_command_buffer_submissions"]["rows"]
     encoder_rows = tables["metal_application_encoders_list"]["rows"]
     gpu_rows = tables["metal_gpu_execution_points"]["rows"]
     mapping_rows = tables["metal_gpu_submission_to_command_buffer_id"]["rows"]
     if any(not row.get("command_buffer_id") or not row.get("event_label") for row in command_rows):
         fail("command rows lack observed command-buffer IDs or labels")
-    if any(row.get("encoder_count") not in (None, 1) for row in command_rows):
-        fail("command rows contain an unexpected encoder count")
+    if any(row.get("encoder_count") != 1 for row in command_rows):
+        fail("command rows do not contain the canonical encoder count 1")
     if any(not row.get("command_buffer_id") or not row.get("command_buffer_label") or not row.get("encoder_label") for row in encoder_rows):
         fail("encoder rows are blank/generic-only or lack observed labels")
     if any(row.get("timestamp", 0) in (None, 0) or row.get("gpu_submission_id") in (None, 0) for row in gpu_rows):
@@ -109,11 +111,19 @@ def validate_event_export(data: dict, *, expected_commit: str | None = None, pro
     invocations = workload.get("invocations", [])
     if len(invocations) != 50:
         fail("complete invocation attribution is missing")
+    if len(mapped_submissions) != len(mapping_rows):
+        fail("mapped GPU submissions are not unique across command buffers")
+    if len({entry.get("command_buffer_id") for entry in invocations}) != 50:
+        fail("invocations do not contain one unique command buffer each")
     paths = [entry.get("path") for entry in invocations]
     if paths.count("B2") != 25 or paths.count("C1") != 25:
         fail("B2/C1 attribution does not reconstruct 25 observed events per path")
     if any(entry.get("command_buffer_event_index") != index or not entry.get("command_buffer_id") or not entry.get("observed_encoder_label") for index, entry in enumerate(invocations)):
         fail("invocation attribution does not bind observed command and encoder rows")
+    for entry in invocations:
+        expected_submission_ids = {row["gpu_submission_id"] for row in mapping_by_command[entry["command_buffer_id"]]}
+        if set(entry.get("gpu_submission_ids", [])) != expected_submission_ids or len(entry.get("gpu_submission_ids", [])) != 2:
+            fail("invocation GPU submission IDs do not bind to that command buffer's observed mappings")
     if [command_by_id[entry["command_buffer_id"]]["event_label"] for entry in invocations] != [command["event_label"] for command in command_rows]:
         fail("invocation order is not the observed command-buffer order")
     if expected.get("b2", {}).get("command_submissions") != 25 or expected.get("c1", {}).get("command_submissions") != 25:
@@ -147,22 +157,27 @@ def run_negative_schema_only_test(expected_commit: str, profile_commit: str) -> 
                 "metal_application_encoders_list": {"row_count": 0, "rows": []},
             },
         },
-        "canonical_payload_sha256": hashlib.sha256(b"{}").hexdigest(),
+        "canonical_payload_sha256": canonical_hash({
+            "status": "r7_sanitized_metal_event_rows",
+            "event_tables": {
+                "metal_application_command_buffer_submissions": {"row_count": 0, "rows": []},
+                "metal_gpu_execution_points": {"row_count": 0, "rows": []},
+                "metal_application_encoders_list": {"row_count": 0, "rows": []},
+            },
+        }),
     }
-    try:
-        validate_event_export(schema_only, expected_commit=expected_commit, profile_commit=profile_commit)
-    except SystemExit:
-        return
-    fail("negative schema-only export test did not fail")
+    expect_semantic_rejection("schema-only", schema_only, expected_commit, profile_commit, "event table")
 
 
-def expect_semantic_rejection(label: str, data: dict, expected_commit: str, profile_commit: str) -> None:
+def expect_semantic_rejection(label: str, data: dict, expected_commit: str, profile_commit: str, expected_reason: str | None = None) -> None:
     data["canonical_payload_sha256"] = canonical_hash(data["payload"])
     try:
         validate_event_export(data, expected_commit=expected_commit, profile_commit=profile_commit)
     except SystemExit as error:
         if "canonical hash mismatch" in str(error):
             fail(f"negative {label} test failed only at the integrity layer")
+        if expected_reason is not None and expected_reason not in str(error):
+            fail(f"negative {label} test failed for an unexpected reason: {error}")
         return
     fail(f"negative {label} export test did not fail semantic validation")
 
@@ -170,36 +185,51 @@ def expect_semantic_rejection(label: str, data: dict, expected_commit: str, prof
 def run_negative_attribution_tests(data: dict, expected_commit: str, profile_commit: str) -> None:
     altered = json.loads(json.dumps(data))
     altered["payload"]["workload"]["invocations"] = altered["payload"]["workload"]["invocations"][:-1]
-    expect_semantic_rejection("truncated-attribution", altered, expected_commit, profile_commit)
+    expect_semantic_rejection("truncated-attribution", altered, expected_commit, profile_commit, "complete invocation attribution")
     altered = json.loads(json.dumps(data))
     altered["payload"]["event_tables"]["metal_application_command_buffer_submissions"]["rows"][1]["event_label"] = 'Committed " planefuse.b2.shared " with  1  encoders'
-    expect_semantic_rejection("wrong-observed-path", altered, expected_commit, profile_commit)
+    expect_semantic_rejection("wrong-observed-path", altered, expected_commit, profile_commit, "observed B2 encoder structure")
     altered = json.loads(json.dumps(data))
     gpu_table = altered["payload"]["event_tables"]["metal_gpu_execution_points"]
     gpu_table["rows"] = gpu_table["rows"][:2]
     gpu_table["row_count"] = 2
     altered["payload"]["workload"]["observed_gpu_execution_rows"] = 2
-    expect_semantic_rejection("wrong-GPU-cardinality", altered, expected_commit, profile_commit)
+    expect_semantic_rejection("wrong-GPU-cardinality", altered, expected_commit, profile_commit, "exact expected cardinality")
     altered = json.loads(json.dumps(data))
     map_table = altered["payload"]["event_tables"]["metal_gpu_submission_to_command_buffer_id"]
     map_table["rows"] = map_table["rows"][:50]
     map_table["row_count"] = 50
-    expect_semantic_rejection("incomplete-submission-join", altered, expected_commit, profile_commit)
+    expect_semantic_rejection("incomplete-submission-join", altered, expected_commit, profile_commit, "exact expected cardinality")
     altered = json.loads(json.dumps(data))
     altered["payload"]["source_export_sha256"]["gpu_events"] = "0" * 64
-    expect_semantic_rejection("fake-source-hash", altered, expected_commit, profile_commit)
+    expect_semantic_rejection("fake-source-hash", altered, expected_commit, profile_commit, "source export hashes")
     altered = json.loads(json.dumps(data))
     altered["payload"]["generating_commit"] = "0" * 40
-    expect_semantic_rejection("wrong-generating-commit", altered, expected_commit, profile_commit)
+    expect_semantic_rejection("wrong-generating-commit", altered, expected_commit, profile_commit, "generating commit")
     altered = json.loads(json.dumps(data))
     for row in altered["payload"]["event_tables"]["metal_application_command_buffer_submissions"]["rows"]:
         row["encoder_count"] = 999
-    expect_semantic_rejection("wrong-encoder-count", altered, expected_commit, profile_commit)
+    expect_semantic_rejection("wrong-encoder-count", altered, expected_commit, profile_commit, "canonical encoder count")
+    altered = json.loads(json.dumps(data))
+    altered["payload"]["workload"]["warmup_iterations"] = 999
+    altered["payload"]["workload"]["measured_iterations"] = 999
+    expect_semantic_rejection("wrong-workload-counts", altered, expected_commit, profile_commit, "workload configuration")
+    altered = json.loads(json.dumps(data))
+    for row in altered["payload"]["event_tables"]["metal_application_command_buffer_submissions"]["rows"]:
+        row["encoder_count"] = None
+    expect_semantic_rejection("null-encoder-count", altered, expected_commit, profile_commit, "canonical encoder count")
+    altered = json.loads(json.dumps(data))
+    mapping_rows = altered["payload"]["event_tables"]["metal_gpu_submission_to_command_buffer_id"]["rows"]
+    mapping_rows[0]["gpu_submission_id"], mapping_rows[2]["gpu_submission_id"] = mapping_rows[2]["gpu_submission_id"], mapping_rows[0]["gpu_submission_id"]
+    expect_semantic_rejection("cardinality-preserving-broken-join", altered, expected_commit, profile_commit, "invocation GPU submission IDs")
+    altered = json.loads(json.dumps(data))
+    altered["payload"]["workload"]["invocations"][0]["command_buffer_id"], altered["payload"]["workload"]["invocations"][1]["command_buffer_id"] = altered["payload"]["workload"]["invocations"][1]["command_buffer_id"], altered["payload"]["workload"]["invocations"][0]["command_buffer_id"]
+    expect_semantic_rejection("order-preserving-count", altered, expected_commit, profile_commit, "invocation GPU submission IDs")
     altered = json.loads(json.dumps(data))
     for table in altered["payload"]["event_tables"].values():
         table["rows"] = [{} for _ in table["rows"]]
     altered["payload"]["workload"]["invocations"] = [{} for _ in altered["payload"]["workload"]["invocations"]]
-    expect_semantic_rejection("blank-generic-event-row", altered, expected_commit, profile_commit)
+    expect_semantic_rejection("blank-generic-event-row", altered, expected_commit, profile_commit, "command rows lack")
 
 
 def main() -> int:
