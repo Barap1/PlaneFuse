@@ -28,6 +28,7 @@ def validate_event_export(data: dict) -> None:
         "metal_application_command_buffer_submissions": 1,
         "metal_gpu_execution_points": 1,
         "metal_application_encoders_list": 1,
+        "metal_gpu_submission_to_command_buffer_id": 1,
     }
     for name, minimum in required.items():
         table = tables.get(name, {})
@@ -38,22 +39,62 @@ def validate_event_export(data: dict) -> None:
         fail("expected 50 shared B2/C1 command submissions was not observed")
     if workload.get("observed_gpu_execution_rows", 0) <= 0 or workload.get("observed_encoder_rows", 0) <= 0:
         fail("GPU/encoder event rows are not nonzero")
+    command_rows = tables["metal_application_command_buffer_submissions"]["rows"]
+    encoder_rows = tables["metal_application_encoders_list"]["rows"]
+    gpu_rows = tables["metal_gpu_execution_points"]["rows"]
+    mapping_rows = tables["metal_gpu_submission_to_command_buffer_id"]["rows"]
+    if any(not row.get("command_buffer_id") or not row.get("event_label") for row in command_rows):
+        fail("command rows lack observed command-buffer IDs or labels")
+    if any(not row.get("command_buffer_id") or not row.get("command_buffer_label") or not row.get("encoder_label") for row in encoder_rows):
+        fail("encoder rows are blank/generic-only or lack observed labels")
+    if any(row.get("timestamp", 0) in (None, 0) or row.get("gpu_submission_id") in (None, 0) for row in gpu_rows):
+        fail("GPU rows lack nonzero observed timestamps or submission IDs")
+    if any(not row.get("command_buffer_id") or not row.get("gpu_submission_id") for row in mapping_rows):
+        fail("submission mapping rows lack observed command/submission IDs")
+    command_by_id = {row["command_buffer_id"]: row for row in command_rows}
+    encoder_by_id = {row["command_buffer_id"]: row for row in encoder_rows}
+    if len(command_by_id) != 50 or len(encoder_by_id) != 50 or set(command_by_id) != set(encoder_by_id):
+        fail("observed command/encoder ID join is incomplete or duplicated")
+    observed_paths = []
+    for command_id, command in command_by_id.items():
+        event_label = command["event_label"]
+        encoder = encoder_by_id[command_id]
+        if '" planefuse.b2.shared "' in event_label:
+            observed_paths.append("B2")
+            if encoder["command_buffer_label"] != "planefuse.b2.shared" or encoder["encoder_label"] != "planefuse.b2.rgb & planefuse.b2.stem":
+                fail("observed B2 encoder structure is not the expected ordered RGB/stem pair")
+        elif '" planefuse.c1.shared "' in event_label:
+            observed_paths.append("C1")
+            if encoder["command_buffer_label"] != "planefuse.c1.shared" or encoder["encoder_label"] != "planefuse.c1.native_stem":
+                fail("observed C1 encoder structure is not the expected native stem")
+        else:
+            fail("command row has no observed B2/C1 path label")
+    if observed_paths.count("B2") != 25 or observed_paths.count("C1") != 25:
+        fail("observed command-buffer labels do not show 25 B2 and 25 C1 events")
+    mapped_ids = {row["command_buffer_id"] for row in mapping_rows}
+    if mapped_ids != set(command_by_id):
+        fail("observed submission mapping does not cover every command buffer")
+    mapped_submissions = {row["gpu_submission_id"] for row in mapping_rows}
+    if not mapped_submissions or not any(row.get("gpu_submission_id_text") in mapped_submissions for row in gpu_rows):
+        fail("GPU rows are not joined to observed submission mappings")
     expected = payload.get("expected_path_structure", {})
     invocations = workload.get("invocations", [])
     if len(invocations) != 50:
         fail("complete invocation attribution is missing")
     paths = [entry.get("path") for entry in invocations]
-    if paths.count("B2") != 25 or paths.count("C1") != 25 or any(paths[index] != ("B2" if index % 2 == 0 else "C1") for index in range(50)):
-        fail("B2/C1 temporal attribution does not reconstruct the exact alternating schedule")
-    if any(entry.get("command_buffer_event_index") != index or entry.get("encoder_event_indices") != [index] for index, entry in enumerate(invocations)):
-        fail("invocation attribution does not bind every command and encoder event row")
+    if paths.count("B2") != 25 or paths.count("C1") != 25:
+        fail("B2/C1 attribution does not reconstruct 25 observed events per path")
+    if any(entry.get("command_buffer_event_index") != index or not entry.get("command_buffer_id") or not entry.get("observed_encoder_label") for index, entry in enumerate(invocations)):
+        fail("invocation attribution does not bind observed command and encoder rows")
+    if [command_by_id[entry["command_buffer_id"]]["event_label"] for entry in invocations] != [command["event_label"] for command in command_rows]:
+        fail("invocation order is not the observed command-buffer order")
     if expected.get("b2", {}).get("command_submissions") != 25 or expected.get("c1", {}).get("command_submissions") != 25:
         fail("expected B2/C1 path counts are missing")
     if expected.get("b2", {}).get("ordered_compute_encoders") != ["planefuse.b2.rgb", "planefuse.b2.stem"]:
         fail("B2 expected two-encoder structure is missing")
     if expected.get("c1", {}).get("ordered_compute_encoders") != ["planefuse.c1.native_stem"]:
         fail("C1 expected native-stem structure is missing")
-    if set(payload.get("source_export_sha256", {})) != {"trace_toc", "command_events", "gpu_events", "encoder_events"}:
+    if set(payload.get("source_export_sha256", {})) != {"trace_toc", "command_events", "gpu_events", "encoder_events", "submission_map"}:
         fail("source export hashes are missing")
     capture = payload.get("capture", {})
     if capture.get("target_exit") != "exit(0); Target app exited":
@@ -98,6 +139,15 @@ def run_negative_attribution_tests(data: dict) -> None:
         pass
     else:
         fail("negative wrong-path attribution export test did not fail")
+    altered = json.loads(json.dumps(data))
+    for table in altered["payload"]["event_tables"].values():
+        table["rows"] = [{} for _ in table["rows"]]
+    altered["payload"]["workload"]["invocations"] = [{} for _ in altered["payload"]["workload"]["invocations"]]
+    try:
+        validate_event_export(altered)
+    except SystemExit:
+        return
+    fail("negative blank/generic event-row export test did not fail")
 
 
 def main() -> int:

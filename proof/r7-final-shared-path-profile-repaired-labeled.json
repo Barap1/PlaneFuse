@@ -142,7 +142,7 @@
   "status" : "r7_final_shared_path_profiler",
   "top1_agreement" : 1,
   "trace" : {
-    "capture_command" : "xcrun xctrace record --template 'Metal System Trace' --output proof\/profiler\/r7-b2-c1-shared-repaired-labeled.trace --launch -- .build\/arm64-apple-macosx\/release\/planefuse profile mobilenetv2 shared",
+    "capture_command" : "xcrun xctrace record --template 'Metal System Trace' --time-limit 10s --no-prompt --output proof\/profiler\/r7-b2-c1-shared-repaired-labeled.trace --launch -- .build\/arm64-apple-macosx\/release\/planefuse profile mobilenetv2 shared",
     "format" : "Metal System Trace",
     "raw_trace_path" : "proof\/profiler\/r7-b2-c1-shared-repaired-labeled.trace",
     "status" : "metal-system-trace-captured-naturally-terminated"

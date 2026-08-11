@@ -1,6 +1,6 @@
 # R7 strongest B/C profiler evidence
 
-Status: F-004 profiler attribution repair pending fresh hostile re-review
+Status: F-004 profiler attribution repair complete; fresh hostile re-review required
 
 The old `proof/r7-final-component-profile.json` remains indexed `EXPERIMENTAL` and is not final evidence: it was generated at `8bea11d` and profiles the historical boxed MLMultiArray population path with separate diagnostic B conversion/stem submissions.
 
@@ -24,15 +24,16 @@ Compact profile artifact: `proof/r7-final-shared-path-profile-repaired-condition
 - persistent activation `[48,112,112]`, strides `[12544,112,1]`, Float32, 2,408,448-byte B2/C1 buffers;
 - PlaneFuse element-by-element activation copy bytes `0`.
 
-Profiler capture: `proof/profiler/r7-b2-c1-shared-repaired-labeled.trace` (local raw Metal System Trace bundle, intentionally outside the commit) and sanitized event export `proof/profiler/r7-b2-c1-shared-repaired-events-full.json`. The export contains every resolved event row: 50 command-buffer rows, 164 GPU execution rows, and 50 encoder rows. A complete temporal attribution table binds all 50 command/encoder rows to 25 B2 and 25 C1 profiler invocations; source-level labels retain B2's ordered RGB conversion/stem structure and C1's native-stem structure. xctrace normalized Metal object labels, so the checker validates the row-level temporal join and source labels together rather than trusting top-level counts. Source XML export hashes and negative truncation/path/schema tests are required. No device nickname, UUID, username, PID, path inventory, or unrelated process inventory is committed.
+Profiler capture: `proof/profiler/r7-b2-c1-shared-repaired-labeled.trace` (local raw Metal System Trace bundle, intentionally outside the commit) and sanitized event export `proof/profiler/r7-b2-c1-shared-repaired-events-full.json`. The export contains 50 command-buffer rows, 100 GPU execution rows, 50 encoder rows, and 100 observed submission-to-command-buffer mapping rows. The trace itself observes 25 `planefuse.b2.shared` command labels with the combined ordered `planefuse.b2.rgb & planefuse.b2.stem` encoder label and 25 `planefuse.c1.shared` labels with `planefuse.c1.native_stem`; command-buffer IDs join the encoder and GPU/submission rows. The checker derives path counts and rejects blank/generic-only rows, missing joins, zero timestamps/IDs, schema-only exports, truncation, and wrong-path mutations. No device nickname, UUID, username, PID, path inventory, or unrelated process inventory is committed.
 
 ```text
-xcrun xctrace record --template 'Metal System Trace' --output proof/profiler/r7-b2-c1-shared-repaired-labeled.trace --launch -- .build/arm64-apple-macosx/release/planefuse profile mobilenetv2 shared
+xcrun xctrace record --template 'Metal System Trace' --time-limit 10s --no-prompt --output proof/profiler/r7-b2-c1-shared-repaired-labeled.trace --launch -- .build/arm64-apple-macosx/release/planefuse profile mobilenetv2 shared
 xcrun xctrace export --input proof/profiler/r7-b2-c1-shared-repaired-labeled.trace --toc --output /tmp/r7-repaired-labeled-toc.xml
 xcrun xctrace export --input proof/profiler/r7-b2-c1-shared-repaired-labeled.trace --xpath '/trace-toc/run[@number="1"]/data/table[@schema="metal-application-command-buffer-submissions"]' --output /tmp/r7-repaired-labeled-command.xml
 xcrun xctrace export --input proof/profiler/r7-b2-c1-shared-repaired-labeled.trace --xpath '/trace-toc/run[@number="1"]/data/table[@schema="metal-gpu-execution-points"]' --output /tmp/r7-repaired-labeled-gpu.xml
 xcrun xctrace export --input proof/profiler/r7-b2-c1-shared-repaired-labeled.trace --xpath '/trace-toc/run[@number="1"]/data/table[@schema="metal-application-encoders-list"]' --output /tmp/r7-repaired-labeled-encoders.xml
-python3 -B scripts/sanitize_r7_profiler_events.py --profile proof/r7-final-shared-path-profile-repaired-conditions.json --toc /tmp/r7-repaired-labeled-toc.xml --command-events /tmp/r7-repaired-labeled-command.xml --gpu-events /tmp/r7-repaired-labeled-gpu.xml --encoder-events /tmp/r7-repaired-labeled-encoders.xml --output proof/profiler/r7-b2-c1-shared-repaired-events-full.json
+xcrun xctrace export --input proof/profiler/r7-b2-c1-shared-repaired-labeled.trace --xpath '/trace-toc/run[@number="1"]/data/table[@schema="metal-gpu-submission-to-command-buffer-id"]' --output /tmp/r7-repaired-labeled-map.xml
+python3 -B scripts/sanitize_r7_profiler_events.py --profile proof/r7-final-shared-path-profile-repaired-conditions.json --toc /tmp/r7-repaired-labeled-toc.xml --command-events /tmp/r7-repaired-labeled-command.xml --gpu-events /tmp/r7-repaired-labeled-gpu.xml --encoder-events /tmp/r7-repaired-labeled-encoders.xml --submission-map /tmp/r7-repaired-labeled-map.xml --output proof/profiler/r7-b2-c1-shared-repaired-events-full.json
 python3 -B scripts/check_r7_shared_profiler.py proof/r7-final-shared-path-profile-repaired-conditions.json --events proof/profiler/r7-b2-c1-shared-repaired-events-full.json --expected-commit b6285f2eb6b9329f925cde81db5936f5f2a8de98
 ```
 
