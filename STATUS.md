@@ -22,7 +22,7 @@ PlaneFuse Live: Release replay/paired/live benchmark path built and previously c
 
 Known blockers: final compact hostile review `R7-F004-REPAIRED-5-COMPACT-HOSTILE-20260811` verified F-004 closure but returned RETHINK for the valid F-001 strategic hard stop: all four condition-complete R7 competition targets are false/pending. Per the human authorization, exactly one same-workload R7.5 source-reuse investigation may now be prepared, subject to profiler confirmation, architecture review, preregistration, and the strict one-experiment budget. Do not claim R7 acceptance or a win. The profiler privacy publication blocker remains. Public push/submission remains human-controlled.
 
-Next highest-leverage action: confirm the R7.5 source-reuse hypothesis from repaired profiler evidence and have the high-complexity worker derive its execution schedule; no implementation or benchmark until that design/pre-registration gate is complete.
+Next highest-leverage action: implement the single preregistered C1-SR primary schedule, run correctness first, then one quick Release comparison against fresh B2 and C1 within the fixed budget.
 
 Human decision currently required: after fresh Sol review, decide only the contract-defined next step. Publication, repository visibility, video upload, history rewrite, and submission remain human-controlled.
 
