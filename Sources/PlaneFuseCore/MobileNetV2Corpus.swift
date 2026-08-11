@@ -17,6 +17,11 @@ public struct MobileNetV2CorpusManifest: Codable, Equatable {
 
     public struct Sample: Codable, Equatable {
         public let id: String
+        /// R7 manifests classify samples before inference. Legacy procedural
+        /// entries predate these fields and are identified by their fixed ID
+        /// namespace by the quality-evidence runner.
+        public let kind: String?
+        public let bucket: String?
         public let relativePath: String
         public let sha256: String
         public let sourceUrl: URL

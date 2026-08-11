@@ -189,6 +189,24 @@ case "$command_name" in
     echo "usage: ./pf bench camera|camera-space|quick|fair quick|fair confirm|mobilenetv2 quick|mobilenetv2 confirm|mobilenetv2 shared|mobilenetv2 pipeline-a"
     exit 2
     ;;
+  quality)
+    if [ "$command_args" != "mobilenetv2 b2-c1-shared" ]; then
+      echo "usage: ./pf quality mobilenetv2 b2-c1-shared"
+      exit 2
+    fi
+    quality_output="${PF_QUALITY_EVIDENCE_OUTPUT:-$ROOT/proof/r7-b2-c1-shared-quality.json}"
+    quality_relevant_paths=(Package.swift pf)
+    while IFS= read -r path; do
+      quality_relevant_paths+=("$path")
+    done < <(git -C "$ROOT" ls-files -- 'Sources/**' 'Tests/**')
+    if ! git -C "$ROOT" diff --quiet HEAD -- "${quality_relevant_paths[@]}" || ! git -C "$ROOT" diff --cached --quiet HEAD -- "${quality_relevant_paths[@]}"; then
+      quality_source_tree_state="dirty"
+    else
+      quality_source_tree_state="clean"
+    fi
+    PF_ARCHITECTURE="$(uname -m)" PF_SWIFT_VERSION="$(swift --version | head -n 1)" PF_XCODE_VERSION="$(xcodebuild -version | head -n 1)" PF_GIT_COMMIT="$(git rev-parse HEAD)" PF_BUILD_CONFIGURATION="release" PF_SOURCE_TREE_STATE="$quality_source_tree_state" PF_QUALITY_EVIDENCE_OUTPUT="$quality_output" run_logged swift run -c release planefuse quality mobilenetv2 b2-c1-shared
+    cat "$log_file"
+    ;;
   profile)
     if [ "$command_args" != "mobilenetv2" ]; then
       echo "usage: ./pf profile mobilenetv2"
@@ -223,7 +241,7 @@ case "$command_name" in
     tail -n 12 "$log_file"
     ;;
   *)
-    echo "usage: ./pf <setup mobilenetv2|doctor|build|test quick|inspect|compile|verify|bench|profile mobilenetv2|release validate>"
+    echo "usage: ./pf <setup mobilenetv2|doctor|build|test quick|inspect|compile|verify|bench|quality|profile mobilenetv2|release validate>"
     exit 2
     ;;
 esac

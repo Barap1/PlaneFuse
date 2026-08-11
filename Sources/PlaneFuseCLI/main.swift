@@ -8,9 +8,9 @@ enum CommandError: Error, CustomStringConvertible {
     var description: String {
         switch self {
         case .usage:
-            return "usage: planefuse <doctor|inspect|compile|verify|bench> [fixture|mobilenetv2|quick|fair]"
+            return "usage: planefuse <doctor|inspect|compile|verify|bench|quality> [fixture|mobilenetv2|quick|fair]"
         case let .unknownCommand(command):
-            return "error: unknown command '\(command)'\nusage: planefuse <doctor|inspect|compile|verify|bench> [fixture|mobilenetv2|quick|fair]"
+            return "error: unknown command '\(command)'\nusage: planefuse <doctor|inspect|compile|verify|bench|quality> [fixture|mobilenetv2|quick|fair]"
         }
     }
 }
@@ -554,6 +554,22 @@ private struct DirectSharedBenchmarkArtifact: Codable {
     let model: MobileNetV2AssetManifest
 }
 
+/// R7 output-quality evidence is intentionally separate from the latency
+/// artifact. It uses the same B2/C1 shared resources but runs each selected
+/// corpus sample once, outside benchmark timing, and never overwrites proof.
+private struct SharedQualityEvidenceArtifact: Codable {
+    let schemaVersion: Int
+    let status: String
+    let commit: String?
+    /// A commit alone is insufficient when the command is invoked from a
+    /// working tree with pending integration changes.
+    let sourceTreeState: String
+    let environment: EnvironmentSnapshot
+    let model: MobileNetV2AssetManifest
+    let modelLineage: MobileNetV2DerivedArtifactManifest
+    let measurement: MobileNetV2SharedQualityEvidence.Measurement
+}
+
 private struct PipelineABenchmarkArtifact: Codable {
     let schemaVersion: Int
     let status: String
@@ -614,6 +630,60 @@ func runMobileNetV2DirectSharedBench() throws -> Int32 {
     emit("b2_rgb_logical_bytes: \(measurement.b2RGBLogicalBytes)")
     emit("c1_rgb_logical_bytes: \(measurement.c1RGBLogicalBytes)")
     return measurement.top1Agreement >= 1.0 && measurement.activationMaxAbsoluteError <= Double(FairABCBenchmark.featureParityTolerance) ? 0 : 1
+}
+
+func runMobileNetV2SharedQualityEvidence() throws -> Int32 {
+    let root = URL(fileURLWithPath: FileManager.default.currentDirectoryPath, isDirectory: true)
+    let coefficientPath = ProcessInfo.processInfo.environment["PF_MOBILENET_COEFFICIENTS"] ?? "models/derived/MobileNetV2StemCoefficients.json"
+    let tailPath = ProcessInfo.processInfo.environment["PF_MOBILENET_TAIL"] ?? "models/derived/tail-compiled/MobileNetV2Tail.mlmodelc"
+    let manifest = MobileNetV2AssetManifest.inspected
+    try manifest.validate(at: root)
+    let lineage = try MobileNetV2DerivedArtifactManifest.load(from: root.appendingPathComponent(manifest.derivedManifest))
+    try lineage.validate(at: root)
+    let corpus = try MobileNetV2Corpus(manifestURL: root.appendingPathComponent(manifest.validationCorpusManifest), root: root)
+    // Keep this explicit in the command rather than relying on the adapter's
+    // default so the resulting R7 proof is unambiguous.
+    let tail = try CoreMLMobileNetV2TailAdapter(
+        modelURL: URL(fileURLWithPath: tailPath), manifest: manifest, computeUnits: .all
+    )
+    let evidence = try MobileNetV2SharedQualityEvidence(
+        coefficientsURL: URL(fileURLWithPath: coefficientPath), tail: tail, corpus: corpus
+    ).run()
+    let artifact = SharedQualityEvidenceArtifact(
+        schemaVersion: 1,
+        status: "r7_b2_c1_shared_quality_measured",
+        commit: ProcessInfo.processInfo.environment["PF_GIT_COMMIT"],
+        sourceTreeState: ProcessInfo.processInfo.environment["PF_SOURCE_TREE_STATE"] ?? "not_recorded",
+        environment: EnvironmentSnapshot(),
+        model: manifest,
+        modelLineage: lineage,
+        measurement: evidence
+    )
+    let outputPath = ProcessInfo.processInfo.environment["PF_QUALITY_EVIDENCE_OUTPUT"] ?? "proof/r7-b2-c1-shared-quality.json"
+    let url = URL(fileURLWithPath: outputPath)
+    guard !FileManager.default.fileExists(atPath: url.path) else {
+        throw NSError(
+            domain: "PlaneFuseCLI",
+            code: 1,
+            userInfo: [NSLocalizedDescriptionKey: "Refusing to overwrite existing quality evidence at \(outputPath). Set PF_QUALITY_EVIDENCE_OUTPUT to a new path."]
+        )
+    }
+    try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+    try JSONEncoder.benchmark.encode(artifact).write(to: url, options: .atomic)
+    let summary = evidence.summary
+    emit("PlaneFuse quality MobileNetV2 B2/C1 shared: RECORDED")
+    emit("result: \(outputPath)")
+    emit("corpus: \(summary.corpusSampleCount) (real: \(summary.realImageCount), procedural: \(summary.proceduralSampleCount))")
+    emit(String(format: "top1_agreement: %.4f", summary.top1Agreement))
+    emit(String(format: "top5_set_agreement: %.4f", summary.top5SetAgreement))
+    emit(String(format: "top5_ranking_agreement: %.4f", summary.top5RankingAgreement))
+    emit(String(format: "activation_max_abs_error: %.8f", summary.activationMaximumAbsoluteError))
+    emit(String(format: "activation_mean_abs_error: %.8f", summary.activationMeanAbsoluteError))
+    emit(String(format: "activation_mean_cosine_similarity: %.10f", summary.activationMeanCosineSimilarity))
+    emit(String(format: "probability_max_abs_error: %.8f", summary.probabilityMaximumAbsoluteError))
+    emit(String(format: "probability_mean_l1_distance: %.8f", summary.probabilityMeanL1Distance))
+    emit("classification_disagreements: \(summary.classificationDisagreementCount)")
+    return 0
 }
 
 func runPipelineABench() throws -> Int32 {
@@ -963,6 +1033,9 @@ do {
             exit(try runPipelineABench())
         }
         throw CommandError.usage
+    case "quality":
+        guard arguments == ["quality", "mobilenetv2", "b2-c1-shared"] else { throw CommandError.usage }
+        exit(try runMobileNetV2SharedQualityEvidence())
     case "profile":
         guard arguments == ["profile", "mobilenetv2"] else { throw CommandError.usage }
         exit(try runMobileNetV2Profile())
