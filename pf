@@ -101,8 +101,8 @@ case "$command_name" in
     cat "$log_file"
     ;;
   live)
-    if [ "$command_args" != "--help" ] && [ "$command_args" != "--sample" ] && [ "$command_args" != "--camera" ] && [ "$command_args" != "--camera-bench" ]; then
-      echo "usage: ./pf live --help|--sample|--camera|--camera-bench"
+    if [ "$command_args" != "--help" ] && [ "$command_args" != "--sample" ] && [ "$command_args" != "--camera" ] && [ "$command_args" != "--app" ] && [ "$command_args" != "--camera-bench" ]; then
+      echo "usage: ./pf live --help|--sample|--camera|--app|--camera-bench"
       exit 2
     fi
     if [ "$command_args" = "--camera-bench" ]; then

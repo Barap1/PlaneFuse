@@ -20,7 +20,7 @@ enum LiveError: Error, LocalizedError {
     var errorDescription: String? {
         switch self {
         case .usage:
-            return "usage: planefuse-live <--help|--sample|--camera|--camera-bench|--camera-space-bench>"
+            return "usage: planefuse-live <--help|--sample|--camera|--app|--camera-bench|--camera-space-bench>"
         case .cameraUnavailable:
             return "No local camera is available."
         case .cameraPermissionDenied:
@@ -59,7 +59,7 @@ private struct MobileNetV2AssetPaths {
     }
 }
 
-private final class CameraFrameDelegate: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
+final class CameraFrameDelegate: NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     private let semaphore = DispatchSemaphore(value: 0)
     private let lock = NSLock()
     private var latestPixelBuffer: CVPixelBuffer?
@@ -147,7 +147,7 @@ private final class CameraFrameDelegate: NSObject, AVCaptureVideoDataOutputSampl
     }
 }
 
-private struct CameraInferenceMeasurement {
+struct CameraInferenceMeasurement {
     let bFrontendMilliseconds: Double
     let cFrontendMilliseconds: Double
     let bEndToEndMilliseconds: Double
@@ -160,7 +160,7 @@ private struct CameraInferenceMeasurement {
     let cTop1Confidence: Double
 }
 
-private final class CameraInferenceRunner {
+final class CameraInferenceRunner {
     private let baseline: MetalMobileNetV2RGBPipeline
     private let inputFactory: MetalRGBBaseline
     private let native: MetalMobileNetV2NativeStem
@@ -170,11 +170,13 @@ private final class CameraInferenceRunner {
     private let bNormalizedRGBCHW: MTLBuffer
     private let bActivation: MTLBuffer
     private let cActivation: MTLBuffer
+    private let sourceReuseActivation: MTLBuffer
     private let cameraBNormalizedRGBCHW: MTLBuffer
     private let cameraBActivation: MTLBuffer
     private let cameraCActivation: MTLBuffer
     private let bShared: BufferBackedMultiArray
     private let cShared: BufferBackedMultiArray
+    private let sourceReuseShared: BufferBackedMultiArray
     private let cameraBShared: BufferBackedMultiArray
     private let cameraCShared: BufferBackedMultiArray
 
@@ -192,6 +194,7 @@ private final class CameraInferenceRunner {
         let frameDeliveryToResultMilliseconds: Double?
         let prediction: (label: String, confidence: Double)
         let activationMaxAbsoluteDifference: Double
+        let topPredictions: [(label: String, confidence: Double)]
     }
 
     struct CameraSpaceResult {
@@ -234,11 +237,13 @@ private final class CameraInferenceRunner {
         self.bNormalizedRGBCHW = try baseline.makeNormalizedRGBCHWBuffer()
         self.bActivation = try baseline.makeActivationBuffer()
         self.cActivation = try native.makeActivationBuffer()
+        self.sourceReuseActivation = try native.makeActivationBuffer()
         self.cameraBNormalizedRGBCHW = try cameraBPreprocessor.makeNormalizedRGBCHWBuffer()
         self.cameraBActivation = try baseline.makeActivationBuffer()
         self.cameraCActivation = try cameraCStem.makeActivationBuffer()
         self.bShared = try BufferBackedMultiArray(buffer: bActivation, shape: MetalMobileNetV2NativeStem.activationShape)
         self.cShared = try BufferBackedMultiArray(buffer: cActivation, shape: MetalMobileNetV2NativeStem.activationShape)
+        self.sourceReuseShared = try BufferBackedMultiArray(buffer: sourceReuseActivation, shape: MetalMobileNetV2NativeStem.activationShape)
         self.cameraBShared = try BufferBackedMultiArray(buffer: cameraBActivation, shape: MetalMobileNetV2NativeStem.activationShape)
         self.cameraCShared = try BufferBackedMultiArray(buffer: cameraCActivation, shape: MetalMobileNetV2NativeStem.activationShape)
     }
@@ -283,7 +288,8 @@ private final class CameraInferenceRunner {
         guard commandBuffer.status == .completed else { throw LiveError.inferenceOutputUnavailable }
         let output = try tail.predict(sharedActivation: cameraBShared)
         let tailEnd = ProcessInfo.processInfo.systemUptime
-        guard let prediction = topPrediction(output) else { throw LiveError.inferenceOutputUnavailable }
+        let predictions = topPredictions(output)
+        guard let prediction = predictions.first else { throw LiveError.inferenceOutputUnavailable }
         return CameraSpaceResult(
             startUptime: start,
             sourceSetupEndUptime: sourceSetupEnd,
@@ -322,7 +328,8 @@ private final class CameraInferenceRunner {
         guard commandBuffer.status == .completed else { throw LiveError.inferenceOutputUnavailable }
         let output = try tail.predict(sharedActivation: cameraCShared)
         let resultEnd = ProcessInfo.processInfo.systemUptime
-        guard let prediction = topPrediction(output) else { throw LiveError.inferenceOutputUnavailable }
+        let predictions = topPredictions(output)
+        guard let prediction = predictions.first else { throw LiveError.inferenceOutputUnavailable }
         return CameraSpaceResult(
             startUptime: start,
             sourceSetupEndUptime: sourceSetupEnd,
@@ -365,7 +372,8 @@ private final class CameraInferenceRunner {
         let tailStart = frontendEnd
         let output = try tail.predict(sharedActivation: bShared)
         let resultEnd = ProcessInfo.processInfo.systemUptime
-        guard let prediction = topPrediction(output) else { throw LiveError.inferenceOutputUnavailable }
+        let predictions = topPredictions(output)
+        guard let prediction = predictions.first else { throw LiveError.inferenceOutputUnavailable }
         let parity = nativeActivation.map { other in
             zip(try! baseline.readActivation(from: bActivation), try! native.readActivation(from: other))
                 .map { abs(Double($0 - $1)) }.max() ?? 0
@@ -379,7 +387,8 @@ private final class CameraInferenceRunner {
             postResizeInputToResultMilliseconds: (resultEnd - resizedReadyUptime) * 1_000,
             frameDeliveryToResultMilliseconds: callbackArrivalUptime.map { (resultEnd - $0) * 1_000 },
             prediction: prediction,
-            activationMaxAbsoluteDifference: parity
+            activationMaxAbsoluteDifference: parity,
+            topPredictions: predictions
         )
     }
 
@@ -395,7 +404,8 @@ private final class CameraInferenceRunner {
         let tailStart = frontendEnd
         let output = try tail.predict(sharedActivation: cShared)
         let resultEnd = ProcessInfo.processInfo.systemUptime
-        guard let prediction = topPrediction(output) else { throw LiveError.inferenceOutputUnavailable }
+        let predictions = topPredictions(output)
+        guard let prediction = predictions.first else { throw LiveError.inferenceOutputUnavailable }
         let parity = bActivationToCompare.map { other in
             zip(try! baseline.readActivation(from: other), try! native.readActivation(from: cActivation))
                 .map { abs(Double($0 - $1)) }.max() ?? 0
@@ -409,7 +419,35 @@ private final class CameraInferenceRunner {
             postResizeInputToResultMilliseconds: (resultEnd - resizedReadyUptime) * 1_000,
             frameDeliveryToResultMilliseconds: callbackArrivalUptime.map { (resultEnd - $0) * 1_000 },
             prediction: prediction,
-            activationMaxAbsoluteDifference: parity
+            activationMaxAbsoluteDifference: parity,
+            topPredictions: predictions
+        )
+    }
+
+    func inferC1SourceReuse(
+        input: MetalRGBBaseline.NV12Textures,
+        resizedReadyUptime: Double,
+        callbackArrivalUptime: Double?,
+        verifyAgainstCurrentB2: Bool = false
+    ) throws -> CandidateResult {
+        let start = ProcessInfo.processInfo.systemUptime
+        try native.executeSourceReuse(input, into: sourceReuseActivation)
+        let frontendEnd = ProcessInfo.processInfo.systemUptime
+        let output = try tail.predict(sharedActivation: sourceReuseShared)
+        let resultEnd = ProcessInfo.processInfo.systemUptime
+        let predictions = topPredictions(output)
+        guard let prediction = predictions.first else { throw LiveError.inferenceOutputUnavailable }
+        let parity = (verifyAgainstCurrentB2 ? bActivation : nil).map { other in
+            zip(try! baseline.readActivation(from: other), try! native.readActivation(from: sourceReuseActivation))
+                .map { abs(Double($0 - $1)) }.max() ?? 0
+        } ?? 0
+        return CandidateResult(
+            startUptime: start, frontendEndUptime: frontendEnd, resultEndUptime: resultEnd,
+            frontendMilliseconds: (frontendEnd - start) * 1_000,
+            tailMilliseconds: (resultEnd - frontendEnd) * 1_000,
+            postResizeInputToResultMilliseconds: (resultEnd - resizedReadyUptime) * 1_000,
+            frameDeliveryToResultMilliseconds: callbackArrivalUptime.map { (resultEnd - $0) * 1_000 },
+            prediction: prediction, activationMaxAbsoluteDifference: parity, topPredictions: predictions
         )
     }
 
@@ -468,6 +506,7 @@ private func printHelp() {
     Usage:
       planefuse-live --sample   Run the local M5 MobileNetV2 B/C workload on the real corpus.
       planefuse-live --camera   Run 300 continuous camera frames through the native-plane path.
+      planefuse-live --app      Open the judge-facing PlaneFuse Live dashboard.
       planefuse-live --camera-bench   Run the Release-grade paired/replay/live camera benchmark and write JSON.
       planefuse-live --camera-space-bench   Run the bounded R6.5 source-resolution camera-space benchmark and write JSON.
       planefuse-live --help     Show this help.
@@ -520,7 +559,7 @@ private func runSample() throws {
     print("c_rgb_intermediate_bytes: \(measurement.pipelineCRGBIntermediateBytes)")
 }
 
-private final class LiveCameraCapture {
+final class LiveCameraCapture {
     let session: AVCaptureSession
     let device: AVCaptureDevice
     let delegate: CameraFrameDelegate
@@ -1531,9 +1570,13 @@ private func runCameraBenchmark() throws {
 }
 
 private func topPrediction(_ probabilities: [String: Double]) -> (label: String, confidence: Double)? {
-    probabilities.max { lhs, rhs in
-        lhs.value == rhs.value ? lhs.key > rhs.key : lhs.value < rhs.value
-    }.map { (label: $0.key, confidence: $0.value) }
+    topPredictions(probabilities).first
+}
+
+private func topPredictions(_ probabilities: [String: Double]) -> [(label: String, confidence: Double)] {
+    probabilities.sorted { lhs, rhs in
+        lhs.value == rhs.value ? lhs.key < rhs.key : lhs.value > rhs.value
+    }.prefix(3).map { (label: $0.key, confidence: $0.value) }
 }
 
 private func topLabel(_ probabilities: [String: Double]) -> String? {
@@ -1573,6 +1616,8 @@ private func planeFuseLiveMain() {
             try runCameraBenchmark()
         case ["--camera-space-bench"]:
             try runCameraSpaceBenchmark()
+        case ["--app"]:
+            runPlaneFuseDashboardApp()
         default:
             throw LiveError.usage
         }
