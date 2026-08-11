@@ -1,5 +1,8 @@
 import Foundation
 import Metal
+import os
+
+private let sharedPathProfilerLog = OSLog(subsystem: "com.planefuse.profile", category: "shared-path")
 
 /// Separate, non-benchmark profiler path for the exact accepted R7 B2-shared
 /// and C1-shared implementations. It reuses the production encoder methods and
@@ -243,6 +246,9 @@ public final class MobileNetV2SharedPathProfile {
     }
 
     private func executeB2(_ b2: MetalMobileNetV2RGBPipeline, input: MetalRGBBaseline.NV12Textures, rgb: MTLBuffer, activation: MTLBuffer, shared: BufferBackedMultiArray) throws -> CandidateResult {
+        let signpostID = OSSignpostID(log: sharedPathProfilerLog)
+        os_signpost(.begin, log: sharedPathProfilerLog, name: "planefuse.b2.shared", signpostID: signpostID)
+        defer { os_signpost(.end, log: sharedPathProfilerLog, name: "planefuse.b2.shared", signpostID: signpostID) }
         let start = ProcessInfo.processInfo.systemUptime
         let timing = try b2.executeCHWTimed(input, normalizedRGB: rgb, into: activation)
         let tailStart = ProcessInfo.processInfo.systemUptime
@@ -252,6 +258,9 @@ public final class MobileNetV2SharedPathProfile {
     }
 
     private func executeC1(_ c1: MetalMobileNetV2NativeStem, input: MetalRGBBaseline.NV12Textures, activation: MTLBuffer, shared: BufferBackedMultiArray) throws -> CandidateResult {
+        let signpostID = OSSignpostID(log: sharedPathProfilerLog)
+        os_signpost(.begin, log: sharedPathProfilerLog, name: "planefuse.c1.shared", signpostID: signpostID)
+        defer { os_signpost(.end, log: sharedPathProfilerLog, name: "planefuse.c1.shared", signpostID: signpostID) }
         let start = ProcessInfo.processInfo.systemUptime
         let timing = try c1.executeTimed(input, into: activation)
         let tailStart = ProcessInfo.processInfo.systemUptime

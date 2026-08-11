@@ -76,6 +76,14 @@ def main() -> int:
             fail(f"{batch_id} execution identity/provenance mismatch")
         if execution.get("order_counts") != {"B2_then_C1": 100, "C1_then_B2": 100}:
             fail(f"{batch_id} stored order counts mismatch")
+        for condition_key in ("conditions_at_start", "conditions_at_end"):
+            condition = execution.get(condition_key, {})
+            if condition.get("ac_power_state") not in {"AC Power", "Battery Power"}:
+                fail(f"{batch_id} {condition_key} AC power state missing")
+            if condition.get("low_power_mode") not in {"0", "1"}:
+                fail(f"{batch_id} {condition_key} Low Power Mode missing")
+            if condition.get("thermal_state") not in {"nominal", "fair", "serious", "critical"}:
+                fail(f"{batch_id} {condition_key} thermal state missing")
     if len(by_source) != 64:
         fail(f"expected 64 unique source samples, got {len(by_source)}")
     if any(len(orders) != 2 for orders in by_source.values()):
@@ -105,6 +113,9 @@ def main() -> int:
         artifact_name = execution.get("artifact", "")
         if artifact_name.startswith("/") or "/Users/" in artifact_name or "\\" in artifact_name:
             fail("batch artifact path leaks a local absolute path")
+    per_batch = data.get("environment", {}).get("power_thermal_conditions", {}).get("per_batch", {})
+    if set(per_batch) != {f"batch-{index:02d}" for index in range(BATCH_COUNT)}:
+        fail("top-level per-batch power/thermal environment is incomplete")
     print(f"PASS R7 repaired shared benchmark: {path}")
     print(f"commit: {args.expected_commit}; batches: 5; pairs: 1000; both-order samples: 64/64")
     print("statistics, paired bootstrap, order balance, and batch provenance recomputed from raw records")

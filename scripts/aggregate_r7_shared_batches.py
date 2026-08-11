@@ -107,6 +107,14 @@ def main() -> int:
             fail(f"warmups below contract in {path}")
         if len(measurement.get("raw_paired_records", [])) != PAIRS_PER_BATCH:
             fail(f"pair count mismatch in {path}")
+        for condition_key in ("conditions_at_start", "conditions_at_end"):
+            conditions = measurement.get(condition_key, {})
+            if conditions.get("ac_power_state") not in {"AC Power", "Battery Power"}:
+                fail(f"{condition_key} AC power state missing or invalid in {path}")
+            if conditions.get("low_power_mode") not in {"0", "1"}:
+                fail(f"{condition_key} Low Power Mode missing or invalid in {path}")
+            if conditions.get("thermal_state") not in {"nominal", "fair", "serious", "critical"}:
+                fail(f"{condition_key} thermal state missing or invalid in {path}")
         artifacts.append((path, data))
 
     commits = {data["commit"] for _, data in artifacts}
@@ -155,6 +163,8 @@ def main() -> int:
             "order_phase": config["order_phase"],
             "order_counts": orders,
             "source_counts": source_counts,
+            "conditions_at_start": measurement["conditions_at_start"],
+            "conditions_at_end": measurement["conditions_at_end"],
         })
 
     by_source: dict[str, set[str]] = {source_id: set() for source_id in source_ids}
@@ -218,12 +228,23 @@ def main() -> int:
         "bootstrap_block_size": first_measurement["bootstrap_block_size"],
         "aggregate_source": "recomputed from raw paired records by scripts/aggregate_r7_shared_batches.py",
     }
+    environment = dict(artifacts[0][1]["environment"])
+    environment["power_thermal_conditions"] = {
+        "required_per_batch": True,
+        "per_batch": {
+            entry["batch_id"]: {
+                "start": entry["conditions_at_start"],
+                "end": entry["conditions_at_end"],
+            }
+            for entry in batch_executions
+        },
+    }
     output = {
         "schema_version": 2,
         "status": "r7_final_b2_c1_shared_repaired",
         "commit": args.expected_commit,
         "run_id": args.run_id,
-        "environment": artifacts[0][1]["environment"],
+        "environment": environment,
         "model": artifacts[0][1]["model"],
         "measurement": measurement,
     }

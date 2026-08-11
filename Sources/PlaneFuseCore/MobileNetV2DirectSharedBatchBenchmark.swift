@@ -59,6 +59,14 @@ public final class MobileNetV2DirectSharedBatchBenchmark {
         public let bootstrapBatchCount: Int
         public let bootstrapPairsPerBatch: Int
         public let bootstrapBlockSize: Int
+        public let conditionsAtStart: ConditionSnapshot
+        public let conditionsAtEnd: ConditionSnapshot
+
+        public struct ConditionSnapshot: Codable, Equatable {
+            public let acPowerState: String
+            public let lowPowerMode: String
+            public let thermalState: String
+        }
 
         public init(
             configuration: Configuration,
@@ -69,7 +77,9 @@ public final class MobileNetV2DirectSharedBatchBenchmark {
             b2RGBAllocatedBytes: Int,
             deviceName: String,
             computeUnitsPolicy: String,
-            sourceSampleIDs: [String]
+            sourceSampleIDs: [String],
+            conditionsAtStart: ConditionSnapshot,
+            conditionsAtEnd: ConditionSnapshot
         ) {
             self.schemaVersion = 1
             self.status = "mobilenetv2_direct_b2_c1_shared_batch"
@@ -93,6 +103,8 @@ public final class MobileNetV2DirectSharedBatchBenchmark {
             self.bootstrapBatchCount = BenchmarkStatistics.bootstrapBatchCount
             self.bootstrapPairsPerBatch = BenchmarkStatistics.bootstrapPairsPerBatch
             self.bootstrapBlockSize = BenchmarkStatistics.bootstrapBlockSize
+            self.conditionsAtStart = conditionsAtStart
+            self.conditionsAtEnd = conditionsAtEnd
         }
     }
 
@@ -102,6 +114,7 @@ public final class MobileNetV2DirectSharedBatchBenchmark {
         case invalidCorpus
         case activationParityFailed(Double)
         case outputAgreementFailed(Double)
+        case conditionsUnavailable(String)
 
         public var errorDescription: String? {
             switch self {
@@ -110,6 +123,7 @@ public final class MobileNetV2DirectSharedBatchBenchmark {
             case .invalidCorpus: return "The repaired R7 batch requires a non-empty 64-input corpus."
             case let .activationParityFailed(error): return "B2/C1 activation parity failed with max error \(error)."
             case let .outputAgreementFailed(agreement): return "B2/C1 top-1 agreement failed with \(agreement)."
+            case let .conditionsUnavailable(detail): return "Benchmark power/thermal conditions unavailable: \(detail)"
             }
         }
     }
@@ -134,6 +148,7 @@ public final class MobileNetV2DirectSharedBatchBenchmark {
 
     public func run(device: MTLDevice? = MTLCreateSystemDefaultDevice()) throws -> Measurement {
         guard let device else { throw Error.noDevice }
+        let conditionsAtStart = try Self.conditionSnapshot()
         let frames = try corpus.loadFrames()
         guard frames.count == 64 else { throw Error.invalidCorpus }
 
@@ -206,6 +221,7 @@ public final class MobileNetV2DirectSharedBatchBenchmark {
             ))
         }
 
+        let conditionsAtEnd = try Self.conditionSnapshot()
         return Measurement(
             configuration: configuration,
             rawPairedRecords: records,
@@ -215,8 +231,63 @@ public final class MobileNetV2DirectSharedBatchBenchmark {
             b2RGBAllocatedBytes: b2NormalizedRGB.allocatedSize,
             deviceName: device.name,
             computeUnitsPolicy: tail.computeUnitsPolicyLabel,
-            sourceSampleIDs: frames.map(\.id)
+            sourceSampleIDs: frames.map(\.id),
+            conditionsAtStart: conditionsAtStart,
+            conditionsAtEnd: conditionsAtEnd
         )
+    }
+
+    private static func conditionSnapshot() throws -> Measurement.ConditionSnapshot {
+        let power = try runPMSet(["-g", "batt"])
+        let custom = try runPMSet(["-g", "custom"])
+        guard let powerLine = power.split(separator: "\n").first,
+              let quotedStart = powerLine.firstIndex(of: "'"),
+              let quotedEnd = powerLine[powerLine.index(after: quotedStart)...].firstIndex(of: "'") else {
+            throw Error.conditionsUnavailable("pmset -g batt did not report a power source")
+        }
+        let acPowerState = String(powerLine[powerLine.index(after: quotedStart)..<quotedEnd])
+        let lowPowerMode = custom.split(separator: "\n").compactMap { line -> String? in
+            let fields = line.split(whereSeparator: { $0 == " " || $0 == "\t" })
+            guard fields.count >= 2, fields[0] == "lowpowermode" else { return nil }
+            return String(fields[1])
+        }.first
+        guard let lowPowerMode else {
+            throw Error.conditionsUnavailable("pmset -g custom did not report lowpowermode")
+        }
+        return Measurement.ConditionSnapshot(
+            acPowerState: acPowerState,
+            lowPowerMode: lowPowerMode,
+            thermalState: thermalStateName()
+        )
+    }
+
+    private static func runPMSet(_ arguments: [String]) throws -> String {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/pmset")
+        process.arguments = arguments
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        process.standardError = pipe
+        do {
+            try process.run()
+        } catch {
+            throw Error.conditionsUnavailable(error.localizedDescription)
+        }
+        process.waitUntilExit()
+        guard process.terminationStatus == 0 else {
+            throw Error.conditionsUnavailable("pmset exited with status \(process.terminationStatus)")
+        }
+        return String(data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+    }
+
+    private static func thermalStateName(_ state: ProcessInfo.ThermalState = ProcessInfo.processInfo.thermalState) -> String {
+        switch state {
+        case .nominal: return "nominal"
+        case .fair: return "fair"
+        case .serious: return "serious"
+        case .critical: return "critical"
+        @unknown default: return "unknown"
+        }
     }
 
     private struct TimedResult {
