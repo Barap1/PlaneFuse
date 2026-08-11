@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "status": "unavailable_before_first_callback",
+  "commit": "8bea11d3e71257723dfdbb355e95ac0413e438f4",
+  "build_configuration": "release",
+  "compute_units_policy": "all",
+  "command": "PF_BENCHMARK_OUTPUT=benchmarks/results/r7-final-camera.json ./pf bench camera",
+  "log": "artifacts/logs/pf-bench-20260811T021552Z.log",
+  "observed_error": "The camera did not deliver a frame before the timeout.",
+  "callbacks_received": 0,
+  "processed_frames": 0,
+  "dropped_callbacks": null,
+  "late_callbacks": null,
+  "thermal_state": null,
+  "acceptance_note": "This is a failed acquisition attempt, not a performance result. The previously successful Release R6.1 camera artifact remains the source of the 300-frame replay/live measurements and is referenced separately."
+}

@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "status": "pre_hostile_review_all_measured_targets_evaluated",
+  "headline_candidate": "C1",
+  "performance_artifact": "proof/r7-final-b2-c1-shared-current.json",
+  "quality_artifact": "proof/r7-b2-c1-shared-quality-clean.json",
+  "camera_artifact": "proof/r7-camera-evidence.json",
+  "quality_gate": {
+    "top1_agreement": 1.0,
+    "activation_max_absolute_error": 0.00000858306884765625,
+    "activation_threshold": 0.000009999999747378752,
+    "c_full_rgb_intermediate_bytes": 0,
+    "cpu_element_by_element_activation_copy_bytes": 0,
+    "status": "pass"
+  },
+  "targets": [
+    {
+      "id": "T1",
+      "criterion": "strongest B2/C1 end-to-end p50 improvement >= 10% with positive paired CI",
+      "estimand": "direct B2-minus-C1 post-resize-to-result paired latency; positive favors C1",
+      "b2_p50_ms": 1.6641250003885943,
+      "c1_p50_ms": 1.622499999939464,
+      "difference_between_marginal_p50s_ms": 0.04162500044913024,
+      "median_of_paired_differences_ms": 0.048083333240356296,
+      "aggregate_percentage_c1_lower": 2.501314531024433,
+      "paired_median_bootstrap_ci_ms": [0.04150000313529745, 0.054291667765937746],
+      "passes": false,
+      "reason": "The positive paired interval is stable but the measured improvement is below 10%."
+    },
+    {
+      "id": "T2",
+      "criterion": "sustained camera throughput >= 20% higher or materially lower true frame-delivery-to-result with matched quality",
+      "estimand": "separate successful Release physical-camera sessions; not the serial paired run",
+      "b2_live_sustained_fps": 30.018391518022003,
+      "c1_live_sustained_fps": 29.994465396250156,
+      "c1_throughput_change_percent": -0.079703363447511,
+      "b2_live_frame_delivery_p50_ms": 3.1173333336482756,
+      "c1_live_frame_delivery_p50_ms": 3.7975833329255693,
+      "c1_frame_delivery_change_percent": 21.821151990255,
+      "passes": false,
+      "reason": "The successful historical Release sessions are cadence-limited at about 30 FPS and C1 has a higher, not lower, frame-delivery p50. A fresh R7 camera attempt received zero callbacks and is not substituted for this evidence."
+    },
+    {
+      "id": "T3",
+      "criterion": "frontend improvement >= 2x, zero full RGB, zero element-by-element CPU copy, and end-to-end improvement >= 5% with positive paired CI",
+      "frontend_basis": "successful Release camera sessions",
+      "b2_live_frontend_p50_ms": 0.5548749995796243,
+      "c1_live_frontend_p50_ms": 0.4715000004580361,
+      "frontend_improvement_percent": 15.025817334923,
+      "end_to_end_improvement_percent": 2.501314531024433,
+      "zero_full_rgb_intermediate": true,
+      "zero_element_by_element_cpu_copy": true,
+      "passes": false,
+      "reason": "The zero-resource conditions pass, but neither the >=2x frontend nor >=5% end-to-end threshold passes."
+    },
+    {
+      "id": "T4",
+      "criterion": "another comparably strong result explicitly accepted by hostile technical review",
+      "passes": false,
+      "review_status": "pending",
+      "reason": "No alternative result is pre-accepted; Sol must independently decide whether any measured result is genuinely equivalent."
+    }
+  ],
+  "interpretation": "Before hostile review, none of the four preregistered competition targets is met. This is an evidence result, not permission to weaken thresholds or reframe the comparison."
+}

@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "status": "historical_release_camera_evidence_with_current_acquisition_failure",
+  "source_artifact": "proof/r6.1-camera-benchmark-release.json",
+  "current_attempt_artifact": "proof/r7-camera-session-attempt-20260811.json",
+  "build_configuration": "release",
+  "compute_units_policy": "all",
+  "camera_active_format": "1920x1080-0x34323076",
+  "camera_pixel_format": "420YpCbCr8BiPlanarVideoRange",
+  "camera_frame_duration_seconds": 0.03333333333333333,
+  "replay": {
+    "frame_count": 300,
+    "payload_manifest": "proof/r6.1-camera-replay.manifest.json",
+    "paired_boundary": "post_resize_input_to_result; not capture-to-result",
+    "paired_b_minus_c_p50_milliseconds": 0.04595833343046252,
+    "paired_b_minus_c_mean_milliseconds": 0.06346691663566162,
+    "paired_b_minus_c_p95_milliseconds": 0.6092916655688896,
+    "paired_b_minus_c_mad_milliseconds": 0.3854166661767522,
+    "paired_aggregate_percentage": 3.8032543067920983,
+    "paired_median_bootstrap_ci_milliseconds": [-0.02437499915686203, 0.10941666732833255],
+    "b2": {
+      "processed_frames": 300,
+      "sustained_fps": 585.3175054802691,
+      "dropped_callbacks": 0,
+      "late_callbacks": 0,
+      "frontend_milliseconds": {"p50": 0.5043749997639679, "p95": 0.5762916662206408, "mean": 0.4777918055575962, "mad": 0.0412500003221794}
+    },
+    "c1": {
+      "processed_frames": 300,
+      "sustained_fps": 601.5260716439425,
+      "dropped_callbacks": 0,
+      "late_callbacks": 0,
+      "frontend_milliseconds": {"p50": 0.43416666630946565, "p95": 0.5129166665938101, "mean": 0.4434269444239665, "mad": 0.023999999939405825}
+    }
+  },
+  "live": {
+    "session_frame_count": 300,
+    "callback_rate_hz": {"b2": 32.01961761922347, "c1": 31.994096422666836},
+    "sustained_fps": {"b2": 30.018391518022003, "c1": 29.994465396250156},
+    "dropped_callbacks": {"b2": 0, "c1": 0},
+    "late_callbacks": {"b2": 0, "c1": 0},
+    "frame_delivery_to_result_milliseconds": {
+      "b2": {"p50": 3.1173333336482756, "p95": 9.227999999893655, "mean": 4.523650277790996, "mad": 0.7012500009295763},
+      "c1": {"p50": 3.7975833329255693, "p95": 9.724208332954731, "mean": 4.862219861115591, "mad": 1.4437083336815704}
+    },
+    "thermal_state": "nominal"
+  },
+  "quality": {
+    "top1_agreement": 1.0,
+    "activation_max_absolute_error": 0.000009059906005859375,
+    "c_full_rgb_intermediate_bytes": 0,
+    "cpu_element_by_element_population_bytes": 0
+  },
+  "current_attempt_note": "A fresh R7 physical-camera invocation built in Release but received zero callbacks before timeout. No new camera latency or drop result is inferred from that failure; the successful 300-frame Release evidence above remains explicitly historical and separately labeled."
+}

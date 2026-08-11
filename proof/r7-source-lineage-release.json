@@ -1,0 +1,1502 @@
+{
+  "acceptance_note" : "The original image-input model and derived FullArray agree on every top-1 result and every real-image top-5 set. Procedural stress cases intentionally expose near-tie ranking sensitivity; their top-5 set agreement is reported separately and is not converted into a population-accuracy claim.",
+  "corpus_sample_count" : 64,
+  "full_array_sha256" : "a14f4103d9386bcf26e0c6d6989b98d03868f0c76f1bc7814bc13419d3b65e69",
+  "orientation_treatment" : "Image orientation metadata is resolved by the deterministic CGContext render before both model calls; no model-side orientation difference is hidden.",
+  "preprocessing" : "ImageIO decode -> deterministic sRGB CGContext render at 224x224 -> normalized CHW Float32 for FullArray; the same rendered image is supplied as a 224x224 BGRA CVPixelBuffer to the original image-input model.",
+  "probability_maximum_absolute_error" : 0.014868199825286865,
+  "probability_mean_l1_distance" : 0.013441790472579346,
+  "procedural_sample_count" : 32,
+  "procedural_top5_set_agreement" : 0.84375,
+  "real_image_count" : 32,
+  "real_image_top5_set_agreement" : 1,
+  "samples" : [
+    {
+      "full_array_top1" : "Labrador retriever",
+      "full_array_top5" : [
+        "Labrador retriever",
+        "Saluki, gazelle hound",
+        "dingo, warrigal, warragal, Canis dingo",
+        "golden retriever",
+        "Eskimo dog, husky"
+      ],
+      "id" : "legacy-cat-dog-r7-derivative",
+      "probability_l1_distance" : 0.02243852744254582,
+      "probability_maximum_absolute_error" : 0.007716447114944458,
+      "source_top1" : "Labrador retriever",
+      "source_top5" : [
+        "Labrador retriever",
+        "Saluki, gazelle hound",
+        "dingo, warrigal, warragal, Canis dingo",
+        "golden retriever",
+        "Eskimo dog, husky"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "toilet tissue, toilet paper, bathroom tissue",
+      "full_array_top5" : [
+        "toilet tissue, toilet paper, bathroom tissue",
+        "bucket, pail",
+        "paper towel",
+        "tabby, tabby cat",
+        "cup"
+      ],
+      "id" : "legacy-cat-flower-pot-r7-derivative",
+      "probability_l1_distance" : 0.003294971603736485,
+      "probability_maximum_absolute_error" : 0.0009007453918457031,
+      "source_top1" : "toilet tissue, toilet paper, bathroom tissue",
+      "source_top5" : [
+        "toilet tissue, toilet paper, bathroom tissue",
+        "bucket, pail",
+        "paper towel",
+        "tabby, tabby cat",
+        "cup"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "Egyptian cat",
+      "full_array_top5" : [
+        "Egyptian cat",
+        "tiger cat",
+        "Siamese cat, Siamese",
+        "lynx, catamount",
+        "tabby, tabby cat"
+      ],
+      "id" : "legacy-closeup-cat-r7-derivative",
+      "probability_l1_distance" : 0.003575324136818381,
+      "probability_maximum_absolute_error" : 0.0009648799896240234,
+      "source_top1" : "Egyptian cat",
+      "source_top5" : [
+        "Egyptian cat",
+        "tiger cat",
+        "Siamese cat, Siamese",
+        "lynx, catamount",
+        "tabby, tabby cat"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "Great Pyrenees",
+      "full_array_top5" : [
+        "Great Pyrenees",
+        "white wolf, Arctic wolf, Canis lupus tundrarum",
+        "ox",
+        "kuvasz",
+        "dogsled, dog sled, dog sleigh"
+      ],
+      "id" : "wikimedia-52039728",
+      "probability_l1_distance" : 0.004322758766136303,
+      "probability_maximum_absolute_error" : 0.00130462646484375,
+      "source_top1" : "Great Pyrenees",
+      "source_top5" : [
+        "Great Pyrenees",
+        "white wolf, Arctic wolf, Canis lupus tundrarum",
+        "kuvasz",
+        "ox",
+        "dogsled, dog sled, dog sleigh"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "container ship, containership, container vessel",
+      "full_array_top5" : [
+        "container ship, containership, container vessel",
+        "drilling platform, offshore rig",
+        "space shuttle",
+        "crane",
+        "liner, ocean liner"
+      ],
+      "id" : "wikimedia-146178257",
+      "probability_l1_distance" : 0.011826633895452687,
+      "probability_maximum_absolute_error" : 0.0017727166414260864,
+      "source_top1" : "container ship, containership, container vessel",
+      "source_top5" : [
+        "container ship, containership, container vessel",
+        "drilling platform, offshore rig",
+        "space shuttle",
+        "crane",
+        "liner, ocean liner"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "crane",
+      "full_array_top5" : [
+        "crane",
+        "aircraft carrier, carrier, flattop, attack aircraft carrier",
+        "space shuttle",
+        "drilling platform, offshore rig",
+        "hook, claw"
+      ],
+      "id" : "wikimedia-146178286",
+      "probability_l1_distance" : 0.018580919215310132,
+      "probability_maximum_absolute_error" : 0.002024054527282715,
+      "source_top1" : "crane",
+      "source_top5" : [
+        "crane",
+        "aircraft carrier, carrier, flattop, attack aircraft carrier",
+        "space shuttle",
+        "drilling platform, offshore rig",
+        "hook, claw"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "beach wagon, station wagon, wagon, estate car, beach waggon, station waggon, waggon",
+      "full_array_top5" : [
+        "beach wagon, station wagon, wagon, estate car, beach waggon, station waggon, waggon",
+        "jeep, landrover",
+        "pickup, pickup truck",
+        "convertible",
+        "cab, hack, taxi, taxicab"
+      ],
+      "id" : "wikimedia-25211371",
+      "probability_l1_distance" : 0.008860044324592309,
+      "probability_maximum_absolute_error" : 0.0035424530506134033,
+      "source_top1" : "beach wagon, station wagon, wagon, estate car, beach waggon, station waggon, waggon",
+      "source_top5" : [
+        "beach wagon, station wagon, wagon, estate car, beach waggon, station waggon, waggon",
+        "jeep, landrover",
+        "pickup, pickup truck",
+        "convertible",
+        "cab, hack, taxi, taxicab"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "seashore, coast, seacoast, sea-coast",
+      "full_array_top5" : [
+        "seashore, coast, seacoast, sea-coast",
+        "crane",
+        "flagpole, flagstaff",
+        "bell cote, bell cot",
+        "obelisk"
+      ],
+      "id" : "wikimedia-35048409",
+      "probability_l1_distance" : 0.00999064855841425,
+      "probability_maximum_absolute_error" : 0.002398580312728882,
+      "source_top1" : "seashore, coast, seacoast, sea-coast",
+      "source_top5" : [
+        "seashore, coast, seacoast, sea-coast",
+        "crane",
+        "flagpole, flagstaff",
+        "bell cote, bell cot",
+        "obelisk"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "bakery, bakeshop, bakehouse",
+      "full_array_top5" : [
+        "bakery, bakeshop, bakehouse",
+        "corn",
+        "grocery store, grocery, food market, market",
+        "ear, spike, capitulum",
+        "hamper"
+      ],
+      "id" : "stocksnap-food-gourmet-RZ5FO2XO9F",
+      "probability_l1_distance" : 0.0018577665066459303,
+      "probability_maximum_absolute_error" : 0.00024375319480895996,
+      "source_top1" : "bakery, bakeshop, bakehouse",
+      "source_top5" : [
+        "bakery, bakeshop, bakehouse",
+        "corn",
+        "grocery store, grocery, food market, market",
+        "ear, spike, capitulum",
+        "hamper"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "plate",
+      "full_array_top5" : [
+        "plate",
+        "restaurant, eating house, eating place, eatery",
+        "potpie",
+        "tray",
+        "hot pot, hotpot"
+      ],
+      "id" : "wikimedia-145712499",
+      "probability_l1_distance" : 0.003659745260847558,
+      "probability_maximum_absolute_error" : 0.0005929581820964813,
+      "source_top1" : "plate",
+      "source_top5" : [
+        "plate",
+        "restaurant, eating house, eating place, eatery",
+        "potpie",
+        "tray",
+        "hot pot, hotpot"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "wok",
+      "full_array_top5" : [
+        "wok",
+        "hot pot, hotpot",
+        "caldron, cauldron",
+        "consomme",
+        "frying pan, frypan, skillet"
+      ],
+      "id" : "wikimedia-150958414",
+      "probability_l1_distance" : 0.008632760287582641,
+      "probability_maximum_absolute_error" : 0.002969205379486084,
+      "source_top1" : "wok",
+      "source_top5" : [
+        "wok",
+        "hot pot, hotpot",
+        "caldron, cauldron",
+        "consomme",
+        "frying pan, frypan, skillet"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "Dutch oven",
+      "full_array_top5" : [
+        "Dutch oven",
+        "wok",
+        "frying pan, frypan, skillet",
+        "plate",
+        "caldron, cauldron"
+      ],
+      "id" : "wikimedia-150958429",
+      "probability_l1_distance" : 0.012759194490627124,
+      "probability_maximum_absolute_error" : 0.005182921886444092,
+      "source_top1" : "Dutch oven",
+      "source_top5" : [
+        "Dutch oven",
+        "wok",
+        "frying pan, frypan, skillet",
+        "plate",
+        "caldron, cauldron"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "shovel",
+      "full_array_top5" : [
+        "shovel",
+        "carpenter's kit, tool kit",
+        "screwdriver",
+        "hammer",
+        "paintbrush"
+      ],
+      "id" : "wikimedia-114005486",
+      "probability_l1_distance" : 0.009085996644671468,
+      "probability_maximum_absolute_error" : 0.004091888666152954,
+      "source_top1" : "shovel",
+      "source_top5" : [
+        "shovel",
+        "carpenter's kit, tool kit",
+        "screwdriver",
+        "hammer",
+        "paintbrush"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "screwdriver",
+      "full_array_top5" : [
+        "screwdriver",
+        "carpenter's kit, tool kit",
+        "letter opener, paper knife, paperknife",
+        "cleaver, meat cleaver, chopper",
+        "ballpoint, ballpoint pen, ballpen, Biro"
+      ],
+      "id" : "wikimedia-114005489",
+      "probability_l1_distance" : 0.0031648251867011368,
+      "probability_maximum_absolute_error" : 0.001527249813079834,
+      "source_top1" : "screwdriver",
+      "source_top5" : [
+        "screwdriver",
+        "carpenter's kit, tool kit",
+        "letter opener, paper knife, paperknife",
+        "cleaver, meat cleaver, chopper",
+        "ballpoint, ballpoint pen, ballpen, Biro"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "broom",
+      "full_array_top5" : [
+        "broom",
+        "plane, carpenter's plane, woodworking plane",
+        "hammer",
+        "paintbrush",
+        "schooner"
+      ],
+      "id" : "wikimedia-141540996",
+      "probability_l1_distance" : 0.008736896952541429,
+      "probability_maximum_absolute_error" : 0.0005830973386764526,
+      "source_top1" : "broom",
+      "source_top5" : [
+        "broom",
+        "hammer",
+        "plane, carpenter's plane, woodworking plane",
+        "paintbrush",
+        "schooner"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "hammer",
+      "full_array_top5" : [
+        "hammer",
+        "plane, carpenter's plane, woodworking plane",
+        "nail",
+        "dumbbell",
+        "lumbermill, sawmill"
+      ],
+      "id" : "wikimedia-141541159",
+      "probability_l1_distance" : 0.003921765679260503,
+      "probability_maximum_absolute_error" : 0.0016798973083496094,
+      "source_top1" : "hammer",
+      "source_top5" : [
+        "hammer",
+        "plane, carpenter's plane, woodworking plane",
+        "nail",
+        "dumbbell",
+        "lumbermill, sawmill"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "valley, vale",
+      "full_array_top5" : [
+        "valley, vale",
+        "cliff, drop, drop-off",
+        "alp",
+        "seashore, coast, seacoast, sea-coast",
+        "volcano"
+      ],
+      "id" : "wikimedia-52050816",
+      "probability_l1_distance" : 0.006333113044092897,
+      "probability_maximum_absolute_error" : 0.000883638858795166,
+      "source_top1" : "valley, vale",
+      "source_top5" : [
+        "valley, vale",
+        "cliff, drop, drop-off",
+        "alp",
+        "seashore, coast, seacoast, sea-coast",
+        "volcano"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "corn",
+      "full_array_top5" : [
+        "corn",
+        "ear, spike, capitulum",
+        "golf ball",
+        "maze, labyrinth",
+        "lakeside, lakeshore"
+      ],
+      "id" : "wikimedia-52050912",
+      "probability_l1_distance" : 0.011201286280538625,
+      "probability_maximum_absolute_error" : 0.0021434277296066284,
+      "source_top1" : "corn",
+      "source_top5" : [
+        "corn",
+        "ear, spike, capitulum",
+        "golf ball",
+        "maze, labyrinth",
+        "lakeside, lakeshore"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "cliff, drop, drop-off",
+      "full_array_top5" : [
+        "cliff, drop, drop-off",
+        "valley, vale",
+        "cliff dwelling",
+        "alp",
+        "promontory, headland, head, foreland"
+      ],
+      "id" : "wikimedia-52050956",
+      "probability_l1_distance" : 0.016240674215168838,
+      "probability_maximum_absolute_error" : 0.005516171455383301,
+      "source_top1" : "cliff, drop, drop-off",
+      "source_top5" : [
+        "cliff, drop, drop-off",
+        "valley, vale",
+        "cliff dwelling",
+        "alp",
+        "promontory, headland, head, foreland"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "lakeside, lakeshore",
+      "full_array_top5" : [
+        "lakeside, lakeshore",
+        "hip, rose hip, rosehip",
+        "beacon, lighthouse, beacon light, pharos",
+        "birdhouse",
+        "cliff, drop, drop-off"
+      ],
+      "id" : "wikimedia-52052040",
+      "probability_l1_distance" : 0.010064002489343693,
+      "probability_maximum_absolute_error" : 0.0009617581963539124,
+      "source_top1" : "lakeside, lakeshore",
+      "source_top5" : [
+        "lakeside, lakeshore",
+        "hip, rose hip, rosehip",
+        "beacon, lighthouse, beacon light, pharos",
+        "birdhouse",
+        "cliff, drop, drop-off"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "toyshop",
+      "full_array_top5" : [
+        "toyshop",
+        "altar",
+        "tobacco shop, tobacconist shop, tobacconist",
+        "comic book",
+        "throne"
+      ],
+      "id" : "wikimedia-145562107",
+      "probability_l1_distance" : 0.004429090906796773,
+      "probability_maximum_absolute_error" : 0.001059204339981079,
+      "source_top1" : "toyshop",
+      "source_top5" : [
+        "toyshop",
+        "altar",
+        "tobacco shop, tobacconist shop, tobacconist",
+        "comic book",
+        "throne"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "stage",
+      "full_array_top5" : [
+        "stage",
+        "loudspeaker, speaker, speaker unit, loudspeaker system, speaker system",
+        "picket fence, paling",
+        "cinema, movie theater, movie theatre, movie house, picture palace",
+        "altar"
+      ],
+      "id" : "wikimedia-150797087",
+      "probability_l1_distance" : 0.03297867303717794,
+      "probability_maximum_absolute_error" : 0.005183964967727661,
+      "source_top1" : "stage",
+      "source_top5" : [
+        "stage",
+        "loudspeaker, speaker, speaker unit, loudspeaker system, speaker system",
+        "picket fence, paling",
+        "cinema, movie theater, movie theatre, movie house, picture palace",
+        "altar"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "totem pole",
+      "full_array_top5" : [
+        "totem pole",
+        "restaurant, eating house, eating place, eatery",
+        "library",
+        "tobacco shop, tobacconist shop, tobacconist",
+        "studio couch, day bed"
+      ],
+      "id" : "wikimedia-151232217",
+      "probability_l1_distance" : 0.007982206713222695,
+      "probability_maximum_absolute_error" : 0.001430422067642212,
+      "source_top1" : "totem pole",
+      "source_top5" : [
+        "totem pole",
+        "restaurant, eating house, eating place, eatery",
+        "library",
+        "tobacco shop, tobacconist shop, tobacconist",
+        "studio couch, day bed"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "volcano",
+      "full_array_top5" : [
+        "volcano",
+        "jellyfish",
+        "sea cucumber, holothurian",
+        "eel",
+        "sea anemone, anemone"
+      ],
+      "id" : "wikimedia-155739988",
+      "probability_l1_distance" : 0.007258196212205803,
+      "probability_maximum_absolute_error" : 0.003554224967956543,
+      "source_top1" : "volcano",
+      "source_top5" : [
+        "volcano",
+        "jellyfish",
+        "sea cucumber, holothurian",
+        "eel",
+        "sea anemone, anemone"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "matchstick",
+      "full_array_top5" : [
+        "matchstick",
+        "nematode, nematode worm, roundworm",
+        "lighter, light, igniter, ignitor",
+        "digital clock",
+        "spotlight, spot"
+      ],
+      "id" : "legacy-flower-r7-derivative",
+      "probability_l1_distance" : 0.01622854328888934,
+      "probability_maximum_absolute_error" : 0.0008463375270366669,
+      "source_top1" : "matchstick",
+      "source_top5" : [
+        "matchstick",
+        "nematode, nematode worm, roundworm",
+        "lighter, light, igniter, ignitor",
+        "digital clock",
+        "spotlight, spot"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "umbrella",
+      "full_array_top5" : [
+        "umbrella",
+        "daisy",
+        "pot, flowerpot",
+        "picket fence, paling",
+        "greenhouse, nursery, glasshouse"
+      ],
+      "id" : "wikimedia-107696546",
+      "probability_l1_distance" : 0.02689272716679625,
+      "probability_maximum_absolute_error" : 0.013469517230987549,
+      "source_top1" : "umbrella",
+      "source_top5" : [
+        "umbrella",
+        "daisy",
+        "pot, flowerpot",
+        "picket fence, paling",
+        "greenhouse, nursery, glasshouse"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "umbrella",
+      "full_array_top5" : [
+        "umbrella",
+        "daisy",
+        "pot, flowerpot",
+        "picket fence, paling",
+        "greenhouse, nursery, glasshouse"
+      ],
+      "id" : "wikimedia-107696548",
+      "probability_l1_distance" : 0.016331561640981818,
+      "probability_maximum_absolute_error" : 0.0069098323583602905,
+      "source_top1" : "umbrella",
+      "source_top5" : [
+        "umbrella",
+        "daisy",
+        "pot, flowerpot",
+        "picket fence, paling",
+        "greenhouse, nursery, glasshouse"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "pot, flowerpot",
+      "full_array_top5" : [
+        "pot, flowerpot",
+        "umbrella",
+        "lakeside, lakeshore",
+        "greenhouse, nursery, glasshouse",
+        "daisy"
+      ],
+      "id" : "wikimedia-107696549",
+      "probability_l1_distance" : 0.010256550673148013,
+      "probability_maximum_absolute_error" : 0.001919470727443695,
+      "source_top1" : "pot, flowerpot",
+      "source_top5" : [
+        "pot, flowerpot",
+        "umbrella",
+        "lakeside, lakeshore",
+        "greenhouse, nursery, glasshouse",
+        "daisy"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "dam, dike, dyke",
+      "full_array_top5" : [
+        "dam, dike, dyke",
+        "aircraft carrier, carrier, flattop, attack aircraft carrier",
+        "amphibian, amphibious vehicle",
+        "submarine, pigboat, sub, U-boat",
+        "steel arch bridge"
+      ],
+      "id" : "wikimedia-130325596",
+      "probability_l1_distance" : 0.006396586480605038,
+      "probability_maximum_absolute_error" : 0.001943245530128479,
+      "source_top1" : "dam, dike, dyke",
+      "source_top5" : [
+        "dam, dike, dyke",
+        "aircraft carrier, carrier, flattop, attack aircraft carrier",
+        "amphibian, amphibious vehicle",
+        "submarine, pigboat, sub, U-boat",
+        "steel arch bridge"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "scale, weighing machine",
+      "full_array_top5" : [
+        "scale, weighing machine",
+        "parking meter",
+        "trolleybus, trolley coach, trackless trolley",
+        "school bus",
+        "gas pump, gasoline pump, petrol pump, island dispenser"
+      ],
+      "id" : "wikimedia-130325605",
+      "probability_l1_distance" : 0.006373038309902768,
+      "probability_maximum_absolute_error" : 0.0008605793118476868,
+      "source_top1" : "scale, weighing machine",
+      "source_top5" : [
+        "scale, weighing machine",
+        "parking meter",
+        "trolleybus, trolley coach, trackless trolley",
+        "gas pump, gasoline pump, petrol pump, island dispenser",
+        "school bus"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "crane",
+      "full_array_top5" : [
+        "crane",
+        "lumbermill, sawmill",
+        "container ship, containership, container vessel",
+        "harvester, reaper",
+        "forklift"
+      ],
+      "id" : "wikimedia-130325628",
+      "probability_l1_distance" : 0.006376563318156059,
+      "probability_maximum_absolute_error" : 0.002571776509284973,
+      "source_top1" : "crane",
+      "source_top5" : [
+        "crane",
+        "lumbermill, sawmill",
+        "container ship, containership, container vessel",
+        "harvester, reaper",
+        "forklift"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "lumbermill, sawmill",
+      "full_array_top5" : [
+        "lumbermill, sawmill",
+        "trailer truck, tractor trailer, trucking rig, rig, articulated lorry, semi",
+        "container ship, containership, container vessel",
+        "mountain tent",
+        "bobsled, bobsleigh, bob"
+      ],
+      "id" : "wikimedia-130325636",
+      "probability_l1_distance" : 0.011517272177115956,
+      "probability_maximum_absolute_error" : 0.002408526837825775,
+      "source_top1" : "lumbermill, sawmill",
+      "source_top5" : [
+        "lumbermill, sawmill",
+        "trailer truck, tractor trailer, trucking rig, rig, articulated lorry, semi",
+        "container ship, containership, container vessel",
+        "mountain tent",
+        "bobsled, bobsleigh, bob"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "matchstick",
+      "full_array_top5" : [
+        "matchstick",
+        "nematode, nematode worm, roundworm",
+        "lighter, light, igniter, ignitor",
+        "digital clock",
+        "spotlight, spot"
+      ],
+      "id" : "stress-00",
+      "probability_l1_distance" : 0.01622854328888934,
+      "probability_maximum_absolute_error" : 0.0008463375270366669,
+      "source_top1" : "matchstick",
+      "source_top5" : [
+        "matchstick",
+        "nematode, nematode worm, roundworm",
+        "lighter, light, igniter, ignitor",
+        "digital clock",
+        "spotlight, spot"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "envelope",
+      "full_array_top5" : [
+        "envelope",
+        "corkscrew, bottle screw",
+        "screw",
+        "ballpoint, ballpoint pen, ballpen, Biro",
+        "can opener, tin opener"
+      ],
+      "id" : "stress-01",
+      "probability_l1_distance" : 0.00868204805010464,
+      "probability_maximum_absolute_error" : 0.00027638673782348633,
+      "source_top1" : "envelope",
+      "source_top5" : [
+        "envelope",
+        "corkscrew, bottle screw",
+        "screw",
+        "ballpoint, ballpoint pen, ballpen, Biro",
+        "can opener, tin opener"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "nematode, nematode worm, roundworm",
+      "full_array_top5" : [
+        "nematode, nematode worm, roundworm",
+        "table lamp",
+        "matchstick",
+        "hatchet",
+        "spatula"
+      ],
+      "id" : "stress-02",
+      "probability_l1_distance" : 0.013561803520133253,
+      "probability_maximum_absolute_error" : 0.0003274679183959961,
+      "source_top1" : "nematode, nematode worm, roundworm",
+      "source_top5" : [
+        "nematode, nematode worm, roundworm",
+        "matchstick",
+        "table lamp",
+        "hatchet",
+        "spatula"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "theater curtain, theatre curtain",
+      "full_array_top5" : [
+        "theater curtain, theatre curtain",
+        "envelope",
+        "hourglass",
+        "lipstick, lip rouge",
+        "velvet"
+      ],
+      "id" : "stress-03",
+      "probability_l1_distance" : 0.011885118165082531,
+      "probability_maximum_absolute_error" : 0.0007361546158790588,
+      "source_top1" : "theater curtain, theatre curtain",
+      "source_top5" : [
+        "theater curtain, theatre curtain",
+        "envelope",
+        "hourglass",
+        "lipstick, lip rouge",
+        "velvet"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "nematode, nematode worm, roundworm",
+      "full_array_top5" : [
+        "nematode, nematode worm, roundworm",
+        "whistle",
+        "binder, ring-binder",
+        "cleaver, meat cleaver, chopper",
+        "can opener, tin opener"
+      ],
+      "id" : "stress-04",
+      "probability_l1_distance" : 0.01235070903567248,
+      "probability_maximum_absolute_error" : 0.0007046908140182495,
+      "source_top1" : "nematode, nematode worm, roundworm",
+      "source_top5" : [
+        "nematode, nematode worm, roundworm",
+        "whistle",
+        "binder, ring-binder",
+        "can opener, tin opener",
+        "cleaver, meat cleaver, chopper"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "jellyfish",
+      "full_array_top5" : [
+        "jellyfish",
+        "parachute, chute",
+        "hammerhead, hammerhead shark",
+        "matchstick",
+        "wing"
+      ],
+      "id" : "stress-05",
+      "probability_l1_distance" : 0.03553453107269888,
+      "probability_maximum_absolute_error" : 0.012372240424156189,
+      "source_top1" : "jellyfish",
+      "source_top5" : [
+        "jellyfish",
+        "parachute, chute",
+        "hammerhead, hammerhead shark",
+        "matchstick",
+        "space shuttle"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : false
+    },
+    {
+      "full_array_top1" : "jellyfish",
+      "full_array_top5" : [
+        "jellyfish",
+        "hook, claw",
+        "web site, website, internet site, site",
+        "barbell",
+        "dugong, Dugong dugon"
+      ],
+      "id" : "stress-06",
+      "probability_l1_distance" : 0.015793523118190933,
+      "probability_maximum_absolute_error" : 0.0003791367635130882,
+      "source_top1" : "jellyfish",
+      "source_top5" : [
+        "jellyfish",
+        "hook, claw",
+        "web site, website, internet site, site",
+        "barbell",
+        "dugong, Dugong dugon"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "cleaver, meat cleaver, chopper",
+      "full_array_top5" : [
+        "cleaver, meat cleaver, chopper",
+        "whistle",
+        "hatchet",
+        "can opener, tin opener",
+        "table lamp"
+      ],
+      "id" : "stress-07",
+      "probability_l1_distance" : 0.02554404270995292,
+      "probability_maximum_absolute_error" : 0.0009126290678977966,
+      "source_top1" : "cleaver, meat cleaver, chopper",
+      "source_top5" : [
+        "cleaver, meat cleaver, chopper",
+        "whistle",
+        "hatchet",
+        "can opener, tin opener",
+        "letter opener, paper knife, paperknife"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : false
+    },
+    {
+      "full_array_top1" : "whistle",
+      "full_array_top5" : [
+        "whistle",
+        "envelope",
+        "can opener, tin opener",
+        "cleaver, meat cleaver, chopper",
+        "hatchet"
+      ],
+      "id" : "stress-08",
+      "probability_l1_distance" : 0.00799483872106066,
+      "probability_maximum_absolute_error" : 0.00023375265300273895,
+      "source_top1" : "whistle",
+      "source_top5" : [
+        "whistle",
+        "envelope",
+        "can opener, tin opener",
+        "cleaver, meat cleaver, chopper",
+        "corkscrew, bottle screw"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : false
+    },
+    {
+      "full_array_top1" : "dishwasher, dish washer, dishwashing machine",
+      "full_array_top5" : [
+        "dishwasher, dish washer, dishwashing machine",
+        "beaker",
+        "milk can",
+        "oil filter",
+        "cocktail shaker"
+      ],
+      "id" : "stress-09",
+      "probability_l1_distance" : 0.04599197721336168,
+      "probability_maximum_absolute_error" : 0.014868199825286865,
+      "source_top1" : "dishwasher, dish washer, dishwashing machine",
+      "source_top5" : [
+        "dishwasher, dish washer, dishwashing machine",
+        "beaker",
+        "milk can",
+        "oil filter",
+        "cocktail shaker"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "web site, website, internet site, site",
+      "full_array_top5" : [
+        "web site, website, internet site, site",
+        "envelope",
+        "digital clock",
+        "oscilloscope, scope, cathode-ray oscilloscope, CRO",
+        "analog clock"
+      ],
+      "id" : "stress-10",
+      "probability_l1_distance" : 0.009781979488252546,
+      "probability_maximum_absolute_error" : 0.0006875619292259216,
+      "source_top1" : "web site, website, internet site, site",
+      "source_top5" : [
+        "web site, website, internet site, site",
+        "envelope",
+        "digital clock",
+        "oscilloscope, scope, cathode-ray oscilloscope, CRO",
+        "analog clock"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "binder, ring-binder",
+      "full_array_top5" : [
+        "binder, ring-binder",
+        "combination lock",
+        "hourglass",
+        "analog clock",
+        "whistle"
+      ],
+      "id" : "stress-11",
+      "probability_l1_distance" : 0.013966229998004565,
+      "probability_maximum_absolute_error" : 0.0018773861229419708,
+      "source_top1" : "binder, ring-binder",
+      "source_top5" : [
+        "binder, ring-binder",
+        "combination lock",
+        "hourglass",
+        "analog clock",
+        "switch, electric switch, electrical switch"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : false
+    },
+    {
+      "full_array_top1" : "binder, ring-binder",
+      "full_array_top5" : [
+        "binder, ring-binder",
+        "pool table, billiard table, snooker table",
+        "whistle",
+        "spotlight, spot",
+        "wall clock"
+      ],
+      "id" : "stress-12",
+      "probability_l1_distance" : 0.01846031933609993,
+      "probability_maximum_absolute_error" : 0.003437519073486328,
+      "source_top1" : "binder, ring-binder",
+      "source_top5" : [
+        "binder, ring-binder",
+        "pool table, billiard table, snooker table",
+        "whistle",
+        "spotlight, spot",
+        "wall clock"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "digital clock",
+      "full_array_top5" : [
+        "digital clock",
+        "wool, woolen, woollen",
+        "pole",
+        "wall clock",
+        "paintbrush"
+      ],
+      "id" : "stress-13",
+      "probability_l1_distance" : 0.02289865616944553,
+      "probability_maximum_absolute_error" : 0.00209931842982769,
+      "source_top1" : "digital clock",
+      "source_top5" : [
+        "digital clock",
+        "wool, woolen, woollen",
+        "paintbrush",
+        "pole",
+        "wall clock"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "strainer",
+      "full_array_top5" : [
+        "strainer",
+        "window screen",
+        "shower curtain",
+        "honeycomb",
+        "bib"
+      ],
+      "id" : "stress-14",
+      "probability_l1_distance" : 0.012839609874674807,
+      "probability_maximum_absolute_error" : 0.006107747554779053,
+      "source_top1" : "strainer",
+      "source_top5" : [
+        "strainer",
+        "window screen",
+        "shower curtain",
+        "honeycomb",
+        "bib"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "shower curtain",
+      "full_array_top5" : [
+        "shower curtain",
+        "bib",
+        "rule, ruler",
+        "web site, website, internet site, site",
+        "nail"
+      ],
+      "id" : "stress-15",
+      "probability_l1_distance" : 0.01613334066837524,
+      "probability_maximum_absolute_error" : 0.001305246725678444,
+      "source_top1" : "shower curtain",
+      "source_top5" : [
+        "shower curtain",
+        "bib",
+        "rule, ruler",
+        "web site, website, internet site, site",
+        "nail"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "matchstick",
+      "full_array_top5" : [
+        "matchstick",
+        "nematode, nematode worm, roundworm",
+        "lighter, light, igniter, ignitor",
+        "spotlight, spot",
+        "digital clock"
+      ],
+      "id" : "stress-16",
+      "probability_l1_distance" : 0.017103967860748526,
+      "probability_maximum_absolute_error" : 0.0014233104884624481,
+      "source_top1" : "matchstick",
+      "source_top5" : [
+        "matchstick",
+        "nematode, nematode worm, roundworm",
+        "lighter, light, igniter, ignitor",
+        "spotlight, spot",
+        "digital clock"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "matchstick",
+      "full_array_top5" : [
+        "matchstick",
+        "nematode, nematode worm, roundworm",
+        "spotlight, spot",
+        "lighter, light, igniter, ignitor",
+        "digital clock"
+      ],
+      "id" : "stress-17",
+      "probability_l1_distance" : 0.01934777503629448,
+      "probability_maximum_absolute_error" : 0.0022272616624832153,
+      "source_top1" : "matchstick",
+      "source_top5" : [
+        "matchstick",
+        "nematode, nematode worm, roundworm",
+        "spotlight, spot",
+        "lighter, light, igniter, ignitor",
+        "digital clock"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "jellyfish",
+      "full_array_top5" : [
+        "jellyfish",
+        "matchstick",
+        "parachute, chute",
+        "space shuttle",
+        "chambered nautilus, pearly nautilus, nautilus"
+      ],
+      "id" : "stress-18",
+      "probability_l1_distance" : 0.03441674846180831,
+      "probability_maximum_absolute_error" : 0.008510172367095947,
+      "source_top1" : "jellyfish",
+      "source_top5" : [
+        "jellyfish",
+        "matchstick",
+        "parachute, chute",
+        "space shuttle",
+        "chambered nautilus, pearly nautilus, nautilus"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "envelope",
+      "full_array_top5" : [
+        "envelope",
+        "cleaver, meat cleaver, chopper",
+        "hatchet",
+        "hook, claw",
+        "nematode, nematode worm, roundworm"
+      ],
+      "id" : "stress-19",
+      "probability_l1_distance" : 0.017541434099257458,
+      "probability_maximum_absolute_error" : 0.0013120025396347046,
+      "source_top1" : "envelope",
+      "source_top5" : [
+        "envelope",
+        "cleaver, meat cleaver, chopper",
+        "hatchet",
+        "nematode, nematode worm, roundworm",
+        "hook, claw"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "spotlight, spot",
+      "full_array_top5" : [
+        "spotlight, spot",
+        "theater curtain, theatre curtain",
+        "fire screen, fireguard",
+        "screen, CRT screen",
+        "window screen"
+      ],
+      "id" : "stress-20",
+      "probability_l1_distance" : 0.010715559126310836,
+      "probability_maximum_absolute_error" : 0.0015854090452194214,
+      "source_top1" : "spotlight, spot",
+      "source_top5" : [
+        "spotlight, spot",
+        "theater curtain, theatre curtain",
+        "fire screen, fireguard",
+        "screen, CRT screen",
+        "shower curtain"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : false
+    },
+    {
+      "full_array_top1" : "window screen",
+      "full_array_top5" : [
+        "window screen",
+        "fire screen, fireguard",
+        "loudspeaker, speaker, speaker unit, loudspeaker system, speaker system",
+        "lacewing, lacewing fly",
+        "strainer"
+      ],
+      "id" : "stress-21",
+      "probability_l1_distance" : 0.020177585093051675,
+      "probability_maximum_absolute_error" : 0.008912831544876099,
+      "source_top1" : "window screen",
+      "source_top5" : [
+        "window screen",
+        "fire screen, fireguard",
+        "loudspeaker, speaker, speaker unit, loudspeaker system, speaker system",
+        "lacewing, lacewing fly",
+        "strainer"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "apron",
+      "full_array_top5" : [
+        "apron",
+        "dishrag, dishcloth",
+        "tray",
+        "poncho",
+        "bib"
+      ],
+      "id" : "stress-22",
+      "probability_l1_distance" : 0.005501692217876553,
+      "probability_maximum_absolute_error" : 0.0010193586349487305,
+      "source_top1" : "apron",
+      "source_top5" : [
+        "apron",
+        "dishrag, dishcloth",
+        "tray",
+        "poncho",
+        "bib"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "spotlight, spot",
+      "full_array_top5" : [
+        "spotlight, spot",
+        "envelope",
+        "web site, website, internet site, site",
+        "microphone, mike",
+        "hook, claw"
+      ],
+      "id" : "stress-23",
+      "probability_l1_distance" : 0.0147214772314328,
+      "probability_maximum_absolute_error" : 0.0016384348273277283,
+      "source_top1" : "spotlight, spot",
+      "source_top5" : [
+        "spotlight, spot",
+        "web site, website, internet site, site",
+        "envelope",
+        "microphone, mike",
+        "hook, claw"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "Windsor tie",
+      "full_array_top5" : [
+        "Windsor tie",
+        "shopping basket",
+        "binder, ring-binder",
+        "wall clock",
+        "doormat, welcome mat"
+      ],
+      "id" : "stress-24",
+      "probability_l1_distance" : 0.020076173536835995,
+      "probability_maximum_absolute_error" : 0.0046329498291015625,
+      "source_top1" : "Windsor tie",
+      "source_top5" : [
+        "Windsor tie",
+        "shopping basket",
+        "binder, ring-binder",
+        "wall clock",
+        "doormat, welcome mat"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "shovel",
+      "full_array_top5" : [
+        "shovel",
+        "swab, swob, mop",
+        "doormat, welcome mat",
+        "spotlight, spot",
+        "oil filter"
+      ],
+      "id" : "stress-25",
+      "probability_l1_distance" : 0.011419962330364797,
+      "probability_maximum_absolute_error" : 0.000786932185292244,
+      "source_top1" : "shovel",
+      "source_top5" : [
+        "shovel",
+        "swab, swob, mop",
+        "spotlight, spot",
+        "doormat, welcome mat",
+        "oil filter"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "spotlight, spot",
+      "full_array_top5" : [
+        "spotlight, spot",
+        "space heater",
+        "digital clock",
+        "fire screen, fireguard",
+        "oscilloscope, scope, cathode-ray oscilloscope, CRO"
+      ],
+      "id" : "stress-26",
+      "probability_l1_distance" : 0.006215044968229222,
+      "probability_maximum_absolute_error" : 0.002593010663986206,
+      "source_top1" : "spotlight, spot",
+      "source_top5" : [
+        "spotlight, spot",
+        "space heater",
+        "digital clock",
+        "fire screen, fireguard",
+        "oscilloscope, scope, cathode-ray oscilloscope, CRO"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "cleaver, meat cleaver, chopper",
+      "full_array_top5" : [
+        "cleaver, meat cleaver, chopper",
+        "envelope",
+        "web site, website, internet site, site",
+        "binder, ring-binder",
+        "can opener, tin opener"
+      ],
+      "id" : "stress-27",
+      "probability_l1_distance" : 0.01889462625149463,
+      "probability_maximum_absolute_error" : 0.0019071735441684723,
+      "source_top1" : "cleaver, meat cleaver, chopper",
+      "source_top5" : [
+        "cleaver, meat cleaver, chopper",
+        "envelope",
+        "web site, website, internet site, site",
+        "binder, ring-binder",
+        "can opener, tin opener"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "analog clock",
+      "full_array_top5" : [
+        "analog clock",
+        "tennis ball",
+        "balloon",
+        "rubber eraser, rubber, pencil eraser",
+        "candle, taper, wax light"
+      ],
+      "id" : "stress-28",
+      "probability_l1_distance" : 0.00800991010191865,
+      "probability_maximum_absolute_error" : 0.0015202909708023071,
+      "source_top1" : "analog clock",
+      "source_top5" : [
+        "analog clock",
+        "tennis ball",
+        "balloon",
+        "rubber eraser, rubber, pencil eraser",
+        "candle, taper, wax light"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "envelope",
+      "full_array_top5" : [
+        "envelope",
+        "tray",
+        "shoji",
+        "book jacket, dust cover, dust jacket, dust wrapper",
+        "cellular telephone, cellular phone, cellphone, cell, mobile phone"
+      ],
+      "id" : "stress-29",
+      "probability_l1_distance" : 0.005998386096962349,
+      "probability_maximum_absolute_error" : 0.00032866746187210083,
+      "source_top1" : "envelope",
+      "source_top5" : [
+        "envelope",
+        "tray",
+        "shoji",
+        "book jacket, dust cover, dust jacket, dust wrapper",
+        "cellular telephone, cellular phone, cellphone, cell, mobile phone"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "web site, website, internet site, site",
+      "full_array_top5" : [
+        "web site, website, internet site, site",
+        "lighter, light, igniter, ignitor",
+        "envelope",
+        "binder, ring-binder",
+        "theater curtain, theatre curtain"
+      ],
+      "id" : "stress-30",
+      "probability_l1_distance" : 0.014757409257981635,
+      "probability_maximum_absolute_error" : 0.0017426609992980957,
+      "source_top1" : "web site, website, internet site, site",
+      "source_top5" : [
+        "web site, website, internet site, site",
+        "lighter, light, igniter, ignitor",
+        "envelope",
+        "binder, ring-binder",
+        "theater curtain, theatre curtain"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    },
+    {
+      "full_array_top1" : "bib",
+      "full_array_top5" : [
+        "bib",
+        "honeycomb",
+        "tray",
+        "purse",
+        "shower curtain"
+      ],
+      "id" : "stress-31",
+      "probability_l1_distance" : 0.01616070323848362,
+      "probability_maximum_absolute_error" : 0.004964679479598999,
+      "source_top1" : "bib",
+      "source_top5" : [
+        "bib",
+        "honeycomb",
+        "tray",
+        "purse",
+        "shower curtain"
+      ],
+      "top1_match" : true,
+      "top5_set_match" : true
+    }
+  ],
+  "schema_version" : 1,
+  "source_model_sha256" : "cb5a35f593582232140556bbfa4618e66b37b8ff2fc33ba17db909e1050fd144",
+  "source_model_url" : "https:\/\/ml-assets.apple.com\/coreml\/models\/Image\/ImageClassification\/MobileNetV2\/MobileNetV2.mlmodel",
+  "status" : "PASS",
+  "thresholds" : {
+    "real_image_top5_set_agreement" : 0.995,
+    "top1_agreement" : 0.995
+  },
+  "tool_versions" : {
+    "coremltools" : "9.0",
+    "swift" : "unknown",
+    "xcode" : "unknown"
+  },
+  "top1_agreement" : 1,
+  "top5_set_agreement" : 0.921875
+}

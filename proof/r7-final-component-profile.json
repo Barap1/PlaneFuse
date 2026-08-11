@@ -1,0 +1,184 @@
+{
+  "commit" : "8bea11d3e71257723dfdbb355e95ac0413e438f4",
+  "environment" : {
+    "architecture" : "arm64",
+    "build_configuration" : "release",
+    "operating_system" : "Version 26.6.1 (Build 25G76)",
+    "swift_version" : "Apple Swift version 6.3.3 (swiftlang-6.3.3.1.3 clang-2100.1.1.101)",
+    "xcode_version" : "Xcode 26.6"
+  },
+  "measurement" : {
+    "configuration" : {
+      "measured_iterations" : 20,
+      "warmup_iterations" : 5
+    },
+    "device_class" : "AGXG17SDevice",
+    "device_name" : "Apple M5 Pro",
+    "max_activation_absolute_difference" : 8.58306884765625e-06,
+    "methodology" : "R1 component isolation: B conversion and RGB stem are submitted separately to expose direct regions; C native stem uses one submission. Both paths then use the same MLMultiArray tail with allocation, population, prediction, and output extraction timed separately. These isolated regions are diagnostic and are not substituted for the paired one-submission headline benchmark.",
+    "pipeline_b" : {
+      "activation_buffer_to_swift_array" : {
+        "mean_milliseconds" : 0.060891665998497047,
+        "median_absolute_deviation_milliseconds" : 0.008916664228308946,
+        "p50_milliseconds" : 0.06179166666697711,
+        "p95_milliseconds" : 0.07324999751290306
+      },
+      "gpu_execution" : {
+        "mean_milliseconds" : 1.3721541672566673,
+        "median_absolute_deviation_milliseconds" : 0.039083326555555686,
+        "p50_milliseconds" : 1.2877083318016957,
+        "p95_milliseconds" : 1.768791666108882
+      },
+      "gpu_wait" : {
+        "mean_milliseconds" : 2.438772916866583,
+        "median_absolute_deviation_milliseconds" : 0.08920833352021873,
+        "p50_milliseconds" : 2.411541667243,
+        "p95_milliseconds" : 2.9312083279364742
+      },
+      "input_ready_to_result" : {
+        "mean_milliseconds" : 80.95967291610577,
+        "median_absolute_deviation_milliseconds" : 0.4980416670150589,
+        "p50_milliseconds" : 81.25516666768817,
+        "p95_milliseconds" : 82.07616666550166
+      },
+      "input_texture_creation" : {
+        "mean_milliseconds" : 0.0725583333405666,
+        "median_absolute_deviation_milliseconds" : 0.0025833323888946325,
+        "p50_milliseconds" : 0.07137500142562203,
+        "p95_milliseconds" : 0.08333333244081587
+      },
+      "multi_array_allocation" : {
+        "mean_milliseconds" : 0.004602083936333656,
+        "median_absolute_deviation_milliseconds" : 0.0002916676749009639,
+        "p50_milliseconds" : 0.004333334800321609,
+        "p95_milliseconds" : 0.006166668754303828
+      },
+      "multi_array_population" : {
+        "mean_milliseconds" : 76.46005208298448,
+        "median_absolute_deviation_milliseconds" : 0.457458332675742,
+        "p50_milliseconds" : 76.66558333221474,
+        "p95_milliseconds" : 77.41249999889988
+      },
+      "output_extraction" : {
+        "mean_milliseconds" : 0.863454166574229,
+        "median_absolute_deviation_milliseconds" : 0.013999997463542968,
+        "p50_milliseconds" : 0.8621666675026063,
+        "p95_milliseconds" : 0.8867083306540735
+      },
+      "rgb_conversion" : {
+        "mean_milliseconds" : 0.6541291666508187,
+        "median_absolute_deviation_milliseconds" : 0.07695833119214512,
+        "p50_milliseconds" : 0.6593750003958121,
+        "p95_milliseconds" : 0.7877083335188217
+      },
+      "rgb_stem" : {
+        "mean_milliseconds" : 1.8209104166089674,
+        "median_absolute_deviation_milliseconds" : 0.1871249987743795,
+        "p50_milliseconds" : 1.7980833326873835,
+        "p95_milliseconds" : 2.338333331863396
+      },
+      "tail_prediction" : {
+        "mean_milliseconds" : 1.0767916670374689,
+        "median_absolute_deviation_milliseconds" : 0.03479166480246931,
+        "p50_milliseconds" : 1.0774583352031186,
+        "p95_milliseconds" : 1.1494166683405638
+      },
+      "total_including_input_preparation" : {
+        "mean_milliseconds" : 81.03223124944634,
+        "median_absolute_deviation_milliseconds" : 0.49883333485922776,
+        "p50_milliseconds" : 81.32870833651396,
+        "p95_milliseconds" : 82.14754166692728
+      }
+    },
+    "pipeline_c" : {
+      "activation_buffer_to_swift_array" : {
+        "mean_milliseconds" : 0.061156250012572855,
+        "median_absolute_deviation_milliseconds" : 0.010249998013023287,
+        "p50_milliseconds" : 0.062250001064967364,
+        "p95_milliseconds" : 0.0731250001990702
+      },
+      "gpu_execution" : {
+        "mean_milliseconds" : 0.2422541669147904,
+        "median_absolute_deviation_milliseconds" : 0.00120833283290267,
+        "p50_milliseconds" : 0.2415000017208513,
+        "p95_milliseconds" : 0.24679166745045222
+      },
+      "gpu_wait" : {
+        "mean_milliseconds" : 0.860739583731629,
+        "median_absolute_deviation_milliseconds" : 0.0497083346999716,
+        "p50_milliseconds" : 0.8627083334431518,
+        "p95_milliseconds" : 0.9475000006204937
+      },
+      "input_ready_to_result" : {
+        "mean_milliseconds" : 79.54438750002737,
+        "median_absolute_deviation_milliseconds" : 0.35708333234651946,
+        "p50_milliseconds" : 79.7777916668565,
+        "p95_milliseconds" : 80.89712499713642
+      },
+      "input_texture_creation" : {
+        "mean_milliseconds" : 0.0725583333405666,
+        "median_absolute_deviation_milliseconds" : 0.0025833323888946325,
+        "p50_milliseconds" : 0.07137500142562203,
+        "p95_milliseconds" : 0.08333333244081587
+      },
+      "multi_array_allocation" : {
+        "mean_milliseconds" : 0.003579166150302626,
+        "median_absolute_deviation_milliseconds" : 0.000708332663634792,
+        "p50_milliseconds" : 0.003749999450519681,
+        "p95_milliseconds" : 0.004500001523410901
+      },
+      "multi_array_population" : {
+        "mean_milliseconds" : 76.62876458325627,
+        "median_absolute_deviation_milliseconds" : 0.2413749971310608,
+        "p50_milliseconds" : 76.82354166536243,
+        "p95_milliseconds" : 77.97112499974901
+      },
+      "native_stem" : {
+        "mean_milliseconds" : 0.8808479167782934,
+        "median_absolute_deviation_milliseconds" : 0.04995833296561614,
+        "p50_milliseconds" : 0.8802499978628475,
+        "p95_milliseconds" : 0.9702083334559575
+      },
+      "output_extraction" : {
+        "mean_milliseconds" : 0.8623854162578937,
+        "median_absolute_deviation_milliseconds" : 0.00854166501085274,
+        "p50_milliseconds" : 0.8621249980933499,
+        "p95_milliseconds" : 0.8856666645442601
+      },
+      "tail_prediction" : {
+        "mean_milliseconds" : 1.0938979170532548,
+        "median_absolute_deviation_milliseconds" : 0.03537500379025005,
+        "p50_milliseconds" : 1.0797083341458347,
+        "p95_milliseconds" : 1.1578750018088613
+      },
+      "total_including_input_preparation" : {
+        "mean_milliseconds" : 79.61694583336794,
+        "median_absolute_deviation_milliseconds" : 0.3605416641221382,
+        "p50_milliseconds" : 79.85133333568228,
+        "p95_milliseconds" : 80.97262499723001
+      }
+    },
+    "schema_version" : 1,
+    "top1_agreement" : 1,
+    "validation_sample_count" : 20
+  },
+  "model" : {
+    "activation_shape" : [
+      48,
+      112,
+      112
+    ],
+    "derived_manifest" : "models\/derived\/manifest.json",
+    "model_identifier" : "Apple MobileNetV2 ImageNet",
+    "padding_mode" : "sameBottomRight",
+    "source_model_file" : "MobileNetV2.mlmodel",
+    "source_sha256" : "cb5a35f593582232140556bbfa4618e66b37b8ff2fc33ba17db909e1050fd144",
+    "source_url" : "https:\/\/developer.apple.com\/machine-learning\/models\/?q=MobileNetV2",
+    "tail_input_name" : "planefuse_mobilenetv2_stem_features",
+    "tail_model_directory" : "models\/derived\/tail-compiled\/MobileNetV2Tail.mlmodelc",
+    "tail_output_name" : "classLabelProbs",
+    "validation_corpus_manifest" : "proof\/m5-validation-corpus.json"
+  },
+  "schema_version" : 1,
+  "status" : "mobilenetv2_component_profile"
+}

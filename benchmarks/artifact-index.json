@@ -49,6 +49,8 @@
     "r6.5-camera-space.json": "ACCEPTED",
     "r7-final-component-profile.json": "EXPERIMENTAL",
     "r7-final-b2-c1-shared.json": "ACCEPTED",
-    "r7-final-pipeline-a.json": "ACCEPTED"
+    "r7-final-b2-c1-shared-current.json": "ACCEPTED",
+    "r7-final-pipeline-a.json": "ACCEPTED",
+    "r7-final-pipeline-a-current.json": "ACCEPTED"
   }
 }
