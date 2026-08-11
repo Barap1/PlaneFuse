@@ -1,80 +1,47 @@
 # Final submission checklist
 
-Do not use this until M10, but keep requirements visible.
+This is an internal release checklist. A checked item means the repository has
+evidence for it; it does not authorize external publication.
 
-## PlaneFuse Phase 2 hardening snapshot
+## Complete in the repository
 
-The following are local evidence only and are not external submission approval:
+- [x] Swift/Metal source, tests, `Package.swift`, and MIT license.
+- [x] Reproducible `doctor`, `setup`, `inspect`, `compile`, `verify`, `bench`,
+  `evidence`, and `live` command paths documented honestly.
+- [x] Final R7.5 evidence, fixed 64-input corpus, profiler export, A/B/C matrix,
+  and independent Sol SHIP review.
+- [x] T1 passed; T2/T3 not met or established; T4 not invoked.
+- [x] Claims ledger, final README, architecture guide, judge evidence page, and
+  third-party notices are synchronized.
+- [x] PlaneFuse Live app implementation with LIVE/STORED separation, precise
+  timing boundaries, camera failure state, and Release launch path.
+- [x] Negative results and limitations remain visible; no universal claim.
+- [x] Current-tree privacy scan and publication plan.
+- [x] Clean-clone release validation artifact and release-history checker.
+- [x] Repository hygiene audit and comprehensive ignore rules.
 
-- [x] Real Apple MobileNetV2/ImageNet B/C proof and two accepted 100-iteration confirmations.
-- [x] Current-state confirmation and machine-readable final matrix committed.
-- [x] M1–M11 technical evidence index and claims ledger synchronized.
-- [x] Arm64/local Metal + Core ML path and reproducible CLI workflow.
-- [x] Camera adapter captures native NV12 and refuses to fabricate metrics when permission/assets are unavailable.
-- [x] R0 one-frame physical-camera smoke on a permitted device.
-- [x] R8 judge-facing PlaneFuse Live dashboard shell with live/stored separation.
-- [ ] R6/R8 continuous physical-camera video capture (human-permitted session required).
-- [x] R0 expanded 32-input corpus, direct source-image lineage, and artifact classification.
-- [x] R0 clean-clone validation artifact.
-- [ ] Public repository approval and push.
-- [ ] External hackathon submission.
+## Automated gates to run at final code state
 
-## Repository
+- [ ] `./scripts/release_validate.sh` on the final release candidate.
+- [ ] `./pf doctor`, `./pf inspect mobilenetv2`, `./pf verify`,
+  `./pf verify lineage`, `./pf bench quick`, and `./pf live --sample`.
+- [ ] Full tests and all evidence checkers listed in `FINAL_RELEASE_HANDOFF.md`.
+- [ ] Final clean-clone PASS bound to the final release commit.
 
-- [ ] Public GitHub repository approved by user.
-- [ ] MIT license visible.
-- [ ] No secrets/personal machine identifiers.
-- [ ] Source required to build/run is present.
-- [x] Third-party model/code notices documented.
-- [x] Clean-clone build instructions tested; `proof/r0-clean-clone.json` is PASS.
-- [ ] >=20 meaningful Conventional Commits.
-- [ ] `./scripts/check_git_history.sh --release` passes.
+## Human remaining
 
-## Technical proof
+- [ ] Run `./pf live --app` and visually inspect final dashboard on the intended
+  Apple-Silicon machine; grant camera permission if desired.
+- [ ] Capture approved screenshots and a 2:30–2:45 video.
+- [ ] Choose and execute the privacy-safe public-history strategy in
+  [`docs/PUBLICATION_PLAN.md`](docs/PUBLICATION_PLAN.md).
+- [ ] Make the sanitized final release branch/tree the GitHub default `main`.
+- [ ] Change repository visibility only after fresh-clone/incognito verification.
+- [ ] Upload the approved video and submit Devpost.
 
-- [x] Pipeline A definition.
-- [x] Optimized Pipeline B definition.
-- [x] PlaneFuse Pipeline C definition, including C1-SR.
-- [x] Same-work benchmark conditions.
-- [x] Raw final result files committed.
-- [x] Correctness/parity report.
-- [x] Allocation/no-RGB evidence.
-- [ ] Bandwidth evidence only if actually measured.
-- [ ] Power/energy claim only if actually measured.
-- [x] System metadata without PII in committed current-tree exports; publication history blocker remains.
-- [x] Profiler event export and reproducible capture command; screenshots remain capture work.
+## Do not claim
 
-## Developer experience
-
-- [ ] 5-minute-or-less quickstart for supported example.
-- [ ] inspect/compile/verify/bench workflow documented.
-- [ ] clear unsupported-format/model behavior.
-- [ ] expected output shown.
-
-## Devpost write-up
-
-- [ ] Project overview and purpose.
-- [ ] Why it is interesting/should win.
-- [ ] Functionality/output.
-- [ ] Step-by-step build/run/validate on Arm device.
-- [ ] Explicit Mobile AI track alignment.
-- [ ] Clear before -> technical change -> after story.
-- [ ] Reusable developer impact.
-- [ ] Limitations stated precisely.
-
-## Video
-
-- [ ] Under 3 minutes; target 2:30-2:40.
-- [ ] Shows project operating on intended Apple-Silicon device.
-- [ ] First 15 seconds explain the value.
-- [ ] Actual A/B result shown.
-- [ ] Quality/parity shown.
-- [ ] Native-plane architecture explained simply.
-- [ ] No unlicensed music/assets/trademarks used improperly.
-- [ ] Public upload approved by user.
-
-## Claims
-
-- [x] Every quantitative claim in README/Devpost draft exists as VERIFIED/QUALIFIED in `CLAIMS.md`; see `proof/reviews/R9-CLAIMS-AUDIT-20260811.md`.
-- [ ] No "world first" or novelty claim without real prior-art support.
-- [ ] No generic Apple performance claim extrapolated from one device/model.
+- [ ] Do not claim continuous camera throughput from the comparison-loop FPS.
+- [ ] Do not claim a current physical-camera result after a zero-callback run.
+- [ ] Do not claim power, bandwidth, universal model coverage, or Apple-wide
+  performance.

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "r7_repaired_selection_matrix_pending_hostile_review",
+  "status": "historical_r7_selection_matrix_superseded_by_accepted_r7_5",
   "rows": [
     {
       "id": "A",
@@ -39,8 +39,8 @@
       "bridge_class": "persistent BufferBackedMultiArray(dataPointer:) shared activation",
       "tail_configuration": "same Core ML MobileNetV2 tail, MLComputeUnits.all",
       "authoritative_evidence": "proof/r7-final-b2-c1-shared-repaired-conditions.json; proof/r7-final-shared-path-profile-repaired-conditions.json",
-      "result": "condition-complete repaired p50 1.595167 ms; pending hostile re-review",
-      "disposition": "strongest-credible-matched-B-pending-review",
+      "result": "historical condition-complete repaired p50 1.595167 ms",
+      "disposition": "strongest-credible-matched-B-historical",
       "eligible_for_final_matched_comparison": true,
       "reason": "Strongest fair conventional RGB baseline under the repaired five-process protocol."
     },
@@ -67,8 +67,8 @@
       "bridge_class": "persistent BufferBackedMultiArray(dataPointer:) shared activation",
       "tail_configuration": "same Core ML MobileNetV2 tail, MLComputeUnits.all",
       "authoritative_evidence": "proof/r7-final-b2-c1-shared-repaired-conditions.json; proof/r7-final-shared-path-profile-repaired-conditions.json",
-      "result": "condition-complete repaired p50 1.561417 ms; pending hostile re-review",
-      "disposition": "strongest-accepted-stable-C-pending-review",
+      "result": "historical condition-complete repaired p50 1.561417 ms",
+      "disposition": "strongest-stable-pre-r7-5-C-historical",
       "eligible_for_final_matched_comparison": true,
       "reason": "Accepted stable native-plane candidate, subject to repaired independent review."
     },
