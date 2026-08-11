@@ -58,7 +58,7 @@ report = {
     "branch": branch,
     "commit": commit,
     "elapsed_seconds": int(elapsed),
-    "log": str(Path(log_path).relative_to(Path.cwd())),
+    "log": "artifacts/logs/" + Path(log_path).name,
     "commands": [
         "./pf setup mobilenetv2",
         "python3 scripts/check_benchmark_index.py",
