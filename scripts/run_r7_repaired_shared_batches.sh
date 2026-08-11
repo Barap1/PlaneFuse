@@ -13,7 +13,10 @@ if [ -e "$OUT_DIR" ]; then
 fi
 mkdir -p "$OUT_DIR"
 
-offsets=(0 13 26 39 52)
+# Even offsets keep the explicit alternating order phase from flipping the
+# source/order parity relationship: every repeated sample appears in both
+# execution orders across the five batches.
+offsets=(0 12 24 36 48)
 for batch_index in 0 1 2 3 4; do
   output="$OUT_DIR/batch-$(printf '%02d' "$batch_index").json"
   PF_R7_BATCH_INDEX="$batch_index" \

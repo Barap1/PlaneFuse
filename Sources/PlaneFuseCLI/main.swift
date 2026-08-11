@@ -683,12 +683,12 @@ func runMobileNetV2DirectSharedBatch() throws -> Int32 {
     let url = URL(fileURLWithPath: outputPath)
     try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
     try JSONEncoder.benchmark.encode(artifact).write(to: url, options: .atomic)
-    emit("PlaneFuse bench MobileNetV2 repaired shared batch (batchIndex): RECORDED")
-    emit("result: (outputPath)")
-    emit("execution_identity: (artifact.executionIdentity)")
-    emit("warmups: (configuration.warmupIterations)")
-    emit("pairs: (measurement.rawPairedRecords.count)")
-    emit("order_phase: (configuration.orderPhase)")
+    emit("PlaneFuse bench MobileNetV2 repaired shared batch \(batchIndex): RECORDED")
+    emit("result: \(outputPath)")
+    emit("execution_identity: \(artifact.executionIdentity)")
+    emit("warmups: \(configuration.warmupIterations)")
+    emit("pairs: \(measurement.rawPairedRecords.count)")
+    emit("order_phase: \(configuration.orderPhase)")
     return 0
 }
 

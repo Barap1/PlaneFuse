@@ -112,11 +112,14 @@ def main() -> int:
     commits = {data["commit"] for _, data in artifacts}
     if commits != {args.expected_commit}:
         fail("batch commits are not identical")
-    source_ids = artifacts[0][1]["measurement"]["source_sample_ids"]
+    # Swift's convertToSnakeCase encodes the existing sourceSampleIDs field as
+    # source_sample_i_ds; preserve that established raw-artifact spelling.
+    source_key = "source_sample_i_ds"
+    source_ids = artifacts[0][1]["measurement"][source_key]
     if len(source_ids) != 64 or len(set(source_ids)) != 64:
         fail("fixed 64-input corpus provenance is missing")
     for _, data in artifacts[1:]:
-        if data["measurement"]["source_sample_ids"] != source_ids:
+        if data["measurement"][source_key] != source_ids:
             fail("batch corpus provenance differs")
 
     records: list[dict] = []
