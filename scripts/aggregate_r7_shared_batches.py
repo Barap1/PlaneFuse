@@ -148,7 +148,7 @@ def main() -> int:
         batch_executions.append({
             "batch_id": f"batch-{int(config['batch_index']):02d}",
             "execution_identity": data["execution_identity"],
-            "artifact": str(path),
+            "artifact": str(path.resolve().relative_to(Path(__file__).resolve().parents[1])),
             "warmup_iterations": config["warmup_iterations"],
             "measured_pairs": config["measured_pairs"],
             "source_offset": config["source_offset"],
