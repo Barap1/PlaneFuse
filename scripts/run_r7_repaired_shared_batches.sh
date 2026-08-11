@@ -17,14 +17,20 @@ mkdir -p "$OUT_DIR"
 # source/order parity relationship: every repeated sample appears in both
 # execution orders across the five batches.
 offsets=(0 12 24 36 48)
+ac_power_state="$(pmset -g batt | sed -n "s/.*'\\([^']*\\)'.*/\\1/p" | head -n 1)"
+low_power_mode="$(pmset -g custom | sed -n 's/^[[:space:]]*lowpowermode[[:space:]]*//p' | head -n 1)"
+if [[ "$ac_power_state" != "AC Power" && "$ac_power_state" != "Battery Power" ]] || [[ "$low_power_mode" != "0" && "$low_power_mode" != "1" ]]; then
+  echo "FAIL R7 repaired benchmark: could not capture AC power/Low Power Mode state"
+  exit 1
+fi
 for batch_index in 0 1 2 3 4; do
   output="$OUT_DIR/batch-$(printf '%02d' "$batch_index").json"
   PF_R7_BATCH_INDEX="$batch_index" \
   PF_R7_SOURCE_OFFSET="${offsets[$batch_index]}" \
   PF_R7_ORDER_PHASE="$((batch_index % 2))" \
   PF_R7_EXECUTION_ID="r7-${COMMIT}-run-${RUN_ID}-batch-${batch_index}" \
-  PF_AC_POWER_STATE="$(pmset -g batt | sed -n "s/.*'\\([^']*\\)'.*/\\1/p" | head -n 1)" \
-  PF_LOW_POWER_MODE="$(pmset -g custom | sed -n 's/^[[:space:]]*lowpowermode[[:space:]]*//p' | head -n 1)" \
+  PF_AC_POWER_STATE="$ac_power_state" \
+  PF_LOW_POWER_MODE="$low_power_mode" \
   PF_BENCHMARK_OUTPUT="$output" \
   "$ROOT/pf" bench mobilenetv2 shared-batch
 done
