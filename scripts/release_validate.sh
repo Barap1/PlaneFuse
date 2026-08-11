@@ -66,6 +66,10 @@ report = {
     "commands": [
         "./pf setup mobilenetv2",
         "python3 scripts/check_benchmark_index.py",
+        "python3 scripts/generate_judge_evidence.py --check",
+        "python3 scripts/check_public_privacy.py",
+        "python3 scripts/check_release_claims.py",
+        "python3 -B scripts/check_r7_profiler_privacy.py",
         "./scripts/check_git_history.sh --release",
         "./scripts/check_project_docs.sh",
         "./pf inspect mobilenetv2",
