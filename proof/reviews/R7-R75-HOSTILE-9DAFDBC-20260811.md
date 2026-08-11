@@ -3,7 +3,7 @@ VERDICT: SHIP
 Review ID: R7-R75-HOSTILE-9DAFDBC-20260811  
 Review type: Independent hostile technical and benchmark-method review  
 Reviewer role: sol_advisor_advisor  
-Repository: `/Users/aarav/Documents/Projects/PlaneFuse`  
+Repository: `<repository-root>`
 Head commit reviewed: `9dafdbc01a8dd9ead4064360aacf68bcf7168357`  
 Comparison/base commit: `953e41a5a8575fa155fa690bb6783821d51696d9`  
 Date UTC: 2026-08-11  

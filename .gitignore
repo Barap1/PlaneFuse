@@ -1,5 +1,13 @@
 # macOS
 .DS_Store
+._*
+
+# IDE and local tool state
+.vscode/
+.idea/
+.xcodebuildmcp/
+*.xcuserstate
+*.xcworkspace/xcuserdata/
 
 # Xcode
 DerivedData/
@@ -10,11 +18,31 @@ xcuserdata/
 # SwiftPM
 .build/
 .pf-cache/
+.swiftpm/
 .swiftpm/xcode/package.xcworkspace/xcuserdata/
 
 # Local artifacts/logs - keep directories, ignore generated contents
 artifacts/logs/*
 !artifacts/logs/.gitkeep
+artifacts/tmp/
+artifacts/captures/
+*.trace/
+*.trace.zip
+*.xcresult/
+*.dSYM/
+*.profdata
+
+# Temporary exports and local scratch files
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+*.orig
+*.patch
+*.zip
+*.tar
+*.tar.gz
 
 # Local/private benchmark scratch; committed final evidence should be copied explicitly
 benchmarks/tmp/
@@ -27,6 +55,10 @@ artifacts/environment.json
 # Model downloads/caches
 models/
 .cache/
+.coremlc/
+.mlmodelc/
+*.mlpackage/
+*.mlmodelc/
 
 # Python if used for reference tooling
 .venv/
@@ -37,3 +69,14 @@ __pycache__/
 .env
 .env.*
 !.env.example
+
+# Local profiler/session exports. Compact sanitized JSON evidence is tracked explicitly.
+proof/profiler/*.trace/
+proof/profiler/*.trace.zip
+proof/profiler/raw/
+
+# Untracked benchmark scratch from prior local runs. Accepted batch directories
+# and condition-complete artifacts are tracked explicitly when needed.
+proof/r7-b2-c1-shared-quality.json
+proof/r7-final-shared-path-profile-repaired.json
+proof/r7-repaired-batches/*/

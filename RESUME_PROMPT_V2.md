@@ -1,4 +1,4 @@
-Resume PlaneFuse Phase 2 from the actual repository state in `/Users/aarav/Documents/Projects/PlaneFuse`.
+Resume PlaneFuse Phase 2 from the actual repository state in `<repository-root>`.
 
 Read `AGENTS.md`, `SPEC_V2_ADDENDUM.md`, `MILESTONES_V2.md`, `BENCHMARK_CONTRACT_V2.md`, `STATUS.md`, `DECISIONS.md`, `EXPERIMENTS.md`, `CLAIMS.md`, and Git history.
 

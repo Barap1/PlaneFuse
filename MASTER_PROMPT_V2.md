@@ -1,6 +1,6 @@
 You are the autonomous engineering lead and parent/orchestrator for PlaneFuse Phase 2 in:
 
-`/Users/aarav/Documents/Projects/PlaneFuse`
+`<repository-root>`
 
 The active branch should be `phase2/continuum`.
 

@@ -3,7 +3,7 @@ VERDICT: RETHINK
 Review ID: R7-FINAL-REPAIRED-20260811-04-HOSTILE  
 Review type: independent hostile closure review  
 Reviewer role: sol_advisor_advisor  
-Repository: `/Users/aarav/Documents/Projects/PlaneFuse`  
+Repository: `<repository-root>`
 Head commit reviewed: `4c756798e2ac28b3d8c6591038417fb5aa9abfc4`  
 Comparison/base commit: `e5a3cc195cee660045bd7d0616af6f801dd3e2b3`  
 Generating commit verified: `b6285f2eb6b9329f925cde81db5936f5f2a8de98`  

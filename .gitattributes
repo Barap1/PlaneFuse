@@ -1,0 +1,16 @@
+# Keep source and evidence diffs readable on every platform.
+* text=auto eol=lf
+*.sh text eol=lf
+*.py text eol=lf
+*.swift text eol=lf
+*.metal text eol=lf
+*.json text eol=lf
+*.jsonl text eol=lf
+*.md text eol=lf
+
+# Corpus and replay assets are binary and should not be diffed as text.
+*.jpg binary
+*.jpeg binary
+*.png binary
+*.bin binary
+*.trace binary
