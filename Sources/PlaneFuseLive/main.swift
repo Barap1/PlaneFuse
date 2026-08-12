@@ -214,7 +214,7 @@ final class CameraInferenceRunner {
         let activation: [Float]
     }
 
-    init() throws {
+    init(semantics: NV12Semantics = .bt601VideoRange) throws {
         let root = URL(fileURLWithPath: FileManager.default.currentDirectoryPath, isDirectory: true)
         let manifest = MobileNetV2AssetManifest.inspected
         let paths = MobileNetV2AssetPaths(environment: ProcessInfo.processInfo.environment)
@@ -223,11 +223,11 @@ final class CameraInferenceRunner {
         try lineage.validate(at: root)
         let coefficients = try MobileNetV2StemCoefficients.load(from: URL(fileURLWithPath: paths.coefficient))
         let factory = try MetalRGBBaseline()
-        let baseline = try MetalMobileNetV2RGBPipeline(device: factory.device, coefficients: coefficients)
+        let baseline = try MetalMobileNetV2RGBPipeline(device: factory.device, coefficients: coefficients, semantics: semantics)
         let inputFactory = try MetalRGBBaseline(device: factory.device)
-        let native = try MetalMobileNetV2NativeStem(device: factory.device, coefficients: coefficients)
-        let cameraBPreprocessor = try MetalMobileNetV2CameraSpaceRGBPreprocessor(device: factory.device)
-        let cameraCStem = try MetalMobileNetV2CameraSpaceStem(device: factory.device, coefficients: coefficients)
+        let native = try MetalMobileNetV2NativeStem(device: factory.device, coefficients: coefficients, semantics: semantics)
+        let cameraBPreprocessor = try MetalMobileNetV2CameraSpaceRGBPreprocessor(device: factory.device, semantics: semantics)
+        let cameraCStem = try MetalMobileNetV2CameraSpaceStem(device: factory.device, coefficients: coefficients, semantics: semantics)
         self.baseline = baseline
         self.inputFactory = inputFactory
         self.native = native
@@ -506,7 +506,7 @@ private func printHelp() {
     Usage:
       planefuse-live --sample   Run the local M5 MobileNetV2 B/C workload on the real corpus.
       planefuse-live --camera   Run 300 continuous camera frames through the native-plane path.
-      planefuse-live --app      Open the judge-facing PlaneFuse Live dashboard.
+      planefuse-live --app      Open the PlaneFuse Live research dashboard.
       planefuse-live --camera-bench   Run the Release-grade paired/replay/live camera benchmark and write JSON.
       planefuse-live --camera-space-bench   Run the bounded R6.5 source-resolution camera-space benchmark and write JSON.
       planefuse-live --help     Show this help.
@@ -567,6 +567,8 @@ final class LiveCameraCapture {
     let geometry: CameraResizeGeometry
     let firstFrame: CameraFrameDelegate.Frame
     let activeFormat: String
+    let colorMetadata: String
+    let colorSemantics: NV12Semantics
     let frameDurationSeconds: Double?
     private var firstFramePending = true
 
@@ -608,6 +610,8 @@ final class LiveCameraCapture {
         self.geometry = geometry
         self.firstFrame = firstFrame
         self.activeFormat = "\(geometry.cameraWidth)x\(geometry.cameraHeight)-\(String(format: "0x%08X", CVPixelBufferGetPixelFormatType(firstFrame.pixelBuffer)))"
+        self.colorMetadata = cameraColorMetadata(for: firstFrame.pixelBuffer)
+        self.colorSemantics = cameraColorSemantics(for: firstFrame.pixelBuffer)
         let duration = device.activeVideoMinFrameDuration
         self.frameDurationSeconds = duration.isValid && duration.seconds > 0 ? duration.seconds : nil
     }
@@ -659,7 +663,7 @@ private func runCamera() throws {
     )
     let bridge = try CameraNV12MetalBridge(device: metalDevice)
     let outputRing = try bridge.makeOutputRing(count: 3, geometry: geometry)
-    let runner = try CameraInferenceRunner()
+    let runner = try CameraInferenceRunner(semantics: cameraColorSemantics(for: firstFrame.pixelBuffer))
     var bFrontend: [Double] = []; var cFrontend: [Double] = []
     var bEndToEnd: [Double] = []; var cEndToEnd: [Double] = []
     var resizeGPU: [Double] = []
@@ -1600,6 +1604,20 @@ private func awaitCameraAccess() -> Bool {
     }
     _ = semaphore.wait(timeout: .now() + 30)
     return granted
+}
+
+private func cameraColorMetadata(for pixelBuffer: CVPixelBuffer) -> String {
+    let matrix = (CVBufferCopyAttachment(pixelBuffer, kCVImageBufferYCbCrMatrixKey, nil) as? String) ?? "matrix unspecified"
+    let primaries = (CVBufferCopyAttachment(pixelBuffer, kCVImageBufferColorPrimariesKey, nil) as? String) ?? "primaries unspecified"
+    let transfer = (CVBufferCopyAttachment(pixelBuffer, kCVImageBufferTransferFunctionKey, nil) as? String) ?? "transfer unspecified"
+    return "\(matrix) · \(primaries) · \(transfer) · center crop"
+}
+
+private func cameraColorSemantics(for pixelBuffer: CVPixelBuffer) -> NV12Semantics {
+    let matrix = CVBufferCopyAttachment(pixelBuffer, kCVImageBufferYCbCrMatrixKey, nil) as? String
+    return matrix == (kCVImageBufferYCbCrMatrix_ITU_R_709_2 as String)
+        ? .bt709VideoRange
+        : .bt601VideoRange
 }
 
 private func planeFuseLiveMain() {

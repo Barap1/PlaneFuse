@@ -6,14 +6,19 @@ kernel void nv12ToMobileNetV2NormalizedRGBA(
     texture2d<uint, access::read> yPlane [[texture(0)]],
     texture2d<uint, access::read> uvPlane [[texture(1)]],
     texture2d<float, access::write> normalizedRGBA [[texture(2)]],
+    constant float *color [[buffer(0)]],
     uint2 gid [[thread_position_in_grid]]
 ) {
     if (gid.x >= normalizedRGBA.get_width() || gid.y >= normalizedRGBA.get_height()) return;
-    const float y = (float(yPlane.read(gid).x) - 16.0f) / 219.0f;
+    const float y = (float(yPlane.read(gid).x) - color[0]) / color[1];
     const uint2 uv = uvPlane.read(gid / 2).xy;
-    const float cb = (float(uv.x) - 128.0f) / 224.0f;
-    const float cr = (float(uv.y) - 128.0f) / 224.0f;
-    const float3 rgb = float3(y + 1.402f * cr, y - 0.344136f * cb - 0.714136f * cr, y + 1.772f * cb);
+    const float cb = (float(uv.x) - color[2]) / color[3];
+    const float cr = (float(uv.y) - color[2]) / color[3];
+    const float3 rgb = float3(
+        y * color[4] + cb * color[5] + cr * color[6],
+        y * color[8] + cb * color[9] + cr * color[10],
+        y * color[12] + cb * color[13] + cr * color[14]
+    );
     normalizedRGBA.write(float4((rgb - 0.5f) / 0.5f, 1.0f), gid);
 }
 
@@ -44,13 +49,18 @@ kernel void nv12ToMobileNetV2NormalizedRGBCHW(
     texture2d<uint, access::read> yPlane [[texture(0)]],
     texture2d<uint, access::read> uvPlane [[texture(1)]],
     device float *normalizedRGB [[buffer(0)]],
+    constant float *color [[buffer(1)]],
     uint2 gid [[thread_position_in_grid]]) {
     if (gid.x >= 224 || gid.y >= 224) return;
-    const float y = (float(yPlane.read(gid).x) - 16.0f) / 219.0f;
+    const float y = (float(yPlane.read(gid).x) - color[0]) / color[1];
     const uint2 uv = uvPlane.read(gid / 2).xy;
-    const float cb = (float(uv.x) - 128.0f) / 224.0f;
-    const float cr = (float(uv.y) - 128.0f) / 224.0f;
-    const float3 rgb = (float3(y + 1.402f * cr, y - 0.344136f * cb - 0.714136f * cr, y + 1.772f * cb) - 0.5f) / 0.5f;
+    const float cb = (float(uv.x) - color[2]) / color[3];
+    const float cr = (float(uv.y) - color[2]) / color[3];
+    const float3 rgb = (float3(
+        y * color[4] + cb * color[5] + cr * color[6],
+        y * color[8] + cb * color[9] + cr * color[10],
+        y * color[12] + cb * color[13] + cr * color[14]
+    ) - 0.5f) / 0.5f;
     const uint pixel = gid.y * 224 + gid.x;
     normalizedRGB[pixel] = rgb.x;
     normalizedRGB[224 * 224 + pixel] = rgb.y;

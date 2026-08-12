@@ -14,6 +14,7 @@ public final class MetalMobileNetV2RGBPipeline {
     private let chwStemPipeline: MTLComputePipelineState
     private let weights: MTLBuffer
     private let bias: MTLBuffer
+    private let colorParameters: [Float]
 
     public struct ExecutionTiming: Codable, Equatable {
         public let encodeMilliseconds: Double
@@ -22,7 +23,11 @@ public final class MetalMobileNetV2RGBPipeline {
         public let totalMilliseconds: Double
     }
 
-    public init(device: MTLDevice? = MTLCreateSystemDefaultDevice(), coefficients: MobileNetV2StemCoefficients) throws {
+    public init(
+        device: MTLDevice? = MTLCreateSystemDefaultDevice(),
+        coefficients: MobileNetV2StemCoefficients,
+        semantics: NV12Semantics = .bt601VideoRange
+    ) throws {
         guard let device else { throw MetalMobileNetV2NativeStem.Error.noDevice }
         guard let queue = device.makeCommandQueue() else { throw MetalMobileNetV2NativeStem.Error.commandQueueUnavailable }
         guard let url = Bundle.module.url(forResource: "NV12MobileNetV2RGB", withExtension: "metal"),
@@ -41,6 +46,7 @@ public final class MetalMobileNetV2RGBPipeline {
         self.chwConversionPipeline = try device.makeComputePipelineState(function: chwConversion)
         self.chwStemPipeline = try device.makeComputePipelineState(function: chwStem)
         self.weights = weights; self.bias = bias
+        self.colorParameters = semantics.metalColorParameters
     }
 
     public func makeNormalizedRGBTexture(pixelFormat: MTLPixelFormat = .rgba32Float) throws -> MTLTexture {
@@ -114,6 +120,9 @@ public final class MetalMobileNetV2RGBPipeline {
     public func encodeCHWConversion(_ input: NV12Textures, into normalizedRGB: MTLBuffer, using encoder: MTLComputeCommandEncoder) throws {
         guard input.width == 224, input.height == 224, normalizedRGB.length >= 224 * 224 * 3 * MemoryLayout<Float>.stride else { throw MetalMobileNetV2NativeStem.Error.invalidOutput }
         encoder.setComputePipelineState(chwConversionPipeline); encoder.setTexture(input.yPlane, index: 0); encoder.setTexture(input.uvPlane, index: 1); encoder.setBuffer(normalizedRGB, offset: 0, index: 0)
+        colorParameters.withUnsafeBytes { bytes in
+            encoder.setBytes(bytes.baseAddress!, length: bytes.count, index: 1)
+        }
         encoder.dispatchThreads(MTLSize(width: 224, height: 224, depth: 1), threadsPerThreadgroup: MTLSize(width: 8, height: 8, depth: 1))
     }
 
@@ -174,6 +183,9 @@ public final class MetalMobileNetV2RGBPipeline {
     public func encodeNV12Conversion(_ input: NV12Textures, into normalizedRGB: MTLTexture, using encoder: MTLComputeCommandEncoder) throws {
         try validate(input: input, normalizedRGB: normalizedRGB, activation: nil)
         encoder.setComputePipelineState(conversionPipeline); encoder.setTexture(input.yPlane, index: 0); encoder.setTexture(input.uvPlane, index: 1); encoder.setTexture(normalizedRGB, index: 2)
+        colorParameters.withUnsafeBytes { bytes in
+            encoder.setBytes(bytes.baseAddress!, length: bytes.count, index: 0)
+        }
         encoder.dispatchThreads(MTLSize(width: 224, height: 224, depth: 1), threadsPerThreadgroup: MTLSize(width: 8, height: 8, depth: 1))
     }
 

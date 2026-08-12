@@ -31,8 +31,12 @@ public final class MetalMobileNetV2CameraSpaceRGBPreprocessor {
     public let device: MTLDevice
     public let commandQueue: MTLCommandQueue
     public let pipelineState: MTLComputePipelineState
+    private let colorParameters: [Float]
 
-    public init(device: MTLDevice? = MTLCreateSystemDefaultDevice()) throws {
+    public init(
+        device: MTLDevice? = MTLCreateSystemDefaultDevice(),
+        semantics: NV12Semantics = .bt601VideoRange
+    ) throws {
         guard let device else { throw Error.noDevice }
         guard let queue = device.makeCommandQueue() else { throw Error.commandQueueUnavailable }
         guard let url = Bundle.module.url(forResource: "CameraSpaceNV12RGB", withExtension: "metal"),
@@ -44,6 +48,7 @@ public final class MetalMobileNetV2CameraSpaceRGBPreprocessor {
         self.device = device
         self.commandQueue = queue
         self.pipelineState = try device.makeComputePipelineState(function: function)
+        self.colorParameters = semantics.metalColorParameters
     }
 
     public func makeNormalizedRGBCHWBuffer() throws -> MTLBuffer {
@@ -84,6 +89,9 @@ public final class MetalMobileNetV2CameraSpaceRGBPreprocessor {
         encoder.setTexture(source.uvPlane, index: 1)
         encoder.setBuffer(normalizedRGB, offset: 0, index: 0)
         encoder.setBytes(&parameters, length: MemoryLayout<CameraSpaceMetalParameters>.stride, index: 1)
+        colorParameters.withUnsafeBytes { bytes in
+            encoder.setBytes(bytes.baseAddress!, length: bytes.count, index: 2)
+        }
         encoder.dispatchThreads(
             MTLSize(width: 224, height: 224, depth: 1),
             threadsPerThreadgroup: MTLSize(width: 8, height: 8, depth: 1)

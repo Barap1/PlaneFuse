@@ -14,6 +14,7 @@ kernel void cameraSpaceNV12ToMobileNetV2NormalizedRGBCHW(
     texture2d<float, access::read> uvPlane [[texture(1)]],
     device float *normalizedRGB [[buffer(0)]],
     constant CameraSpaceParameters &parameters [[buffer(1)]],
+    constant float *color [[buffer(2)]],
     uint2 gid [[thread_position_in_grid]]
 ) {
     if (gid.x >= 224 || gid.y >= 224) return;
@@ -25,13 +26,13 @@ kernel void cameraSpaceNV12ToMobileNetV2NormalizedRGBCHW(
     const float2 uvValue = uvPlane.read(uint2(uvX, uvY)).rg;
     const uint cbCode = uint(uvValue.x * 255.0f + 0.5f);
     const uint crCode = uint(uvValue.y * 255.0f + 0.5f);
-    const float y = (float(yCode) - 16.0f) / 219.0f;
-    const float cb = (float(cbCode) - 128.0f) / 224.0f;
-    const float cr = (float(crCode) - 128.0f) / 224.0f;
+    const float y = (float(yCode) - color[0]) / color[1];
+    const float cb = (float(cbCode) - color[2]) / color[3];
+    const float cr = (float(crCode) - color[2]) / color[3];
     const float3 rgb = (float3(
-        y + 1.402f * cr,
-        y - 0.344136f * cb - 0.714136f * cr,
-        y + 1.772f * cb
+        y * color[4] + cb * color[5] + cr * color[6],
+        y * color[8] + cb * color[9] + cr * color[10],
+        y * color[12] + cb * color[13] + cr * color[14]
     ) - 0.5f) / 0.5f;
     const uint pixel = gid.y * 224 + gid.x;
     normalizedRGB[pixel] = rgb.x;

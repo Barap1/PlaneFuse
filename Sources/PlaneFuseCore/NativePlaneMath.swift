@@ -24,6 +24,33 @@ public struct NV12Semantics: Equatable, Codable {
         ]
     )
 
+    /// The live camera path uses the matrix reported by the attached camera.
+    /// The reviewed benchmark remains explicitly on BT.601 video-range input.
+    public static let bt709VideoRange = NV12Semantics(
+        name: "nv12-bt709-video-range",
+        yOffset: 16,
+        yScale: 219,
+        chromaOffset: 128,
+        chromaScale: 224,
+        rgbFromSource: [
+            [1.0, 0.0, 1.5748000000000000],
+            [1.0, -0.1873240000000000, -0.4681240000000000],
+            [1.0, 1.8556000000000000, 0.0],
+        ]
+    )
+
+    /// Flat Metal constant-buffer representation used by the RGB materializers.
+    /// The first four values are range parameters, followed by a row-major 3x3
+    /// matrix whose rows are R, G, and B.
+    public var metalColorParameters: [Float] {
+        [
+            Float(yOffset), Float(yScale), Float(chromaOffset), Float(chromaScale),
+            Float(rgbFromSource[0][0]), Float(rgbFromSource[0][1]), Float(rgbFromSource[0][2]), 0,
+            Float(rgbFromSource[1][0]), Float(rgbFromSource[1][1]), Float(rgbFromSource[1][2]), 0,
+            Float(rgbFromSource[2][0]), Float(rgbFromSource[2][1]), Float(rgbFromSource[2][2]), 0,
+        ]
+    }
+
     public init(
         name: String,
         yOffset: Double,

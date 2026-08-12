@@ -47,7 +47,11 @@ public final class MetalMobileNetV2NativeStem {
     private let offsetBuffer: MTLBuffer
     private let biasBuffer: MTLBuffer
 
-    public init(device: MTLDevice? = MTLCreateSystemDefaultDevice(), coefficients: MobileNetV2StemCoefficients) throws {
+    public init(
+        device: MTLDevice? = MTLCreateSystemDefaultDevice(),
+        coefficients: MobileNetV2StemCoefficients,
+        semantics: NV12Semantics = .bt601VideoRange
+    ) throws {
         guard let device else { throw Error.noDevice }
         guard let queue = device.makeCommandQueue() else { throw Error.commandQueueUnavailable }
         guard let url = Bundle.module.url(forResource: "NV12MobileNetV2Stem", withExtension: "metal"),
@@ -57,7 +61,7 @@ public final class MetalMobileNetV2NativeStem {
               let sourceReuseFunction = library.makeFunction(name: "nv12ToMobileNetV2StemSourceReuse") else { throw Error.functionMissing }
         let normalization = RGBNormalization(mean: [0.5, 0.5, 0.5], standardDeviation: [0.5, 0.5, 0.5])
         let compiled = NativePlaneConv3x3Compiler.compile(
-            semantics: .bt601VideoRange, normalization: normalization, stem: coefficients.makeStem()
+            semantics: semantics, normalization: normalization, stem: coefficients.makeStem()
         )
         guard let weights = Self.makeBuffer(device: device, values: compiled.sourceWeights),
               let offsets = Self.makeBuffer(device: device, values: compiled.sourceOffsets),
@@ -68,8 +72,12 @@ public final class MetalMobileNetV2NativeStem {
         self.weightBuffer = weights; self.offsetBuffer = offsets; self.biasBuffer = biases
     }
 
-    public convenience init(device: MTLDevice? = MTLCreateSystemDefaultDevice(), coefficientsURL: URL) throws {
-        try self.init(device: device, coefficients: MobileNetV2StemCoefficients.load(from: coefficientsURL))
+    public convenience init(
+        device: MTLDevice? = MTLCreateSystemDefaultDevice(),
+        coefficientsURL: URL,
+        semantics: NV12Semantics = .bt601VideoRange
+    ) throws {
+        try self.init(device: device, coefficients: MobileNetV2StemCoefficients.load(from: coefficientsURL), semantics: semantics)
     }
 
     public func makeActivationBuffer() throws -> MTLBuffer {
