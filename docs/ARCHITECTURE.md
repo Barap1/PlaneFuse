@@ -1,42 +1,18 @@
 # PlaneFuse architecture
 
+![PlaneFuse system architecture](diagrams/planefuse-architecture.svg)
+
 PlaneFuse compiles the compatible RGB input stem of a pretrained MobileNetV2
 into the camera's native NV12 representation. The rest of the model remains an
 ordinary Core ML tail. No retraining is involved.
 
 ## Conventional B2
 
-```text
-NV12
-  ↓
-Float32 RGB materialization
-  ↓
-ordinary pretrained RGB stem
-  ↓
-persistent 48×112×112 Float32 activation
-  ↓
-unchanged Core ML MobileNetV2 tail
-```
-
 B2 is the strongest credible conventional baseline in the final matched
 matrix. Its RGB intermediate is 602,112 logical payload bytes and 606,208
 Metal-allocated bytes for the 224×224 stem input.
 
 ## PlaneFuse C1-SR
-
-```text
-NV12 Y/UV
-  ↓
-4×4 source-reuse tile
-  ↓
-9×9 Y / 5×5 UV cooperative staging
-  ↓
-transformed pretrained stem across 48 channels
-  ↓
-persistent 48×112×112 Float32 activation
-  ↓
-unchanged Core ML MobileNetV2 tail
-```
 
 C1-SR produces the same first activation from Y and UV without a full RGB
 intermediate. The source-reuse schedule stages each input tile once and reuses
@@ -86,6 +62,6 @@ CPU activation population on the compared path.
 ## Evidence map
 
 The final numbers and protocol are generated in
-[`JUDGE_EVIDENCE.md`](JUDGE_EVIDENCE.md). The implementation is in
+[`RESULTS_AND_EVIDENCE.md`](RESULTS_AND_EVIDENCE.md). The implementation is in
 `Sources/PlaneFuseCore/Shaders/NV12MobileNetV2Stem.metal` and
 `Sources/PlaneFuseCore/R75SourceReuseBenchmark.swift`.

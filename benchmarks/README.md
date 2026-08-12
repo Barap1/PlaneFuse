@@ -10,9 +10,10 @@ Files:
 - `results/` - immutable raw confirmation/final JSON artifacts;
 - `artifact-index.json` - explicit ACCEPTED/SUPERSEDED/REJECTED/EXPERIMENTAL classification.
 
-Rules are in `../BENCHMARK_CONTRACT.md` and the stricter Phase 2
-`../BENCHMARK_CONTRACT_V2.md`. Superseded or rejected raw files remain for
-scientific history but cannot support current claims.
+The current protocol and result boundary are summarized in
+[`../docs/RESULTS_AND_EVIDENCE.md`](../docs/RESULTS_AND_EVIDENCE.md). Superseded
+or rejected raw files remain for scientific history but cannot support current
+claims.
 
 Phase 2 R1 diagnostics are reproducible with `./pf profile mobilenetv2`; the
 strongest conventional planar Float32 baseline is `./pf bench mobilenetv2 b2`.

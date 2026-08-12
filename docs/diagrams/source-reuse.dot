@@ -1,0 +1,10 @@
+digraph SourceReuse {
+  graph [bgcolor="#0f171d", rankdir=LR, pad="0.2", nodesep="0.4"];
+  node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=11, color="#52636d", fontcolor="#dbe5e1", fillcolor="#192831", margin="0.18,0.10"];
+  edge [color="#64e6c4", penwidth=1.5, arrowsize=0.7];
+  source [label="NV12 source tile", color="#7c9cf5"];
+  stage [label="Threadgroup\nmemory staging"];
+  taps [label="9x9 Y / 5x5 UV\nsource tap reuse"];
+  activation [label="48-channel\nactivation tile", color="#d4a45f"];
+  source -> stage -> taps -> activation;
+}

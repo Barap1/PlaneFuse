@@ -269,10 +269,10 @@ case "$command_name" in
       exit 2
     fi
     if [ "$command_args" = "--check" ]; then
-      run_logged python3 scripts/generate_judge_evidence.py --check
+      run_logged python3 scripts/generate_results.py --check
       cat "$log_file"
     else
-      run_logged python3 scripts/generate_judge_evidence.py --write --print
+      run_logged python3 scripts/generate_results.py --write --summary
       cat "$log_file"
     fi
     ;;

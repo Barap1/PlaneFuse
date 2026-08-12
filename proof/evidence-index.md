@@ -1,8 +1,8 @@
 # Evidence navigation
 
 The current headline is the accepted R7.5 C1-SR result. The page generated at
-[`docs/JUDGE_EVIDENCE.md`](../docs/JUDGE_EVIDENCE.md) is the compact judge-first
-front door; it reads the authoritative JSON below rather than duplicating
+[`docs/RESULTS_AND_EVIDENCE.md`](../docs/RESULTS_AND_EVIDENCE.md) is the compact
+research front door; it reads the authoritative JSON below rather than duplicating
 benchmark statistics by hand.
 
 | Question | Authoritative path | Checker |
@@ -15,6 +15,6 @@ benchmark statistics by hand.
 | A/B/C selection | `proof/r7-final-selection-matrix.json` | `scripts/check_r7_final_selection_matrix.py` |
 | R7.5 raw + aggregate confirmation | `proof/r7.5-source-reuse-batches/52db138-20260811T1605Z-confirm/`, `proof/r7.5-source-reuse-final-52db138-20260811T1605Z-confirm.json` | `scripts/check_r75_source_reuse.py` |
 | R7.5 target evaluation | `proof/r7.5-competition-targets.json` | `scripts/check_r75_source_reuse.py` plus target review |
-| Independent review | `proof/reviews/R7-R75-HOSTILE-9DAFDBC-20260811.md` | Review contract |
+| Independent technical review | `proof/r7.5-independent-review.md` | Review record |
 
 The old pre-repair and first R7.5 artifacts remain preserved as historical/superseded evidence. They are not silently reused as final results.

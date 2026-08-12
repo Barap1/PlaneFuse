@@ -1,0 +1,19 @@
+digraph PlaneFuseArchitecture {
+  graph [bgcolor="#0f171d", rankdir=TB, pad="0.2", nodesep="0.35", ranksep="0.55"];
+  node [shape=box, style="rounded,filled", fontname="Helvetica", fontsize=11, color="#52636d", fontcolor="#dbe5e1", fillcolor="#182730", margin="0.18,0.10"];
+  edge [color="#8fa3a8", penwidth=1.4, arrowsize=0.7];
+
+  camera [label="Camera input\nNV12 Y + UV planes", fillcolor="#1a2730", color="#64e6c4"];
+  b2_decode [label="B2\nYUV decode", color="#7c9cf5"];
+  b2_rgb [label="Float32 RGB tensor\n606,208 B Metal", color="#7c9cf5"];
+  b2_stem [label="Pretrained RGB stem", color="#7c9cf5"];
+  c1_stage [label="C1-SR\nsource tile staging", color="#64e6c4"];
+  c1_reuse [label="9x9 Y + 5x5 UV\nreuse across channels", color="#64e6c4"];
+  c1_stem [label="Transformed pretrained stem", color="#64e6c4"];
+  tail [label="Shared MobileNetV2 tail\n48x112x112 Float32 activation -> Core ML", fillcolor="#1a2730", color="#d4a45f"];
+  output [label="Same prediction boundary", fillcolor="#1a2730", color="#d4a45f"];
+
+  camera -> b2_decode -> b2_rgb -> b2_stem -> tail;
+  camera -> c1_stage -> c1_reuse -> c1_stem -> tail;
+  tail -> output;
+}
