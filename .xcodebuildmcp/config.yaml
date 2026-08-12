@@ -1,9 +1,0 @@
-schemaVersion: 1
-enabledWorkflows:
-  - doctor
-  - project-discovery
-  - session-management
-  - swift-package
-  - macos
-filePathRenderStyle: list
-showTestTiming: true
