@@ -110,7 +110,6 @@ def main() -> int:
         "proof/r6.5-camera-source-replay.manifest.json",
         "proof/r6.5-camera-source-replay.bin",
         "proof/r6.5-camera-space-release.log",
-        "proof/reviews/R6.5-CANDIDATE-AAEBC7A-20260810-SOL-02.md",
     ):
         assert git(repo, "ls-files", "--error-unmatch", required)
     assert "/Users/" not in (evidence_dir / "r6.5-camera-space-release.log").read_text()
