@@ -87,7 +87,7 @@ report = {
         "xcode": command("xcodebuild", "-version"),
         "coremltools": "9.0 (pinned in requirements-lock.txt)",
     },
-    "notes": "Fresh local clone from the Phase 2 branch; model weights and derived assets were recreated by setup. Camera authorization is intentionally not part of this non-interactive clean-clone check.",
+    "notes": f"Fresh local clone from the {branch} branch; model weights and derived assets were recreated by setup. Camera authorization is intentionally not part of this non-interactive clean-clone check.",
 }
 Path(output).write_text(json.dumps(report, indent=2) + "\n")
 if status != "0":
