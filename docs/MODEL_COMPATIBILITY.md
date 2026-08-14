@@ -3,7 +3,7 @@
 PlaneFuse compiles a narrow class of input pipelines. The current end-to-end
 verified model is Apple MobileNetV2 ImageNet.
 
-## Supported and verified
+## Verified today
 
 | Model | Input contract | First fusable operator | Status |
 | --- | --- | --- | --- |
@@ -13,7 +13,7 @@ The unchanged tail consumes a persistent `48 x 112 x 112` Float32 activation.
 The reviewed R7.5 quality record covers 64 fixed inputs and reports top-1,
 top-5 set, and top-5 rank agreement of 1.0 for C1-SR.
 
-## Compatibility properties
+## Required compatibility properties
 
 A future model can be considered for compilation when:
 
@@ -25,7 +25,7 @@ A future model can be considered for compilation when:
 5. the remaining tail can accept the transformed activation without retraining;
 6. an independent reference path and a strong materialized-RGB baseline exist.
 
-## Unsupported today
+## Unsupported or unverified today
 
 The current prototype does not claim support for:
 
@@ -35,6 +35,27 @@ The current prototype does not claim support for:
 - arbitrary graph surgery or unsupported first operators;
 - models without a stable activation handoff to an unchanged tail;
 - iOS, Android, or non-Apple-Silicon performance results.
+
+The source-reuse scaling graph is a stem microbenchmark, not evidence that
+these unsupported models or platforms will benefit.
+
+## Porting checklist
+
+Use this checklist before adding another adapter:
+
+```text
+[ ] Camera/input representation is known
+[ ] YCbCr matrix, range, and transfer semantics are known
+[ ] Resize and crop behavior is deterministic
+[ ] Normalization is known
+[ ] First learned operation is supported and linear before activation
+[ ] Padding, stride, and channel layout are explicit
+[ ] Output activation shape is known
+[ ] The unchanged tail accepts the compiled activation
+[ ] A reference path exists for numerical parity
+[ ] A strong matched RGB baseline exists
+[ ] Quality and performance are measured on a fixed corpus
+```
 
 ## Extension path
 

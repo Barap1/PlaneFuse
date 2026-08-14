@@ -64,20 +64,59 @@ native-plane candidate at the same persistent activation and Core ML tail
 boundary. Do not use a weaker baseline or a different timing boundary when
 adding a model adapter.
 
-## 6. Embed the runtime
+## 6. Understand the camera boundary
+
+The supported application path has one explicit conversion boundary:
+
+```text
+AVCaptureVideoDataOutput
+        ↓
+CVPixelBuffer (420v NV12)
+        ↓  inspect YCbCr matrix/range metadata
+CVMetalTextureCache
+        ↓
+Y + UV source textures
+        ↓  reusable center-crop/nearest resize
+224×224 r8Uint + rg8Uint NV12 textures
+        ↓
+PlaneFuse C1-SR stem
+        ↓
+persistent MTLBuffer activation → buffer-backed MLMultiArray
+        ↓
+unchanged Core ML MobileNetV2 tail → local result
+```
+
+NV12 uses an 8-bit luma plane and an interleaved, half-resolution chroma
+plane. `CVMetalTextureCache` maps the camera planes without a CPU copy; the
+application's resize bridge writes the exact integer textures expected by the
+verified stem. The bridge must retain its `CVMetalTexture` wrappers until the
+Metal command buffer completes.
+
+## 7. Embed the runtime
 
 The live application follows this conceptual shape:
 
 ```swift
-let capture = try LiveCameraCapture()
-let runner = try CameraInferenceRunner(semantics: capture.colorSemantics)
-let result = try runner.inferC1SourceReuse(input: frame, ...)
+let runtime = try PlaneFuseMobileNetV2Runtime(
+    device: device,
+    coefficientsURL: root.appendingPathComponent("models/derived/MobileNetV2StemCoefficients.json"),
+    tailModelURL: root.appendingPathComponent("models/derived/tail-compiled/MobileNetV2Tail.mlmodelc"),
+    semantics: .bt601VideoRange
+)
+let result = try runtime.predict(nv12Textures: resizedNV12)
+print(result.topLabel ?? "no label")
 ```
 
-The reusable pieces are the source-plane bridge, native stem, buffer-backed
-activation handoff, and Core ML tail adapter. The current application wires
-those pieces to an AppKit camera dashboard and reports live values separately
-from stored benchmark evidence.
+Create `runtime` once. It compiles the native stem, loads the unchanged tail,
+allocates the activation buffer, and creates the buffer-backed `MLMultiArray`
+once. Call `predict` for each resized frame; it runs C1-SR and reuses those
+resources. The compile-checked source is
+[`Examples/PlaneFuseIntegration/README.swift`](../Examples/PlaneFuseIntegration/README.swift).
+
+The current AppKit application adds the camera capture and resize bridge in
+`Sources/PlaneFuseLive/CameraNV12MetalBridge.swift`. Run
+`./scripts/check_integration_example.sh` to build PlaneFuseCore and type-check
+the public example against the real API.
 
 ## Current boundary
 

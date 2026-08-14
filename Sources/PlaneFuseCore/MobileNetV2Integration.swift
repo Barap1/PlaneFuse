@@ -345,6 +345,65 @@ public final class CoreMLMobileNetV2TailAdapter: MobileNetV2TailRunning {
     }
 }
 
+/// Small application-facing wrapper for the verified MobileNetV2 path. Camera
+/// capture and resize remain application concerns; once a camera bridge has
+/// produced 224x224 `r8Uint`/`rg8Uint` NV12 textures, this object owns the
+/// expensive stem, persistent activation storage, and unchanged Core ML tail.
+public final class PlaneFuseMobileNetV2Runtime {
+    public struct Prediction {
+        public let probabilities: [String: Double]
+        public let stemMilliseconds: Double
+        public let topLabel: String?
+
+        public init(probabilities: [String: Double], stemMilliseconds: Double, topLabel: String?) {
+            self.probabilities = probabilities
+            self.stemMilliseconds = stemMilliseconds
+            self.topLabel = topLabel
+        }
+    }
+
+    public let device: MTLDevice
+    public let semantics: NV12Semantics
+    public let activationShape = MetalMobileNetV2NativeStem.activationShape
+    public let computeUnitsPolicy = "all"
+    private let stem: MetalMobileNetV2NativeStem
+    private let tail: CoreMLMobileNetV2TailAdapter
+    private let activation: MTLBuffer
+    private let sharedActivation: BufferBackedMultiArray
+
+    public init(
+        device: MTLDevice,
+        coefficientsURL: URL,
+        tailModelURL: URL,
+        semantics: NV12Semantics = .bt601VideoRange,
+        manifest: MobileNetV2AssetManifest = .inspected
+    ) throws {
+        self.device = device
+        self.semantics = semantics
+        self.stem = try MetalMobileNetV2NativeStem(device: device, coefficientsURL: coefficientsURL, semantics: semantics)
+        self.tail = try CoreMLMobileNetV2TailAdapter(modelURL: tailModelURL, manifest: manifest, computeUnits: .all)
+        self.activation = try stem.makeActivationBuffer()
+        self.sharedActivation = try BufferBackedMultiArray(buffer: activation, shape: MetalMobileNetV2NativeStem.activationShape)
+    }
+
+    /// Runs C1-SR and the unchanged tail using the same activation allocation
+    /// on every call. The caller should retain the returned value only until it
+    /// has copied the probabilities; the next call reuses the activation.
+    public func predict(nv12Textures: MetalRGBBaseline.NV12Textures) throws -> Prediction {
+        let start = ProcessInfo.processInfo.systemUptime
+        try stem.executeSourceReuse(nv12Textures, into: activation)
+        let probabilities = try tail.predict(sharedActivation: sharedActivation)
+        let topLabel = probabilities.max { lhs, rhs in
+            lhs.value == rhs.value ? lhs.key > rhs.key : lhs.value < rhs.value
+        }?.key
+        return Prediction(
+            probabilities: probabilities,
+            stemMilliseconds: (ProcessInfo.processInfo.systemUptime - start) * 1_000,
+            topLabel: topLabel
+        )
+    }
+}
+
 /// R3 feasibility adapter. The model graph is unchanged; only the declared
 /// activation input storage is Float16. It is intentionally separate from the
 /// accepted Float32 control path and is not a release dependency yet.
