@@ -23,6 +23,7 @@ def main() -> int:
         "docs/TECHNICAL_DETAILS.md",
         "docs/assets/latency-comparison.svg",
         "docs/assets/rgb-intermediate.svg",
+        "docs/assets/source-reuse-scaling.svg",
         "docs/diagrams/planefuse-architecture.svg",
         "proof/r7.5-source-reuse-final-52db138-20260811T1605Z-confirm.json",
         "proof/r7.5-competition-targets.json",
@@ -31,6 +32,8 @@ def main() -> int:
         "proof/m5-validation-corpus.json",
         "proof/r7.5-independent-review.md",
         "proof/final/reproducibility.json",
+        "proof/final/source-reuse-scaling.json",
+        "Examples/PlaneFuseIntegration/README.md",
     ]
     for relative in required:
         if not (ROOT / relative).is_file():

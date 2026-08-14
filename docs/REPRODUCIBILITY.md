@@ -52,6 +52,11 @@ artifacts/reproduction/<timestamp>/run.log
 The wrapper deliberately passes a new output directory to the existing
 R7.5 harness. It never overwrites the accepted files under `proof/`.
 
+The harness records AC power and Low Power Mode explicitly. On desktop Macs
+where `pmset` does not expose a Low Power Mode control, it records that control
+as disabled (`0`) and prints the reason; `PF_AC_POWER_STATE` and
+`PF_LOW_POWER_MODE` remain available for an explicit host override.
+
 ## What a successful reproduction means
 
 - the same Release paths compile on arm64;
@@ -71,3 +76,24 @@ It reports B2 p50 `1.737875 ms`, C1 p50 `1.633458 ms`, and C1-SR p50
 reviewed environment was arm64 Apple Silicon on macOS 26.6.1 with Xcode 26.6
 and Swift 6.3.3. The complete hashes and checker paths are in
 `proof/final/reproducibility.json`.
+
+## Public-clone record
+
+The final release clone record is
+[`proof/final/public-clone-reproduction.json`](../proof/final/public-clone-reproduction.json).
+It names the public HTTPS clone, tested commit, sanitized environment, exact
+commands, generated output, and comparison with the frozen reference. It does
+not contain user paths, machine identifiers, or credentials.
+
+## Stem-only scaling characterization
+
+Run the separate controlled experiment with:
+
+```bash
+./pf bench source-reuse-scale
+```
+
+This benchmark varies only active output-channel width at the kernel's
+eight-channel grouping boundaries. It omits the Core ML tail and writes three
+raw Release batches plus the aggregate under
+[`proof/final/source-reuse-scaling.json`](../proof/final/source-reuse-scaling.json).

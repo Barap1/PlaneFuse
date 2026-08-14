@@ -14,7 +14,16 @@ fi
 mkdir -p "$OUT_DIR"
 
 ac_power_state="${PF_AC_POWER_STATE:-$(pmset -g batt | sed -n "s/.*'\\([^']*\\)'.*/\\1/p" | head -n 1)}"
-low_power_mode="${PF_LOW_POWER_MODE:-$(pmset -g custom | sed -n 's/^[[:space:]]*lowpowermode[[:space:]]*//p' | head -n 1)}"
+custom_power="$(pmset -g custom 2>/dev/null || true)"
+low_power_mode="${PF_LOW_POWER_MODE:-$(printf '%s\\n' "$custom_power" | sed -n 's/^[[:space:]]*lowpowermode[[:space:]]*//p' | head -n 1)}"
+if [[ -z "$low_power_mode" ]] && ! printf '%s\\n' "$custom_power" | grep -qi 'lowpowermode'; then
+  # Desktop Macs and some current macOS configurations omit this key because
+  # the user-facing Low Power Mode control is unavailable. Treating an absent
+  # control as disabled is explicit and reproducible; callers can override it
+  # with PF_LOW_POWER_MODE when the host exposes a value through another tool.
+  low_power_mode="0"
+  echo "INFO: pmset did not expose lowpowermode; recording Low Power Mode as disabled (0)"
+fi
 if [[ "$ac_power_state" != "AC Power" && "$ac_power_state" != "Battery Power" ]] || [[ "$low_power_mode" != "0" && "$low_power_mode" != "1" ]]; then
   echo "FAIL R7.5 source reuse: could not capture AC power/Low Power Mode state" >&2
   exit 1
