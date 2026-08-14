@@ -43,6 +43,8 @@ public final class MetalMobileNetV2NativeStem {
     public let commandQueue: MTLCommandQueue
     public let pipelineState: MTLComputePipelineState
     private let sourceReusePipelineState: MTLComputePipelineState
+    private let scaledPipelineState: MTLComputePipelineState
+    private let scaledSourceReusePipelineState: MTLComputePipelineState
     private let weightBuffer: MTLBuffer
     private let offsetBuffer: MTLBuffer
     private let biasBuffer: MTLBuffer
@@ -58,7 +60,9 @@ public final class MetalMobileNetV2NativeStem {
               let source = try? String(contentsOf: url) else { throw Error.shaderMissing }
         let library = try device.makeLibrary(source: source, options: nil)
         guard let function = library.makeFunction(name: "nv12ToMobileNetV2Stem"),
-              let sourceReuseFunction = library.makeFunction(name: "nv12ToMobileNetV2StemSourceReuse") else { throw Error.functionMissing }
+              let sourceReuseFunction = library.makeFunction(name: "nv12ToMobileNetV2StemSourceReuse"),
+              let scaledFunction = library.makeFunction(name: "nv12ToMobileNetV2StemScaled"),
+              let scaledSourceReuseFunction = library.makeFunction(name: "nv12ToMobileNetV2StemSourceReuseScaled") else { throw Error.functionMissing }
         let normalization = RGBNormalization(mean: [0.5, 0.5, 0.5], standardDeviation: [0.5, 0.5, 0.5])
         let compiled = NativePlaneConv3x3Compiler.compile(
             semantics: semantics, normalization: normalization, stem: coefficients.makeStem()
@@ -69,6 +73,8 @@ public final class MetalMobileNetV2NativeStem {
         self.device = device; self.commandQueue = queue
         self.pipelineState = try device.makeComputePipelineState(function: function)
         self.sourceReusePipelineState = try device.makeComputePipelineState(function: sourceReuseFunction)
+        self.scaledPipelineState = try device.makeComputePipelineState(function: scaledFunction)
+        self.scaledSourceReusePipelineState = try device.makeComputePipelineState(function: scaledSourceReuseFunction)
         self.weightBuffer = weights; self.offsetBuffer = offsets; self.biasBuffer = biases
     }
 
@@ -154,6 +160,47 @@ public final class MetalMobileNetV2NativeStem {
         encoder.endEncoding()
         commandBuffer.commit(); commandBuffer.waitUntilCompleted()
         guard commandBuffer.status == .completed else { throw Error.executionFailed }
+    }
+
+    /// Measures the stem-only scaling characterization. Widths must be positive
+    /// multiples of eight because the source-reuse schedule assigns one
+    /// threadgroup lane to each channel residue modulo eight.
+    public func executeScaled(
+        _ input: MetalRGBBaseline.NV12Textures,
+        activeOutputChannels: Int,
+        sourceReuse: Bool,
+        into activation: MTLBuffer
+    ) throws -> ExecutionTiming {
+        guard activeOutputChannels > 0, activeOutputChannels <= 48,
+              activeOutputChannels.isMultiple(of: 8) else { throw Error.invalidOutput }
+        guard input.width == Self.inputWidth, input.height == Self.inputHeight,
+              input.yPlane.pixelFormat == .r8Uint, input.uvPlane.pixelFormat == .rg8Uint,
+              activation.length >= Self.activationCount * MemoryLayout<Float>.stride else { throw Error.invalidInput }
+        guard let commandBuffer = commandQueue.makeCommandBuffer(),
+              let encoder = commandBuffer.makeComputeCommandEncoder() else { throw Error.encoderUnavailable }
+        let start = ProcessInfo.processInfo.systemUptime
+        var channels = UInt32(activeOutputChannels)
+        encoder.setComputePipelineState(sourceReuse ? scaledSourceReusePipelineState : scaledPipelineState)
+        encoder.setTexture(input.yPlane, index: 0); encoder.setTexture(input.uvPlane, index: 1)
+        encoder.setBuffer(activation, offset: 0, index: 0); encoder.setBuffer(weightBuffer, offset: 0, index: 1)
+        encoder.setBuffer(offsetBuffer, offset: 0, index: 2); encoder.setBuffer(biasBuffer, offset: 0, index: 3)
+        encoder.setBytes(&channels, length: MemoryLayout<UInt32>.stride, index: 4)
+        if sourceReuse {
+            encoder.dispatchThreadgroups(MTLSize(width: 28, height: 28, depth: 1), threadsPerThreadgroup: MTLSize(width: 128, height: 1, depth: 1))
+        } else {
+            encoder.dispatchThreads(MTLSize(width: 112, height: 112, depth: activeOutputChannels), threadsPerThreadgroup: MTLSize(width: 8, height: 8, depth: 1))
+        }
+        encoder.endEncoding()
+        let encoded = ProcessInfo.processInfo.systemUptime
+        commandBuffer.commit(); commandBuffer.waitUntilCompleted()
+        let completed = ProcessInfo.processInfo.systemUptime
+        guard commandBuffer.status == .completed else { throw Error.executionFailed }
+        return ExecutionTiming(
+            encodeMilliseconds: (encoded - start) * 1_000,
+            gpuWaitMilliseconds: (completed - encoded) * 1_000,
+            gpuExecutionMilliseconds: commandBuffer.gpuEndTime > commandBuffer.gpuStartTime ? (commandBuffer.gpuEndTime - commandBuffer.gpuStartTime) * 1_000 : nil,
+            totalMilliseconds: (completed - start) * 1_000
+        )
     }
 
     /// Encodes only Pipeline C's native stem. The caller owns submission, enabling

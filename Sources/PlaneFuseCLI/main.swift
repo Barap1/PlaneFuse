@@ -611,6 +611,35 @@ private struct PipelineABenchmarkArtifact: Codable {
     let sourceSampleIDs: [String]
 }
 
+private func runSourceReuseScalingBatch() throws -> Int32 {
+    let environment = ProcessInfo.processInfo.environment
+    guard let batchIndex = Int(environment["PF_SOURCE_REUSE_SCALE_BATCH_INDEX"] ?? ""),
+          let orderPhase = Int(environment["PF_SOURCE_REUSE_SCALE_ORDER_PHASE"] ?? "") else {
+        throw NSError(domain: "PlaneFuseCLI", code: 2, userInfo: [NSLocalizedDescriptionKey: "PF_SOURCE_REUSE_SCALE_BATCH_INDEX and PF_SOURCE_REUSE_SCALE_ORDER_PHASE are required"])
+    }
+    let root = URL(fileURLWithPath: FileManager.default.currentDirectoryPath, isDirectory: true)
+    let manifest = MobileNetV2AssetManifest.inspected
+    try manifest.validate(at: root)
+    let corpus = try MobileNetV2Corpus(manifestURL: root.appendingPathComponent(manifest.validationCorpusManifest), root: root)
+    let coefficientPath = environment["PF_MOBILENET_COEFFICIENTS"] ?? "models/derived/MobileNetV2StemCoefficients.json"
+    let result = try SourceReuseScalingBenchmark(
+        coefficientsURL: root.appendingPathComponent(coefficientPath), corpus: corpus
+    ).run(batchIndex: batchIndex, orderPhase: orderPhase)
+    let outputPath = environment["PF_SOURCE_REUSE_SCALE_OUTPUT"] ?? "benchmarks/results/source-reuse-scaling-batch-(batchIndex).json"
+    let url = URL(fileURLWithPath: outputPath)
+    try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+    let encoder = JSONEncoder.benchmark
+    try encoder.encode(result).write(to: url, options: .atomic)
+    emit("PlaneFuse source-reuse scaling batch: RECORDED")
+    emit("result: \(outputPath)")
+    for width in result.widths {
+        let c1 = try BenchmarkStatistics.nearestRank(width.c1.wallMilliseconds, percentile: 0.5)
+        let sr = try BenchmarkStatistics.nearestRank(width.c1SourceReuse.wallMilliseconds, percentile: 0.5)
+        emit(String(format: "channels=%d c1_wall_p50_ms=%.4f c1_sr_wall_p50_ms=%.4f max_error=%.8g", width.activeOutputChannels, c1, sr, width.activationMaxAbsoluteError))
+    }
+    return 0
+}
+
 func runMobileNetV2DirectSharedBench() throws -> Int32 {
     let root = URL(fileURLWithPath: FileManager.default.currentDirectoryPath, isDirectory: true)
     let coefficientPath = ProcessInfo.processInfo.environment["PF_MOBILENET_COEFFICIENTS"] ?? "models/derived/MobileNetV2StemCoefficients.json"
@@ -1172,6 +1201,9 @@ do {
         }
         if benchmarkArguments == ["mobilenetv2", "r75-batch"] {
             exit(try runR75SourceReuseBatch())
+        }
+        if benchmarkArguments == ["source-reuse-scale-batch"] {
+            exit(try runSourceReuseScalingBatch())
         }
         if benchmarkArguments == ["mobilenetv2", "pipeline-a"] {
             exit(try runPipelineABench())

@@ -70,6 +70,10 @@ case "$command_name" in
     echo "PASS  pf test quick (log: $log_file)"
     ;;
   verify)
+    if [ "$command_args" = "--help" ] || [ "$command_args" = "-h" ]; then
+      echo "usage: ./pf verify|verify mobilenetv2|verify lineage|verify float16"
+      exit 0
+    fi
     if [ "$command_args" = "mobilenetv2" ]; then
       run_logged swift run -c debug planefuse verify mobilenetv2
     elif [ "$command_args" = "float16" ]; then
@@ -85,6 +89,10 @@ case "$command_name" in
     cat "$log_file"
     ;;
   inspect)
+    if [ "$command_args" = "--help" ] || [ "$command_args" = "-h" ]; then
+      echo "usage: ./pf inspect mobilenetv2|fixture"
+      exit 0
+    fi
     if [ "$command_args" != "mobilenetv2" ] && [ "$command_args" != "fixture" ]; then
       echo "usage: ./pf inspect mobilenetv2|fixture"
       exit 2
@@ -93,6 +101,10 @@ case "$command_name" in
     cat "$log_file"
     ;;
   compile)
+    if [ "$command_args" = "--help" ] || [ "$command_args" = "-h" ]; then
+      echo "usage: ./pf compile mobilenetv2"
+      exit 0
+    fi
     if [ "$command_args" != "mobilenetv2" ]; then
       echo "usage: ./pf compile mobilenetv2"
       exit 2
@@ -116,6 +128,19 @@ case "$command_name" in
     cat "$log_file"
     ;;
   bench)
+    if [ "$command_args" = "--help" ] || [ "$command_args" = "-h" ]; then
+      echo "usage: ./pf bench camera|camera-space|quick|source-reuse-scale|fair quick|fair confirm|mobilenetv2 quick|mobilenetv2 confirm|mobilenetv2 shared|mobilenetv2 shared-batch|mobilenetv2 shared-final|mobilenetv2 r75-batch|mobilenetv2 pipeline-a"
+      exit 0
+    fi
+    if [ "$command_args" = "source-reuse-scale" ]; then
+      exec "$ROOT/scripts/run_source_reuse_scale.sh"
+    fi
+    if [ "$command_args" = "source-reuse-scale-batch" ]; then
+      benchmark_output="${PF_SOURCE_REUSE_SCALE_OUTPUT:-$ROOT/benchmarks/results/source-reuse-scaling-batch.json}"
+      PF_ARCHITECTURE="$(uname -m)" PF_SWIFT_VERSION="$(swift --version | head -n 1)" PF_XCODE_VERSION="$(xcodebuild -version | head -n 1)" PF_GIT_COMMIT="$(git rev-parse HEAD)" PF_BUILD_CONFIGURATION="release" PF_SOURCE_REUSE_SCALE_OUTPUT="$benchmark_output" run_logged swift run -c release planefuse bench source-reuse-scale-batch
+      cat "$log_file"
+      exit 0
+    fi
     if [ "$command_args" = "camera" ]; then
       benchmark_output="${PF_BENCHMARK_OUTPUT:-$ROOT/benchmarks/results/r6-camera.json}"
       PF_ARCHITECTURE="$(uname -m)" PF_SWIFT_VERSION="$(swift --version | head -n 1)" PF_XCODE_VERSION="$(xcodebuild -version | head -n 1)" PF_GIT_COMMIT="$(git rev-parse HEAD)" PF_BUILD_CONFIGURATION="release" PF_BENCHMARK_OUTPUT="$benchmark_output" run_logged swift run -c release planefuse-live --camera-bench
@@ -203,7 +228,7 @@ case "$command_name" in
       cat "$log_file"
       exit 0
     fi
-    echo "usage: ./pf bench camera|camera-space|quick|fair quick|fair confirm|mobilenetv2 quick|mobilenetv2 confirm|mobilenetv2 shared|mobilenetv2 shared-batch|mobilenetv2 shared-final|mobilenetv2 r75-batch|mobilenetv2 pipeline-a"
+    echo "usage: ./pf bench camera|camera-space|quick|source-reuse-scale|fair quick|fair confirm|mobilenetv2 quick|mobilenetv2 confirm|mobilenetv2 shared|mobilenetv2 shared-batch|mobilenetv2 shared-final|mobilenetv2 r75-batch|mobilenetv2 pipeline-a"
     exit 2
     ;;
   quality)

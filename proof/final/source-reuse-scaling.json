@@ -1,0 +1,371 @@
+{
+  "batches": [
+    "/Users/aarav/Documents/Projects/PlaneFuse/proof/final/source-reuse-scaling-batches/20260814T145530Z/batch-00.json",
+    "/Users/aarav/Documents/Projects/PlaneFuse/proof/final/source-reuse-scaling-batches/20260814T145530Z/batch-01.json",
+    "/Users/aarav/Documents/Projects/PlaneFuse/proof/final/source-reuse-scaling-batches/20260814T145530Z/batch-02.json"
+  ],
+  "commit": "7f8f7e74659d61df0d231f557f90dbdefef6d40d",
+  "experiment": {
+    "active_output_channel_widths": [
+      8,
+      16,
+      24,
+      32,
+      40,
+      48
+    ],
+    "execution_order": "C1 and C1-SR alternate first position by batch and iteration",
+    "fixed_source_set": "first 48 samples in proof/m5-validation-corpus.json, split into three deterministic 16-sample batches",
+    "input_geometry": "224x224 NV12 BT.601 video-range",
+    "measured_iterations_per_sample": 4,
+    "name": "stem-only source-reuse scaling microbenchmark",
+    "purpose": "isolate C1-SR source-tile reuse as active output-channel width increases",
+    "release_build": true,
+    "tail_included": false,
+    "warmup_iterations_per_sample": 4
+  },
+  "quality": {
+    "maximum_allowed_activation_error": 0.0001,
+    "status": "PASS"
+  },
+  "run_id": "20260814T145530Z",
+  "schema_version": 1,
+  "source_reuse_geometry": {
+    "chroma_samples_staged_per_tile": 25,
+    "chroma_samples_staged_total": 19321,
+    "chroma_tile": [
+      5,
+      5
+    ],
+    "explanation": "C1 repeats source sampling per output channel and spatial position. C1-SR stages each tile once, then shares it across 16 output positions and the active channel groups.",
+    "luma_samples_staged_per_tile": 81,
+    "luma_samples_staged_total": 63001,
+    "luma_tile": [
+      9,
+      9
+    ],
+    "output_tile": [
+      4,
+      4
+    ],
+    "tile_grid": [
+      28,
+      28
+    ]
+  },
+  "status": "source_reuse_scaling_stem_only",
+  "widths": [
+    {
+      "active_output_channels": 8,
+      "analytical_scaling": {
+        "active_output_channels_sharing_tile": 8,
+        "chroma_samples_staged_per_source_tile": 25,
+        "luma_samples_staged_per_source_tile": 81,
+        "note": "Counts follow the shader's 28x28 tile grid and exclude invalid edge loads; they describe source sampling, not total instructions.",
+        "original_chroma_source_reads_approx": 903168,
+        "original_luma_source_reads_approx": 903168,
+        "output_spatial_positions_sharing_tile": 16,
+        "source_read_reuse_factor_approx": 21.942324044605332,
+        "source_tile_chroma_reads_total": 19321,
+        "source_tile_luma_reads_total": 63001
+      },
+      "c1": {
+        "gpu": {
+          "count": 192,
+          "mean_ms": 0.024973307290565572,
+          "median_absolute_deviation_ms": 0.0027083297027274966,
+          "p50_ms": 0.019958330085501075,
+          "p95_ms": 0.0361666752723977
+        },
+        "wall": {
+          "count": 192,
+          "mean_ms": 0.18089887210711217,
+          "median_absolute_deviation_ms": 0.016333331586793065,
+          "p50_ms": 0.1698333362583071,
+          "p95_ms": 0.23966666776686907
+        }
+      },
+      "c1_source_reuse": {
+        "gpu": {
+          "count": 192,
+          "mean_ms": 0.049788411236780426,
+          "median_absolute_deviation_ms": 0.005666661309078336,
+          "p50_ms": 0.0430416694143787,
+          "p95_ms": 0.07783333421684802
+        },
+        "wall": {
+          "count": 192,
+          "mean_ms": 0.20837955791345544,
+          "median_absolute_deviation_ms": 0.02025000867433846,
+          "p50_ms": 0.19862499902956188,
+          "p95_ms": 0.2899583341786638
+        }
+      },
+      "parity": {
+        "max_activation_absolute_error": 1.9073486328125e-06,
+        "status": "PASS"
+      },
+      "speedup_percent_by_wall_p50": -16.952892409452673
+    },
+    {
+      "active_output_channels": 16,
+      "analytical_scaling": {
+        "active_output_channels_sharing_tile": 16,
+        "chroma_samples_staged_per_source_tile": 25,
+        "luma_samples_staged_per_source_tile": 81,
+        "note": "Counts follow the shader's 28x28 tile grid and exclude invalid edge loads; they describe source sampling, not total instructions.",
+        "original_chroma_source_reads_approx": 1806336,
+        "original_luma_source_reads_approx": 1806336,
+        "output_spatial_positions_sharing_tile": 16,
+        "source_read_reuse_factor_approx": 43.884648089210664,
+        "source_tile_chroma_reads_total": 19321,
+        "source_tile_luma_reads_total": 63001
+      },
+      "c1": {
+        "gpu": {
+          "count": 192,
+          "mean_ms": 0.02247916730387563,
+          "median_absolute_deviation_ms": 0.0003749883035197854,
+          "p50_ms": 0.019874991266988218,
+          "p95_ms": 0.02462499833200127
+        },
+        "wall": {
+          "count": 192,
+          "mean_ms": 0.1714973955131427,
+          "median_absolute_deviation_ms": 0.012250005966052413,
+          "p50_ms": 0.1656666718190536,
+          "p95_ms": 0.21158333402127028
+        }
+      },
+      "c1_source_reuse": {
+        "gpu": {
+          "count": 192,
+          "mean_ms": 0.03164539945525272,
+          "median_absolute_deviation_ms": 0.000500003807246685,
+          "p50_ms": 0.028750000637955964,
+          "p95_ms": 0.03587499668356031
+        },
+        "wall": {
+          "count": 192,
+          "mean_ms": 0.1858865018675715,
+          "median_absolute_deviation_ms": 0.012000018614344299,
+          "p50_ms": 0.17695834685582668,
+          "p95_ms": 0.25570833531674
+        }
+      },
+      "parity": {
+        "max_activation_absolute_error": 3.814697265625e-06,
+        "status": "PASS"
+      },
+      "speedup_percent_by_wall_p50": -6.815900212630704
+    },
+    {
+      "active_output_channels": 24,
+      "analytical_scaling": {
+        "active_output_channels_sharing_tile": 24,
+        "chroma_samples_staged_per_source_tile": 25,
+        "luma_samples_staged_per_source_tile": 81,
+        "note": "Counts follow the shader's 28x28 tile grid and exclude invalid edge loads; they describe source sampling, not total instructions.",
+        "original_chroma_source_reads_approx": 2709504,
+        "original_luma_source_reads_approx": 2709504,
+        "output_spatial_positions_sharing_tile": 16,
+        "source_read_reuse_factor_approx": 65.82697213381599,
+        "source_tile_chroma_reads_total": 19321,
+        "source_tile_luma_reads_total": 63001
+      },
+      "c1": {
+        "gpu": {
+          "count": 192,
+          "mean_ms": 0.02958572137382968,
+          "median_absolute_deviation_ms": 8.333881851285696e-05,
+          "p50_ms": 0.02762500662356615,
+          "p95_ms": 0.027958332793787122
+        },
+        "wall": {
+          "count": 192,
+          "mean_ms": 0.17834006151436674,
+          "median_absolute_deviation_ms": 0.011541676940396428,
+          "p50_ms": 0.1741666637826711,
+          "p95_ms": 0.21608333918265998
+        }
+      },
+      "c1_source_reuse": {
+        "gpu": {
+          "count": 192,
+          "mean_ms": 0.03227669291542649,
+          "median_absolute_deviation_ms": 0.00016666308511048555,
+          "p50_ms": 0.03133334394078702,
+          "p95_ms": 0.031833333196118474
+        },
+        "wall": {
+          "count": 192,
+          "mean_ms": 0.18106835909748042,
+          "median_absolute_deviation_ms": 0.010041650966741145,
+          "p50_ms": 0.17675000708550215,
+          "p95_ms": 0.22395832638721913
+        }
+      },
+      "parity": {
+        "max_activation_absolute_error": 5.9604644775390625e-06,
+        "status": "PASS"
+      },
+      "speedup_percent_by_wall_p50": -1.4832593371913037
+    },
+    {
+      "active_output_channels": 32,
+      "analytical_scaling": {
+        "active_output_channels_sharing_tile": 32,
+        "chroma_samples_staged_per_source_tile": 25,
+        "luma_samples_staged_per_source_tile": 81,
+        "note": "Counts follow the shader's 28x28 tile grid and exclude invalid edge loads; they describe source sampling, not total instructions.",
+        "original_chroma_source_reads_approx": 3612672,
+        "original_luma_source_reads_approx": 3612672,
+        "output_spatial_positions_sharing_tile": 16,
+        "source_read_reuse_factor_approx": 87.76929617842133,
+        "source_tile_chroma_reads_total": 19321,
+        "source_tile_luma_reads_total": 63001
+      },
+      "c1": {
+        "gpu": {
+          "count": 192,
+          "mean_ms": 0.03663064186791113,
+          "median_absolute_deviation_ms": 8.333881851285696e-05,
+          "p50_ms": 0.03562499477993697,
+          "p95_ms": 0.03587499668356031
+        },
+        "wall": {
+          "count": 192,
+          "mean_ms": 0.18436523487252998,
+          "median_absolute_deviation_ms": 0.008500006515532732,
+          "p50_ms": 0.1792083348846063,
+          "p95_ms": 0.22545832325704396
+        }
+      },
+      "c1_source_reuse": {
+        "gpu": {
+          "count": 192,
+          "mean_ms": 0.03566558135995971,
+          "median_absolute_deviation_ms": 0.00012500095181167126,
+          "p50_ms": 0.034374999813735485,
+          "p95_ms": 0.03487500362098217
+        },
+        "wall": {
+          "count": 192,
+          "mean_ms": 0.1859216570968177,
+          "median_absolute_deviation_ms": 0.008000002708286047,
+          "p50_ms": 0.17949999892152846,
+          "p95_ms": 0.22883333440404385
+        }
+      },
+      "parity": {
+        "max_activation_absolute_error": 5.9604644775390625e-06,
+        "status": "PASS"
+      },
+      "speedup_percent_by_wall_p50": -0.16275137934290929
+    },
+    {
+      "active_output_channels": 40,
+      "analytical_scaling": {
+        "active_output_channels_sharing_tile": 40,
+        "chroma_samples_staged_per_source_tile": 25,
+        "luma_samples_staged_per_source_tile": 81,
+        "note": "Counts follow the shader's 28x28 tile grid and exclude invalid edge loads; they describe source sampling, not total instructions.",
+        "original_chroma_source_reads_approx": 4515840,
+        "original_luma_source_reads_approx": 4515840,
+        "output_spatial_positions_sharing_tile": 16,
+        "source_read_reuse_factor_approx": 109.71162022302666,
+        "source_tile_chroma_reads_total": 19321,
+        "source_tile_luma_reads_total": 63001
+      },
+      "c1": {
+        "gpu": {
+          "count": 192,
+          "mean_ms": 0.04591905303641397,
+          "median_absolute_deviation_ms": 0.0001249863998964429,
+          "p50_ms": 0.043291671318002045,
+          "p95_ms": 0.04374999844003469
+        },
+        "wall": {
+          "count": 192,
+          "mean_ms": 0.19648415839886488,
+          "median_absolute_deviation_ms": 0.006416652468033135,
+          "p50_ms": 0.18883332086261362,
+          "p95_ms": 0.24137500440701842
+        }
+      },
+      "c1_source_reuse": {
+        "gpu": {
+          "count": 192,
+          "mean_ms": 0.039029297113302164,
+          "median_absolute_deviation_ms": 0.00020833977032452822,
+          "p50_ms": 0.037666657590307295,
+          "p95_ms": 0.03837500116787851
+        },
+        "wall": {
+          "count": 192,
+          "mean_ms": 0.19299435795498235,
+          "median_absolute_deviation_ms": 0.01320833689533174,
+          "p50_ms": 0.18674999591894448,
+          "p95_ms": 0.23066667199600488
+        }
+      },
+      "parity": {
+        "max_activation_absolute_error": 5.9604644775390625e-06,
+        "status": "PASS"
+      },
+      "speedup_percent_by_wall_p50": 1.1032612963391515
+    },
+    {
+      "active_output_channels": 48,
+      "analytical_scaling": {
+        "active_output_channels_sharing_tile": 48,
+        "chroma_samples_staged_per_source_tile": 25,
+        "luma_samples_staged_per_source_tile": 81,
+        "note": "Counts follow the shader's 28x28 tile grid and exclude invalid edge loads; they describe source sampling, not total instructions.",
+        "original_chroma_source_reads_approx": 5419008,
+        "original_luma_source_reads_approx": 5419008,
+        "output_spatial_positions_sharing_tile": 16,
+        "source_read_reuse_factor_approx": 131.65394426763197,
+        "source_tile_chroma_reads_total": 19321,
+        "source_tile_luma_reads_total": 63001
+      },
+      "c1": {
+        "gpu": {
+          "count": 192,
+          "mean_ms": 0.053223090390019934,
+          "median_absolute_deviation_ms": 8.33242665976286e-05,
+          "p50_ms": 0.05083333235234022,
+          "p95_ms": 0.05112501094117761
+        },
+        "wall": {
+          "count": 192,
+          "mean_ms": 0.2040345048802313,
+          "median_absolute_deviation_ms": 0.009083334589377046,
+          "p50_ms": 0.19966666877735406,
+          "p95_ms": 0.24554166884627193
+        }
+      },
+      "c1_source_reuse": {
+        "gpu": {
+          "count": 192,
+          "mean_ms": 0.04163541772565319,
+          "median_absolute_deviation_ms": 0.0002500019036233425,
+          "p50_ms": 0.04112499300390482,
+          "p95_ms": 0.04187499871477485
+        },
+        "wall": {
+          "count": 192,
+          "mean_ms": 0.1933461371663725,
+          "median_absolute_deviation_ms": 0.009291674359701574,
+          "p50_ms": 0.18837499374058098,
+          "p95_ms": 0.23766666708979756
+        }
+      },
+      "parity": {
+        "max_activation_absolute_error": 5.9604644775390625e-06,
+        "status": "PASS"
+      },
+      "speedup_percent_by_wall_p50": 5.6552628968655245
+    }
+  ]
+}
