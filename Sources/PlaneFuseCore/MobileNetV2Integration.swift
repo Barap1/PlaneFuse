@@ -392,13 +392,14 @@ public final class PlaneFuseMobileNetV2Runtime {
     public func predict(nv12Textures: MetalRGBBaseline.NV12Textures) throws -> Prediction {
         let start = ProcessInfo.processInfo.systemUptime
         try stem.executeSourceReuse(nv12Textures, into: activation)
+        let stemEnd = ProcessInfo.processInfo.systemUptime
         let probabilities = try tail.predict(sharedActivation: sharedActivation)
         let topLabel = probabilities.max { lhs, rhs in
             lhs.value == rhs.value ? lhs.key > rhs.key : lhs.value < rhs.value
         }?.key
         return Prediction(
             probabilities: probabilities,
-            stemMilliseconds: (ProcessInfo.processInfo.systemUptime - start) * 1_000,
+            stemMilliseconds: (stemEnd - start) * 1_000,
             topLabel: topLabel
         )
     }

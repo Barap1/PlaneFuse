@@ -33,13 +33,14 @@ def main() -> int:
         "proof/r7.5-independent-review.md",
         "proof/final/reproducibility.json",
         "proof/final/source-reuse-scaling.json",
+        "proof/final/public-clone-reproduction.json",
         "Examples/PlaneFuseIntegration/README.md",
     ]
     for relative in required:
         if not (ROOT / relative).is_file():
             fail(f"missing {relative}")
 
-    final = json.loads((ROOT / required[8]).read_text())
+    final = json.loads((ROOT / required[9]).read_text())
     if final.get("status") != "r7_5_source_reuse_final":
         fail("authoritative R7.5 artifact has unexpected status")
     if final["aggregate"]["statistics"]["C1-SR"]["p50"] >= final["aggregate"]["statistics"]["B2"]["p50"]:
