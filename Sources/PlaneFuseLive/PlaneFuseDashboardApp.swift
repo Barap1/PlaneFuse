@@ -63,7 +63,6 @@ final class PlaneFuseDashboardController: NSObject {
     private let parityValue = NSTextField(labelWithString: "UNMEASURED")
     private let errorValue = NSTextField(labelWithString: "—")
     private let cameraValue = NSTextField(labelWithString: "INITIALIZING")
-    private var previewLayer: AVCaptureVideoPreviewLayer?
     private var capture: LiveCameraCapture?
     private var stopped = false
     private let stateLock = NSLock()
@@ -131,9 +130,10 @@ final class PlaneFuseDashboardController: NSObject {
     private func makeHeader() -> NSView {
         let view = NSView(); view.translatesAutoresizingMaskIntoConstraints = false
         let eyebrow = label("PLANEFUSE  /  LIVE INFERENCE", size: 11, weight: .bold, color: NSColor(hex: 0x64E6C4))
-        let title = label("Native-plane inference on Apple Silicon", size: 25, weight: .bold, color: NSColor(hex: 0xF3F7F5))
-        let subtitle = label("A local MobileNetV2 camera path with a visible representation boundary", size: 12, weight: .regular, color: NSColor(hex: 0x8D9CA7))
-        let stack = NSStackView(views: [eyebrow, title, subtitle])
+        let title = label("PlaneFuse", size: 26, weight: .bold, color: NSColor(hex: 0xF3F7F5))
+        let subtitle = label("Native-plane vision inference on Apple Silicon", size: 13, weight: .medium, color: NSColor(hex: 0xD8E3DF))
+        let detail = label("Pretrained MobileNetV2 · local NV12 camera · same model tail", size: 11, weight: .regular, color: NSColor(hex: 0x8D9CA7))
+        let stack = NSStackView(views: [eyebrow, title, subtitle, detail])
         stack.orientation = .vertical; stack.spacing = 4; stack.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(stack)
         NSLayoutConstraint.activate([
@@ -148,15 +148,18 @@ final class PlaneFuseDashboardController: NSObject {
         let section = label("CAMERA PREVIEW", size: 10, weight: .bold, color: NSColor(hex: 0x8D9CA7)); section.translatesAutoresizingMaskIntoConstraints = false
         previewView.translatesAutoresizingMaskIntoConstraints = false
         previewView.wantsLayer = true; previewView.layer?.backgroundColor = NSColor(hex: 0x111C24).cgColor; previewView.layer?.cornerRadius = 8
-        previewStatus.font = NSFont.monospacedSystemFont(ofSize: 11, weight: .medium); previewStatus.textColor = NSColor(hex: 0x64E6C4); previewStatus.alignment = .center; previewStatus.translatesAutoresizingMaskIntoConstraints = false
+        let focusOverlay = ClassificationRegionOverlayView(); focusOverlay.translatesAutoresizingMaskIntoConstraints = false
+        previewStatus.font = NSFont.monospacedSystemFont(ofSize: 10, weight: .medium); previewStatus.textColor = NSColor(hex: 0x64E6C4); previewStatus.alignment = .left; previewStatus.translatesAutoresizingMaskIntoConstraints = false
+        previewStatus.wantsLayer = true; previewStatus.layer?.backgroundColor = NSColor(hex: 0x0B1117, alpha: 0.78).cgColor; previewStatus.layer?.cornerRadius = 5
         previewStatus.maximumNumberOfLines = 2; previewStatus.lineBreakMode = .byWordWrapping
         let instruction = label("Place one object inside the classification region", size: 11, weight: .medium, color: NSColor(hex: 0xB5C1C7)); instruction.translatesAutoresizingMaskIntoConstraints = false
-        previewCard.addSubview(section); previewCard.addSubview(previewView); previewCard.addSubview(previewStatus); previewCard.addSubview(instruction)
+        previewCard.addSubview(section); previewCard.addSubview(previewView); previewCard.addSubview(focusOverlay); previewCard.addSubview(previewStatus); previewCard.addSubview(instruction)
         NSLayoutConstraint.activate([
             section.leadingAnchor.constraint(equalTo: previewCard.leadingAnchor, constant: 16), section.topAnchor.constraint(equalTo: previewCard.topAnchor, constant: 14),
             previewView.leadingAnchor.constraint(equalTo: previewCard.leadingAnchor, constant: 14), previewView.trailingAnchor.constraint(equalTo: previewCard.trailingAnchor, constant: -14), previewView.topAnchor.constraint(equalTo: section.bottomAnchor, constant: 10),
             previewView.widthAnchor.constraint(greaterThanOrEqualToConstant: 440), previewView.heightAnchor.constraint(equalTo: previewView.widthAnchor, multiplier: 9.0 / 16.0),
-            previewStatus.centerXAnchor.constraint(equalTo: previewView.centerXAnchor), previewStatus.centerYAnchor.constraint(equalTo: previewView.centerYAnchor),
+            focusOverlay.leadingAnchor.constraint(equalTo: previewView.leadingAnchor), focusOverlay.trailingAnchor.constraint(equalTo: previewView.trailingAnchor), focusOverlay.topAnchor.constraint(equalTo: previewView.topAnchor), focusOverlay.bottomAnchor.constraint(equalTo: previewView.bottomAnchor),
+            previewStatus.leadingAnchor.constraint(equalTo: previewView.leadingAnchor, constant: 12), previewStatus.topAnchor.constraint(equalTo: previewView.topAnchor, constant: 12), previewStatus.trailingAnchor.constraint(lessThanOrEqualTo: previewView.trailingAnchor, constant: -12),
             instruction.leadingAnchor.constraint(equalTo: previewCard.leadingAnchor, constant: 16), instruction.trailingAnchor.constraint(equalTo: previewCard.trailingAnchor, constant: -16), instruction.topAnchor.constraint(equalTo: previewView.bottomAnchor, constant: 10), instruction.bottomAnchor.constraint(equalTo: previewCard.bottomAnchor, constant: -14)
         ])
 
@@ -265,7 +268,7 @@ final class PlaneFuseDashboardController: NSObject {
     private var currentMode: Int { stateLock.lock(); defer { stateLock.unlock() }; return modeIndex }
 
     private func installPreview(capture: LiveCameraCapture) {
-        previewLayer?.removeFromSuperlayer(); let layer = AVCaptureVideoPreviewLayer(session: capture.session); layer.videoGravity = .resizeAspectFill; previewView.previewLayer = layer; previewView.layer?.insertSublayer(layer, at: 0); previewLayer = layer
+        previewView.attachPreview(session: capture.session)
         previewStatus.stringValue = "LIVE · NV12 VIDEO-RANGE · \(capture.activeFormat)\n\(capture.colorMetadata)"; cameraValue.stringValue = capture.activeFormat
     }
 
@@ -326,14 +329,56 @@ private final class InspectorDocumentView: NSView {
 }
 
 private final class PreviewHostView: NSView {
-    weak var previewLayer: AVCaptureVideoPreviewLayer?
-    override func layout() { super.layout(); previewLayer?.frame = bounds }
+    private(set) var previewLayer: AVCaptureVideoPreviewLayer?
+
+    func attachPreview(session: AVCaptureSession) {
+        previewLayer?.removeFromSuperlayer()
+        let layer = AVCaptureVideoPreviewLayer(session: session)
+        layer.videoGravity = .resizeAspectFill
+        layer.autoresizingMask = [.layerWidthSizable, .layerHeightSizable]
+        layer.frame = bounds
+        layer.cornerRadius = 8
+        layer.masksToBounds = true
+        self.layer = layer
+        previewLayer = layer
+        needsLayout = true
+    }
+
+    override func layout() {
+        super.layout()
+        previewLayer?.frame = bounds
+    }
+}
+
+/// Drawn in a sibling view so the focus frame never becomes the backing
+/// contents of the video host or covers the capture layer.
+private final class ClassificationRegionOverlayView: NSView {
+    override var isFlipped: Bool { true }
+
     override func draw(_ dirtyRect: NSRect) {
         super.draw(dirtyRect)
         guard bounds.width > 100, bounds.height > 100 else { return }
         let side = min(bounds.width, bounds.height) * 0.56
         let region = NSRect(x: (bounds.width - side) / 2, y: (bounds.height - side) / 2, width: side, height: side)
-        NSColor(calibratedWhite: 1, alpha: 0.68).setStroke(); let path = NSBezierPath(roundedRect: region, xRadius: 12, yRadius: 12); path.lineWidth = 1.5; path.stroke()
+        let path = NSBezierPath(roundedRect: region, xRadius: 12, yRadius: 12)
+        NSColor(calibratedWhite: 1, alpha: 0.72).setStroke()
+        path.lineWidth = 1.5
+        path.stroke()
+
+        let cornerLength: CGFloat = 16
+        let corner = NSBezierPath()
+        for point in [
+            (NSPoint(x: region.minX, y: region.minY), NSPoint(x: region.minX + cornerLength, y: region.minY)),
+            (NSPoint(x: region.maxX, y: region.minY), NSPoint(x: region.maxX - cornerLength, y: region.minY)),
+            (NSPoint(x: region.minX, y: region.maxY), NSPoint(x: region.minX + cornerLength, y: region.maxY)),
+            (NSPoint(x: region.maxX, y: region.maxY), NSPoint(x: region.maxX - cornerLength, y: region.maxY))
+        ] {
+            corner.move(to: point.0)
+            corner.line(to: point.1)
+        }
+        NSColor(hex: 0x64E6C4).setStroke()
+        corner.lineWidth = 2.5
+        corner.stroke()
     }
 }
 
@@ -372,4 +417,5 @@ private func insetRect(_ rect: NSRect, dx: CGFloat, dy: CGFloat) -> NSRect { rec
 
 private extension NSColor {
     convenience init(hex: UInt32) { self.init(calibratedRed: CGFloat((hex >> 16) & 0xFF) / 255, green: CGFloat((hex >> 8) & 0xFF) / 255, blue: CGFloat(hex & 0xFF) / 255, alpha: 1) }
+    convenience init(hex: UInt32, alpha: CGFloat) { self.init(calibratedRed: CGFloat((hex >> 16) & 0xFF) / 255, green: CGFloat((hex >> 8) & 0xFF) / 255, blue: CGFloat(hex & 0xFF) / 255, alpha: alpha) }
 }
