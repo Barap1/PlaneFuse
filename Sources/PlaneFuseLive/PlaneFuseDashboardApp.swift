@@ -185,7 +185,7 @@ final class PlaneFuseDashboardController: NSObject {
         let metrics = makeMetricsBlock()
         let resources = makeResourceBlock()
         let stored = makeStoredBenchmarkBlock()
-        let stack = NSStackView(views: [modeRow, liveBlock, compareBlock, metrics, resources, stored])
+        let stack = NSStackView(views: [modeRow, liveBlock, stored, compareBlock, metrics, resources])
         stack.orientation = .vertical; stack.spacing = 11; stack.alignment = .width; stack.translatesAutoresizingMaskIntoConstraints = false
         document.addSubview(stack)
         NSLayoutConstraint.activate([stack.leadingAnchor.constraint(equalTo: document.leadingAnchor), stack.trailingAnchor.constraint(equalTo: document.trailingAnchor), stack.topAnchor.constraint(equalTo: document.topAnchor), stack.bottomAnchor.constraint(equalTo: document.bottomAnchor)])
