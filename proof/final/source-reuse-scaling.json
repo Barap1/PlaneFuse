@@ -1,10 +1,10 @@
 {
   "batches": [
-    "/Users/aarav/Documents/Projects/PlaneFuse/proof/final/source-reuse-scaling-batches/20260814T145530Z/batch-00.json",
-    "/Users/aarav/Documents/Projects/PlaneFuse/proof/final/source-reuse-scaling-batches/20260814T145530Z/batch-01.json",
-    "/Users/aarav/Documents/Projects/PlaneFuse/proof/final/source-reuse-scaling-batches/20260814T145530Z/batch-02.json"
+    "proof/final/source-reuse-scaling-batches/20260814T145530Z/batch-00.json",
+    "proof/final/source-reuse-scaling-batches/20260814T145530Z/batch-01.json",
+    "proof/final/source-reuse-scaling-batches/20260814T145530Z/batch-02.json"
   ],
-  "commit": "7f8f7e74659d61df0d231f557f90dbdefef6d40d",
+  "commit": "46c80758cb05ceaacdc75a51584883ba3e5327f1",
   "experiment": {
     "active_output_channel_widths": [
       8,
@@ -72,40 +72,40 @@
       "c1": {
         "gpu": {
           "count": 192,
-          "mean_ms": 0.024973307290565572,
-          "median_absolute_deviation_ms": 0.0027083297027274966,
-          "p50_ms": 0.019958330085501075,
-          "p95_ms": 0.0361666752723977
+          "mean_ms": 0.02774045090821649,
+          "median_absolute_deviation_ms": 0.004291679942980409,
+          "p50_ms": 0.022291671484708786,
+          "p95_ms": 0.028124995878897607
         },
         "wall": {
           "count": 192,
-          "mean_ms": 0.18089887210711217,
-          "median_absolute_deviation_ms": 0.016333331586793065,
-          "p50_ms": 0.1698333362583071,
-          "p95_ms": 0.23966666776686907
+          "mean_ms": 0.18131575613248666,
+          "median_absolute_deviation_ms": 0.012999997125007212,
+          "p50_ms": 0.17012500029522926,
+          "p95_ms": 0.22975000320002437
         }
       },
       "c1_source_reuse": {
         "gpu": {
           "count": 192,
-          "mean_ms": 0.049788411236780426,
-          "median_absolute_deviation_ms": 0.005666661309078336,
-          "p50_ms": 0.0430416694143787,
-          "p95_ms": 0.07783333421684802
+          "mean_ms": 0.056252603902369934,
+          "median_absolute_deviation_ms": 0.00937501317821443,
+          "p50_ms": 0.04833334241993725,
+          "p95_ms": 0.06962500629015267
         },
         "wall": {
           "count": 192,
-          "mean_ms": 0.20837955791345544,
-          "median_absolute_deviation_ms": 0.02025000867433846,
-          "p50_ms": 0.19862499902956188,
-          "p95_ms": 0.2899583341786638
+          "mean_ms": 0.21713302930947975,
+          "median_absolute_deviation_ms": 0.016666672308929265,
+          "p50_ms": 0.20666666387114674,
+          "p95_ms": 0.3047500067623332
         }
       },
       "parity": {
         "max_activation_absolute_error": 1.9073486328125e-06,
         "status": "PASS"
       },
-      "speedup_percent_by_wall_p50": -16.952892409452673
+      "speedup_percent_by_wall_p50": -21.479302578988566
     },
     {
       "active_output_channels": 16,
@@ -124,40 +124,40 @@
       "c1": {
         "gpu": {
           "count": 192,
-          "mean_ms": 0.02247916730387563,
-          "median_absolute_deviation_ms": 0.0003749883035197854,
-          "p50_ms": 0.019874991266988218,
-          "p95_ms": 0.02462499833200127
+          "mean_ms": 0.021564669774913153,
+          "median_absolute_deviation_ms": 0.0013749959180131555,
+          "p50_ms": 0.021375002688728273,
+          "p95_ms": 0.024583336198702455
         },
         "wall": {
           "count": 192,
-          "mean_ms": 0.1714973955131427,
-          "median_absolute_deviation_ms": 0.012250005966052413,
-          "p50_ms": 0.1656666718190536,
-          "p95_ms": 0.21158333402127028
+          "mean_ms": 0.1752801648156795,
+          "median_absolute_deviation_ms": 0.012583332136273384,
+          "p50_ms": 0.16916666936594993,
+          "p95_ms": 0.21299999207258224
         }
       },
       "c1_source_reuse": {
         "gpu": {
           "count": 192,
-          "mean_ms": 0.03164539945525272,
-          "median_absolute_deviation_ms": 0.000500003807246685,
-          "p50_ms": 0.028750000637955964,
-          "p95_ms": 0.03587499668356031
+          "mean_ms": 0.03123459229451934,
+          "median_absolute_deviation_ms": 0.0019999861251562834,
+          "p50_ms": 0.031208328437060118,
+          "p95_ms": 0.03579167241696268
         },
         "wall": {
           "count": 192,
-          "mean_ms": 0.1858865018675715,
-          "median_absolute_deviation_ms": 0.012000018614344299,
-          "p50_ms": 0.17695834685582668,
-          "p95_ms": 0.25570833531674
+          "mean_ms": 0.18804709141780526,
+          "median_absolute_deviation_ms": 0.01408332900609821,
+          "p50_ms": 0.18016666581388563,
+          "p95_ms": 0.2348749985685572
         }
       },
       "parity": {
         "max_activation_absolute_error": 3.814697265625e-06,
         "status": "PASS"
       },
-      "speedup_percent_by_wall_p50": -6.815900212630704
+      "speedup_percent_by_wall_p50": -6.502460850689181
     },
     {
       "active_output_channels": 24,
@@ -176,40 +176,40 @@
       "c1": {
         "gpu": {
           "count": 192,
-          "mean_ms": 0.02958572137382968,
-          "median_absolute_deviation_ms": 8.333881851285696e-05,
+          "mean_ms": 0.0326762157480213,
+          "median_absolute_deviation_ms": 8.33242665976286e-05,
           "p50_ms": 0.02762500662356615,
-          "p95_ms": 0.027958332793787122
+          "p95_ms": 0.027999994927085936
         },
         "wall": {
           "count": 192,
-          "mean_ms": 0.17834006151436674,
-          "median_absolute_deviation_ms": 0.011541676940396428,
-          "p50_ms": 0.1741666637826711,
-          "p95_ms": 0.21608333918265998
+          "mean_ms": 0.1803752166627722,
+          "median_absolute_deviation_ms": 0.008291681297123432,
+          "p50_ms": 0.1727083435980603,
+          "p95_ms": 0.22862499463371933
         }
       },
       "c1_source_reuse": {
         "gpu": {
           "count": 192,
-          "mean_ms": 0.03227669291542649,
+          "mean_ms": 0.03367187612942265,
           "median_absolute_deviation_ms": 0.00016666308511048555,
-          "p50_ms": 0.03133334394078702,
-          "p95_ms": 0.031833333196118474
+          "p50_ms": 0.031291667255572975,
+          "p95_ms": 0.031750008929520845
         },
         "wall": {
           "count": 192,
-          "mean_ms": 0.18106835909748042,
-          "median_absolute_deviation_ms": 0.010041650966741145,
-          "p50_ms": 0.17675000708550215,
-          "p95_ms": 0.22395832638721913
+          "mean_ms": 0.18539214420343342,
+          "median_absolute_deviation_ms": 0.010625008144415915,
+          "p50_ms": 0.17858333012554795,
+          "p95_ms": 0.22737499966751784
         }
       },
       "parity": {
         "max_activation_absolute_error": 5.9604644775390625e-06,
         "status": "PASS"
       },
-      "speedup_percent_by_wall_p50": -1.4832593371913037
+      "speedup_percent_by_wall_p50": -3.401680778758634
     },
     {
       "active_output_channels": 32,
@@ -228,40 +228,40 @@
       "c1": {
         "gpu": {
           "count": 192,
-          "mean_ms": 0.03663064186791113,
+          "mean_ms": 0.03914648474771335,
           "median_absolute_deviation_ms": 8.333881851285696e-05,
           "p50_ms": 0.03562499477993697,
           "p95_ms": 0.03587499668356031
         },
         "wall": {
           "count": 192,
-          "mean_ms": 0.18436523487252998,
-          "median_absolute_deviation_ms": 0.008500006515532732,
-          "p50_ms": 0.1792083348846063,
-          "p95_ms": 0.22545832325704396
+          "mean_ms": 0.18855316837592304,
+          "median_absolute_deviation_ms": 0.008416667697019875,
+          "p50_ms": 0.18045834440272301,
+          "p95_ms": 0.23175000387709588
         }
       },
       "c1_source_reuse": {
         "gpu": {
           "count": 192,
-          "mean_ms": 0.03566558135995971,
-          "median_absolute_deviation_ms": 0.00012500095181167126,
+          "mean_ms": 0.0344427087384247,
+          "median_absolute_deviation_ms": 0.00016666308511048555,
           "p50_ms": 0.034374999813735485,
-          "p95_ms": 0.03487500362098217
+          "p95_ms": 0.03500000457279384
         },
         "wall": {
           "count": 192,
-          "mean_ms": 0.1859216570968177,
-          "median_absolute_deviation_ms": 0.008000002708286047,
-          "p50_ms": 0.17949999892152846,
-          "p95_ms": 0.22883333440404385
+          "mean_ms": 0.18385720477454015,
+          "median_absolute_deviation_ms": 0.009833340300247073,
+          "p50_ms": 0.17995834059547633,
+          "p95_ms": 0.22187498689163476
         }
       },
       "parity": {
         "max_activation_absolute_error": 5.9604644775390625e-06,
         "status": "PASS"
       },
-      "speedup_percent_by_wall_p50": -0.16275137934290929
+      "speedup_percent_by_wall_p50": 0.277074362452779
     },
     {
       "active_output_channels": 40,
@@ -280,40 +280,40 @@
       "c1": {
         "gpu": {
           "count": 192,
-          "mean_ms": 0.04591905303641397,
-          "median_absolute_deviation_ms": 0.0001249863998964429,
-          "p50_ms": 0.043291671318002045,
-          "p95_ms": 0.04374999844003469
+          "mean_ms": 0.045090711864759214,
+          "median_absolute_deviation_ms": 8.33242665976286e-05,
+          "p50_ms": 0.04329165676608682,
+          "p95_ms": 0.043499996536411345
         },
         "wall": {
           "count": 192,
-          "mean_ms": 0.19648415839886488,
-          "median_absolute_deviation_ms": 0.006416652468033135,
-          "p50_ms": 0.18883332086261362,
-          "p95_ms": 0.24137500440701842
+          "mean_ms": 0.19383441789007824,
+          "median_absolute_deviation_ms": 0.008000002708286047,
+          "p50_ms": 0.18995832942891866,
+          "p95_ms": 0.23383332882076502
         }
       },
       "c1_source_reuse": {
         "gpu": {
           "count": 192,
-          "mean_ms": 0.039029297113302164,
-          "median_absolute_deviation_ms": 0.00020833977032452822,
-          "p50_ms": 0.037666657590307295,
-          "p95_ms": 0.03837500116787851
+          "mean_ms": 0.03858767270988513,
+          "median_absolute_deviation_ms": 0.00024998735170811415,
+          "p50_ms": 0.03774999640882015,
+          "p95_ms": 0.03829166234936565
         },
         "wall": {
           "count": 192,
-          "mean_ms": 0.19299435795498235,
-          "median_absolute_deviation_ms": 0.01320833689533174,
-          "p50_ms": 0.18674999591894448,
-          "p95_ms": 0.23066667199600488
+          "mean_ms": 0.19291753399860076,
+          "median_absolute_deviation_ms": 0.012416669051162899,
+          "p50_ms": 0.18704165995586663,
+          "p95_ms": 0.2339583297725767
         }
       },
       "parity": {
         "max_activation_absolute_error": 5.9604644775390625e-06,
         "status": "PASS"
       },
-      "speedup_percent_by_wall_p50": 1.1032612963391515
+      "speedup_percent_by_wall_p50": 1.5354259441112985
     },
     {
       "active_output_channels": 48,
@@ -332,40 +332,40 @@
       "c1": {
         "gpu": {
           "count": 192,
-          "mean_ms": 0.053223090390019934,
+          "mean_ms": 0.05388671934269951,
           "median_absolute_deviation_ms": 8.33242665976286e-05,
           "p50_ms": 0.05083333235234022,
           "p95_ms": 0.05112501094117761
         },
         "wall": {
           "count": 192,
-          "mean_ms": 0.2040345048802313,
-          "median_absolute_deviation_ms": 0.009083334589377046,
-          "p50_ms": 0.19966666877735406,
-          "p95_ms": 0.24554166884627193
+          "mean_ms": 0.2038131504680981,
+          "median_absolute_deviation_ms": 0.007958326023072004,
+          "p50_ms": 0.1986666611628607,
+          "p95_ms": 0.2339583297725767
         }
       },
       "c1_source_reuse": {
         "gpu": {
           "count": 192,
-          "mean_ms": 0.04163541772565319,
-          "median_absolute_deviation_ms": 0.0002500019036233425,
-          "p50_ms": 0.04112499300390482,
-          "p95_ms": 0.04187499871477485
+          "mean_ms": 0.04109375072403054,
+          "median_absolute_deviation_ms": 0.00020833977032452822,
+          "p50_ms": 0.041083330870606005,
+          "p95_ms": 0.04166667349636555
         },
         "wall": {
           "count": 192,
-          "mean_ms": 0.1933461371663725,
-          "median_absolute_deviation_ms": 0.009291674359701574,
-          "p50_ms": 0.18837499374058098,
-          "p95_ms": 0.23766666708979756
+          "mean_ms": 0.19457074699857912,
+          "median_absolute_deviation_ms": 0.009000010322779417,
+          "p50_ms": 0.1874583394965157,
+          "p95_ms": 0.2390416630078107
         }
       },
       "parity": {
         "max_activation_absolute_error": 5.9604644775390625e-06,
         "status": "PASS"
       },
-      "speedup_percent_by_wall_p50": 5.6552628968655245
+      "speedup_percent_by_wall_p50": 5.6417728071429005
     }
   ]
 }
