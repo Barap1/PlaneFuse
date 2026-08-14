@@ -196,12 +196,12 @@ activation parity at every width.
 
 | Active output channels | C1 stem p50 | C1-SR stem p50 | C1-SR vs C1 |
 | ---: | ---: | ---: | ---: |
-| 8 | 0.1701 ms | 0.2067 ms | -21.48% |
-| 16 | 0.1692 ms | 0.1802 ms | -6.50% |
-| 24 | 0.1727 ms | 0.1786 ms | -3.40% |
-| 32 | 0.1805 ms | 0.1800 ms | +0.28% |
-| 40 | 0.1900 ms | 0.1870 ms | +1.54% |
-| 48 | 0.1987 ms | 0.1875 ms | +5.64% |
+| 8 | 0.1750 ms | 0.2025 ms | -15.74% |
+| 16 | 0.1693 ms | 0.1754 ms | -3.62% |
+| 24 | 0.1744 ms | 0.1756 ms | -0.69% |
+| 32 | 0.1793 ms | 0.1772 ms | +1.16% |
+| 40 | 0.1883 ms | 0.1854 ms | +1.55% |
+| 48 | 0.1987 ms | 0.1889 ms | +4.97% |
 
 At narrow widths, fixed tile-staging overhead dominates. As more learned
 channels share each staged source tile, C1-SR catches up and wins at the full
