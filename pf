@@ -263,6 +263,15 @@ case "$command_name" in
     echo "PASS  pf release validate (log: $log_file)"
     tail -n 12 "$log_file"
     ;;
+  reproduce)
+    if [ "$command_args" = "quick" ]; then
+      exec "$ROOT/scripts/reproduce_quick.sh"
+    elif [ "$command_args" = "final" ]; then
+      exec "$ROOT/scripts/reproduce_final_result.sh"
+    fi
+    echo "usage: ./pf reproduce quick|final"
+    exit 2
+    ;;
   evidence)
     if [ -n "$command_args" ] && [ "$command_args" != "--check" ]; then
       echo "usage: ./pf evidence|evidence --check"
@@ -270,14 +279,16 @@ case "$command_name" in
     fi
     if [ "$command_args" = "--check" ]; then
       run_logged python3 scripts/generate_results.py --check
+      run_logged python3 scripts/check_public_evidence.py
       cat "$log_file"
     else
+      run_logged python3 scripts/generate_readme_assets.py
       run_logged python3 scripts/generate_results.py --write --summary
       cat "$log_file"
     fi
     ;;
   *)
-    echo "usage: ./pf <setup mobilenetv2|doctor|build|test quick|inspect|compile|verify|bench|evidence|quality|profile mobilenetv2|profile mobilenetv2 shared|release validate>"
+    echo "usage: ./pf <setup mobilenetv2|doctor|build|test quick|inspect|compile|verify|bench|evidence|reproduce quick|reproduce final|quality|profile mobilenetv2|profile mobilenetv2 shared|release validate>"
     exit 2
     ;;
 esac

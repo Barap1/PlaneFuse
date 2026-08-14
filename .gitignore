@@ -26,6 +26,7 @@ artifacts/logs/*
 !artifacts/logs/.gitkeep
 artifacts/tmp/
 artifacts/captures/
+artifacts/reproduction/
 *.trace/
 *.trace.zip
 *.xcresult/

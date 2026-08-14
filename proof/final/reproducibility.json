@@ -1,0 +1,66 @@
+{
+  "schema_version": "planefuse-reproducibility-v1",
+  "record_type": "public_reproducibility_record",
+  "repository": {
+    "branch": "main",
+    "application_commit": "4fd0eddec7a918549b0061851c24bacc057ad1e1",
+    "application_commit_message": "fix(app): keep reviewed result visible in live inspector"
+  },
+  "reviewed_result": {
+    "artifact": "proof/r7.5-source-reuse-final-52db138-20260811T1605Z-confirm.json",
+    "generating_commit": "52db138feef3d6fc52bcb5839a419423fd992019",
+    "b2_p50_ms": 1.737875005346723,
+    "c1_p50_ms": 1.633458334254101,
+    "c1_sr_p50_ms": 1.5325833373935893,
+    "c1_sr_vs_b2_marginal_p50_percent": 11.812798234714004,
+    "quality": {
+      "top1_agreement": 1.0,
+      "top5_set_agreement": 1.0,
+      "top5_rank_agreement": 1.0,
+      "activation_max_absolute_error": 0.0000059604644775390625
+    }
+  },
+  "environment": {
+    "hardware_class": "Apple Silicon arm64 client device",
+    "architecture": "arm64",
+    "macos": "Version 26.6.1 (Build 25G76)",
+    "xcode": "Xcode 26.6",
+    "swift": "Apple Swift 6.3.3",
+    "coreml_compute_units": "all"
+  },
+  "commands": {
+    "quick": "./pf setup mobilenetv2 && ./pf reproduce quick",
+    "full": "./pf reproduce final",
+    "evidence_check": "./pf evidence --check",
+    "live_app": "./pf live --app"
+  },
+  "inputs": {
+    "model": "Apple MobileNetV2 ImageNet",
+    "model_source_sha256": "cb5a35f593582232140556bbfa4618e66b37b8ff2fc33ba17db909e1050fd144",
+    "derived_stem_sha256": "1663f92687f9b52eb02a1d1dbfe79ddeb6fa46cc926792e584a2c22933fb4539",
+    "derived_full_array_sha256": "c7fbbf16a1b3a0fab152bcf427b19df0ccc99435b702f27e74664d6ed7f398e5",
+    "derived_tail_sha256": "6d82f8cfb0392c5af21919ce963f9a36a30bf46949028fba56017018305dc94e",
+    "corpus_manifest": "proof/m5-validation-corpus.json",
+    "corpus_sha256": "14192aade5734f74d3b54a6aad39f3411792da3db27ca65237f1735af059a426",
+    "corpus_size": 64,
+    "source_format": "NV12 8-bit bi-planar video range",
+    "benchmark_matrix": "BT.601"
+  },
+  "expected_artifacts": [
+    "artifacts/reproduction/<timestamp>/quick-benchmark.json",
+    "artifacts/reproduction/<timestamp>/r7.5-final.json",
+    "artifacts/reproduction/<timestamp>/run.log"
+  ],
+  "checkers": [
+    "python3 scripts/check_benchmark_index.py",
+    "python3 scripts/check_r75_source_reuse.py proof/r7.5-source-reuse-final-52db138-20260811T1605Z-confirm.json --expected-commit 52db138feef3d6fc52bcb5839a419423fd992019",
+    "./pf evidence --check",
+    "./pf verify",
+    "./pf verify lineage"
+  ],
+  "notes": [
+    "The reviewed result is frozen and is not overwritten by reproduction runs.",
+    "Exact latency is hardware and thermal-state dependent.",
+    "No battery, energy, phone, iOS, Android, or universal-model claim is made."
+  ]
+}

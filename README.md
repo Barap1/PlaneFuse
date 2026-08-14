@@ -1,11 +1,11 @@
 <h1 align="center">PlaneFuse</h1>
 
 <p align="center">
-  Run a compatible pretrained vision stem directly from native camera planes instead of building a full RGB tensor first.
+  Compile compatible pretrained vision stems directly onto native camera planes.
 </p>
 
 <p align="center">
-  <strong>11.8% lower matched p50 latency</strong> on the reviewed MobileNetV2/NV12 benchmark.
+  <strong>11.8% lower matched p50 latency</strong> on the reviewed MobileNetV2/NV12 experiment.
 </p>
 
 <p align="center">
@@ -21,22 +21,29 @@
   <img src="docs/diagrams/planefuse-architecture.svg" alt="System architecture comparing the materialized RGB B2 path with the PlaneFuse C1-SR native-plane path before the shared MobileNetV2 tail" width="900">
 </p>
 
-## In plain English
+## What PlaneFuse does
 
-Mac cameras give applications video in NV12, with separate luma and chroma
-planes. Most pretrained vision models expect RGB, so a conventional pipeline
-creates a full RGB representation before inference.
+Your laptop camera does not hand a vision model a neat RGB tensor. On Apple
+devices, video commonly arrives as NV12, with luma and chroma in separate
+planes. A conventional pipeline converts that frame to RGB, normalizes it, and
+then sends it through the model.
 
-PlaneFuse changes a compatible model's first learned step so it can consume the
-camera planes directly. The rest of the pretrained MobileNetV2 tail stays the
-same. The result is a local AppKit demonstration and a reproducible Metal/Core
-ML implementation.
+PlaneFuse started with a simple question: does that RGB image need to exist at
+all?
 
-## Reviewed result
+For a compatible pretrained model, PlaneFuse composes camera conversion,
+normalization, and the first learned operation into a native-plane stem. The
+rest of the pretrained MobileNetV2 tail stays the same. The project includes a
+Metal/Core ML implementation, a reproducible benchmark harness, and PlaneFuse
+Live, a local AppKit camera application.
 
-On the final reviewed MobileNetV2/NV12 test, C1-SR measured 11.8128% lower
-matched p50 than the strongest matched B2 materialized-RGB baseline. It also
-measured 6.1755% lower than the accepted C1 native-plane path.
+## The result
+
+The final reviewed workload is Apple MobileNetV2 ImageNet classification on an
+Apple Silicon Mac. C1-SR is the source-reuse PlaneFuse path. It measured
+11.8128% lower matched p50 latency than B2, the strongest matched
+materialized-RGB baseline, and 6.1755% lower than the earlier C1 native-plane
+schedule.
 
 | Path | Matched Release p50 |
 | --- | ---: |
@@ -45,57 +52,68 @@ measured 6.1755% lower than the accepted C1 native-plane path.
 | C1-SR, source reuse | 1.532583 ms |
 
 The paired B2 minus C1-SR median 95% confidence interval is
-`[0.180250, 0.198792] ms`. The percentages compare marginal p50 values; the
-interval is a paired-median bootstrap estimand.
+`[0.180250, 0.198792] ms`. The percentages above compare marginal p50 values;
+the interval is a paired-median bootstrap estimand.
 
 ![Matched Release p50 latency comparison](docs/assets/latency-comparison.svg)
 
 Quality on the fixed 64-input corpus was top-1, top-5 set, and top-5 rank
-agreement of 1.0, with activation maximum error `5.960464e-6`. The result is
-specific to the reviewed MobileNetV2/NV12 workload and measured Apple Silicon
-environment. It is not a claim that PlaneFuse makes all AI faster.
+agreement of 1.0, with activation maximum error `5.960464e-6`. These results
+are specific to the reviewed model, input contract, toolchain, and measured
+Apple Silicon environment. They are not a claim that every model is faster.
+
+## Before and after
+
+| | Conventional B2 | PlaneFuse C1-SR |
+| --- | --- | --- |
+| Source | NV12 Y + UV | NV12 Y + UV |
+| Frontend | materialized Float32 RGB | transformed native-plane stem |
+| Full RGB intermediate | 606,208 Metal-allocated bytes | 0 bytes |
+| Model tail | pretrained MobileNetV2 tail | the same tail |
+| Retraining | none | none |
+| Reviewed matched p50 | 1.737875 ms | 1.532583 ms |
+
+The resource number is a measured full RGB boundary, not a total application
+memory claim. Both paths use the same persistent activation handoff and the
+same Core ML tail.
 
 ## Try it
 
-PlaneFuse is a macOS Swift Package. On an Apple Silicon Mac with Xcode command
-line tools and camera permission:
+On an Apple Silicon Mac with Xcode command line tools and camera permission:
 
 ```bash
 ./pf setup mobilenetv2
 ./pf live --app
 ```
 
-PlaneFuse Live shows the real camera preview, live classification, B2 and C1-SR
-parity, current runtime measurements, the representation boundary, and a
-separate stored benchmark card. Live predictions are MobileNetV2 classification,
-not object detection. Place one object inside the classification region.
+PlaneFuse Live shows the real camera image, a center classification region,
+top-three MobileNetV2 predictions, live B2 and C1-SR parity, runtime state,
+the representation boundary, and a separate reviewed benchmark card. It is an
+ImageNet classifier, not an object detector. Place one object inside the region
+and use an object with a recognizable ImageNet label, such as a mug, bottle,
+banana, keyboard, mouse, book, or microphone.
 
-If a camera or model asset is unavailable, the app reports that state and does
-not fill in live values from stored evidence.
-
-The app reports the camera's YCbCr matrix and uses the matching live conversion
-when the camera advertises BT.709. The displayed top-three labels use a short
-presentation smoother so they are easier to read; inference, parity, timings,
-and stored benchmark values remain unsmoothed.
+The dashboard uses camera color metadata for live conversion when it is
+available. Its short probability smoother changes only presentation. Raw
+inference, parity, timing, and stored evidence remain unsmoothed.
 
 ## How it works
 
-The conventional B2 path materializes a normalized RGB tensor, runs the learned
-stem, and passes the activation to the shared tail. PlaneFuse composes the
-camera conversion, normalization, and linear first stem into one source-domain
-operator. C1-SR stages the source Y/UV taps once per output tile and reuses them
-across output channels.
+The conventional path creates a normalized RGB tensor and runs the learned
+stem. C1-SR reads the native Y and UV planes, stages the source tile once, and
+reuses those values across output channels before handing the activation to the
+unchanged tail.
 
 ![Full RGB intermediate allocation](docs/assets/rgb-intermediate.svg)
 
-The full technical explanation is in
-[`docs/TECHNICAL_DETAILS.md`](docs/TECHNICAL_DETAILS.md). The implementation
-overview is in [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+Read the deeper implementation notes in
+[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) and
+[`docs/TECHNICAL_DETAILS.md`](docs/TECHNICAL_DETAILS.md).
 
 ## The idea in equations
 
-The camera conversion and normalization are affine, and the first learned layer
-is linear before its activation:
+In plain English, the camera conversion and normalization are affine, and the
+first learned operation is linear before its activation:
 
 ```text
 r = A s + c
@@ -106,64 +124,122 @@ W_native = W D A
 b_native = b + W D(c - μ)
 ```
 
-PlaneFuse precomputes this transformed first-layer representation so the shader
-can consume native camera values without explicitly materializing RGB first.
-C1-SR adds source-tile staging and reuse to the same transformed operator.
+Here `s` is the camera-space source value, `A` and `c` describe YUV-to-RGB,
+`D` and `μ` describe normalization, and `W` and `b` are the pretrained first
+layer. PlaneFuse precomputes the compatible native-plane coefficients so the
+full RGB tensor does not have to be materialized. The full derivation and
+padding details are in [`docs/TECHNICAL_DETAILS.md`](docs/TECHNICAL_DETAILS.md).
 
-## Experimental findings
+## How we measured it
 
-The work kept negative results. Float16 failed the quality gate. Metal 4 was not
-a stable path for this model format. The polyphase compiler was correct but had
-no stable end-to-end win. Direct camera-space fusion was slower because it
-removed useful source reuse. [`docs/WHAT_WE_TRIED.md`](docs/WHAT_WE_TRIED.md)
-records the progression and what each result changed.
+The headline compares B2 and C1-SR at the same input-to-result boundary. Both
+paths use Release builds, arm64 Apple Silicon, the same 64-input corpus, the
+same pretrained MobileNetV2 tail, persistent Float32 activation storage, and
+Core ML compute units set to `.all`.
 
-## Reproduce
+The reviewed protocol used five independent processes. Each process ran 20
+warmup triples and 240 measured triples, balanced across all six three-way path
+orders. Raw samples were retained, and the paired interval came from a
+deterministic 10,000-replicate block bootstrap. Quality checks covered
+activations, top-1 output, top-5 set, and top-5 ranking.
+
+The evidence landing page links the raw JSON, profiler summary, corpus, and
+independent review:
+[`docs/RESULTS_AND_EVIDENCE.md`](docs/RESULTS_AND_EVIDENCE.md).
+
+## Reproduce the result
+
+For a short verification:
 
 ```bash
 ./pf doctor
 ./pf setup mobilenetv2
-./pf build
-./pf test quick
-./pf verify
-./pf verify lineage
-./pf bench quick
+./pf reproduce quick
 ./pf evidence --check
-./pf live --sample
 ```
 
-The setup command uses a project-local environment, verifies the model source
-hash, prepares the derived assets, and is safe to repeat. Verbose command logs
-are written under `artifacts/logs/`.
-
-For the curated result and its raw artifacts, read
-[`docs/RESULTS_AND_EVIDENCE.md`](docs/RESULTS_AND_EVIDENCE.md). To regenerate
-the graphs and diagrams:
+For the complete five-batch protocol:
 
 ```bash
-python3 scripts/generate_readme_assets.py
+./pf reproduce final
 ```
+
+Fresh output is written to `artifacts/reproduction/<timestamp>/`. The reviewed
+files under `proof/` are never overwritten. See
+[`docs/REPRODUCIBILITY.md`](docs/REPRODUCIBILITY.md) for requirements,
+expected outputs, hashes, and hardware variability notes.
+
+## Mobile AI in practice
+
+PlaneFuse runs the camera path and inference locally on an Arm-powered Apple
+Silicon client device. Once model assets are available, it does not need a
+cloud service. That gives the live application offline behavior and keeps the
+camera data on the device. The measured contribution is a lower-latency input
+representation path, not a claim about battery or energy use.
+
+The same design is relevant to compatible local camera workloads such as
+accessibility features, visual search, robotics perception, smart-home
+cameras, AR, industrial inspection, document understanding, and continuous
+visual interfaces. These are applicability areas, not additional measured
+models or platforms.
+
+PlaneFuse addresses optimization goals in a narrow, evidenced way:
+
+| Optimization goal | PlaneFuse evidence |
+| --- | --- |
+| Inference speed | Reviewed B2 versus C1-SR matched p50 |
+| Quality preservation | 64-input parity and activation checks |
+| Representation efficiency | Full RGB intermediate removed in C1-SR |
+| Local execution | Core ML and Metal on Apple Silicon |
+| Developer experience | Inspect, compile, verify, bench, and reproduce workflow |
+
+It does not claim model-size reduction, measured energy reduction, phone
+performance, iOS performance, Android performance, or universal acceleration.
+
+## Model compatibility and integration
+
+The current end-to-end implementation supports the bundled Apple MobileNetV2
+configuration. A compatible model must expose known source semantics,
+deterministic preprocessing, a fusable first learned operation, explicit
+padding and stride, and an unchanged tail boundary.
+
+The intended workflow is:
+
+```text
+inspect → compatibility check → compile → verify → benchmark → integrate
+```
+
+The limits and extension path are documented in
+[`docs/MODEL_COMPATIBILITY.md`](docs/MODEL_COMPATIBILITY.md) and
+[`docs/INTEGRATION_GUIDE.md`](docs/INTEGRATION_GUIDE.md).
+
+## What we tried
+
+The final design came from measured failures as well as the accepted result.
+
+| Experiment | Result | Lesson |
+| --- | --- | --- |
+| Native-plane stem | Correct | RGB preprocessing can be compiled into a compatible stem |
+| Float16 bridge | Rejected | Lower precision failed the quality gate |
+| Metal 4 tail | Not usable on the stable toolchain | Model format and toolchain constraints matter |
+| Polyphase 4:2:0 compiler | Correct, no stable end-to-end win | Fewer operations do not guarantee lower latency |
+| Direct camera-space fusion | Slower | Removing a representation can destroy useful reuse |
+| C1-SR source reuse | Accepted R7.5 path | Stage source tiles once and reuse them across channels |
 
 ## Limitations
 
-The current claimed workload is Apple MobileNetV2 ImageNet classification on one
-Apple Silicon environment. Pipeline A is faster under a distinct pre-rendered
-image-input boundary and is contextual, not the matched headline. T2 and T3
-were not met or established. No power, bandwidth, universal-model, or
-Apple-wide speed claim is made. The live camera path has a separate runtime
-boundary from the reviewed benchmark.
-
-## Project context
-
-PlaneFuse was built for the Arm Create: AI Optimization Challenge 2026 Mobile
-AI track, and the work is intended to remain useful as an independent systems
-research prototype. Performance research is frozen at the reviewed C1-SR result.
+The claimed result covers one pretrained MobileNetV2 configuration, one fixed
+NV12 benchmark contract, and one Apple Silicon environment. Pipeline A is a
+contextual ordinary image-input path under a different boundary, not the
+headline comparison. T2 and T3 were not met or established. No power,
+bandwidth, universal-model, or Apple-wide speed claim is made.
 
 ## Sources and references
 
 - [Apple Core ML documentation](https://developer.apple.com/documentation/coreml)
 - [Apple Metal documentation](https://developer.apple.com/documentation/metal)
 - [Apple CVMetalTextureCache documentation](https://developer.apple.com/documentation/corevideo/cvmetaltexturecache)
+- [Apple AVCaptureVideoPreviewLayer documentation](https://developer.apple.com/documentation/avfoundation/avcapturevideopreviewlayer)
 - [MobileNetV2: Inverted Residuals and Linear Bottlenecks](https://arxiv.org/abs/1801.04381)
 - [Arm Create: AI Optimization Challenge](https://arm-ai-optimization-challenge.devpost.com/)
 
