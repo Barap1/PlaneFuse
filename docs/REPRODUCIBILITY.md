@@ -32,6 +32,9 @@ and validates the derived manifest. Detailed setup output is kept under
 
 Quick output is stored in a timestamped directory with a benchmark JSON and a
 run log. The quick benchmark is a smoke check, not the frozen headline result.
+In the recorded clean-clone sequence, setup preceded the timed quick wrapper.
+That quick wrapper took approximately 78 seconds for its doctor/build/test/
+verification steps and frontend-only smoke metric.
 
 ## Full reviewed-protocol reproduction
 
@@ -51,6 +54,9 @@ artifacts/reproduction/<timestamp>/run.log
 
 The wrapper deliberately passes a new output directory to the existing
 R7.5 harness. It never overwrites the accepted files under `proof/`.
+The subsequent full reproduction reuses the built artifacts and therefore took
+approximately 24 seconds in the recorded clean-clone run. Its reported timing
+is the matched input-to-result boundary.
 
 The harness records AC power and Low Power Mode explicitly. On desktop Macs
 where `pmset` does not expose a Low Power Mode control, it records that control
@@ -79,14 +85,18 @@ and Swift 6.3.3. The complete hashes and checker paths are in
 
 ## Public-clone record
 
-The final release clone record is
+The final clean-clone record is
 [`proof/final/public-clone-reproduction.json`](../proof/final/public-clone-reproduction.json).
-It names the public HTTPS clone, tested commit, sanitized environment, exact
+It names the public HTTPS clone made in a fresh directory with no local project
+state, tested commit, sanitized environment, exact
 commands, generated output, and comparison with the frozen reference. It does
 not contain user paths, machine identifiers, or credentials. The checked-in
 aggregate and five raw batch records are retained under
 [`proof/final/public-clone-reproduction/7eb1c3d30424adb6aff844ed950e98d5a036b9f3/`](../proof/final/public-clone-reproduction/7eb1c3d30424adb6aff844ed950e98d5a036b9f3/)
 and validated by `python3 scripts/check_public_clone_reproduction.py`.
+The fresh run preserved `C1-SR < C1 < B2`, measured approximately 9.7% lower
+C1-SR p50 than B2, and passed quality/parity checks. Exact latency varies
+between sessions; the frozen reviewed result remains the headline experiment.
 
 ## Stem-only scaling characterization
 

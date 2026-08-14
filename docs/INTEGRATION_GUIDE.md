@@ -89,8 +89,9 @@ unchanged Core ML MobileNetV2 tail → local result
 NV12 uses an 8-bit luma plane and an interleaved, half-resolution chroma
 plane. `CVMetalTextureCache` maps the camera planes without a CPU copy; the
 application's resize bridge writes the exact integer textures expected by the
-verified stem. The bridge must retain its `CVMetalTexture` wrappers until the
-Metal command buffer completes.
+verified stem: `Y: .r8Uint`, `UV: .rg8Uint`, with 224×224 luma and 112×112 UV.
+The bridge must retain its `CVMetalTexture` wrappers until the Metal command
+buffer completes.
 
 ## 7. Embed the runtime
 
@@ -117,6 +118,11 @@ The current AppKit application adds the camera capture and resize bridge in
 `Sources/PlaneFuseLive/CameraNV12MetalBridge.swift`. Run
 `./scripts/check_integration_example.sh` to build PlaneFuseCore and type-check
 the public example against the real API.
+
+`MobileNetV2CameraAdapter` is a convenience wrapper around
+`PlaneFuseMobileNetV2Runtime` that resolves the project assets and camera-facing
+setup. Use `PlaneFuseMobileNetV2Runtime` directly when the host application
+manages its own model and coefficient paths.
 
 ## Current boundary
 

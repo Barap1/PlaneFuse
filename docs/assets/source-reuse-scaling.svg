@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="860" height="520" viewBox="0 0 860 520">
-<title>Stem-only source-reuse scaling</title>
-<desc>Wall-clock p50 for the original C1 stem and C1-SR source reuse across active output-channel widths.</desc>
+<title>Source-reuse amortization inside the MobileNetV2 stem</title>
+<desc>Stem-only wall-clock p50 for the original C1 stem and C1-SR source reuse across controlled active output-channel widths.</desc>
 <rect width="100%" height="100%" fill="#0d151b"/>
-<text x="86" y="26" fill="#f4f7f5" font-family="-apple-system,BlinkMacSystemFont,Helvetica,sans-serif" font-size="19" font-weight="700">How source reuse scales</text>
+<text x="86" y="26" fill="#f4f7f5" font-family="-apple-system,BlinkMacSystemFont,Helvetica,sans-serif" font-size="19" font-weight="700">Source-reuse amortization inside the MobileNetV2 stem</text>
 <text x="86" y="48" fill="#9aaab3" font-family="-apple-system,BlinkMacSystemFont,Helvetica,sans-serif" font-size="12">Stem-only controlled microbenchmark · Release · 224×224 NV12 · wall p50</text>
 <line x1="86" y1="434.0" x2="826" y2="434.0" stroke="#26343d" stroke-width="1"/>
 <text x="74" y="438.0" text-anchor="end" fill="#9aaab3" font-family="SFMono-Regular,Menlo,monospace" font-size="11">0.00</text>

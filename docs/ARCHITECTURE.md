@@ -39,10 +39,10 @@ version of the original pretrained stem, not a new trained model.
 
 ## Why source reuse matters
 
-The first direct camera-space attempt (R6.5) removed a resized NV12 intermediate
-but was slower than a fair source-space materialized-RGB baseline. That result
-showed that eliminating an intermediate can also eliminate valuable spatial and
-channel reuse. C1-SR solves the measured problem differently: it retains the
+An earlier direct camera-space fusion attempt removed a resized NV12
+intermediate but was slower than a fair source-space materialized-RGB baseline.
+That result showed that eliminating an intermediate can also eliminate valuable
+spatial and channel reuse. C1-SR solves the measured problem differently: it retains the
 native-plane representation while restoring reuse in the execution schedule.
 
 The final principle is selective representation elimination: remove a boundary

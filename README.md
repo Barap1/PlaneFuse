@@ -77,9 +77,15 @@ Three ideas organize the project:
 
 The final reviewed workload is Apple MobileNetV2 ImageNet classification on an
 Apple Silicon Mac. C1-SR is the source-reuse PlaneFuse path. It measured
-11.8128% lower matched p50 latency than B2, the strongest matched
-materialized-RGB baseline, and 6.1755% lower than the earlier C1 native-plane
-schedule.
+11.8% lower matched p50 latency than B2, the strongest matched
+materialized-RGB baseline, and 6.2% lower than C1.
+
+The public benchmark labels are:
+
+- **B2**: conventional matched path that converts NV12 into a full normalized
+  RGB representation before the learned stem.
+- **C1**: native-plane stem that removes the full RGB representation.
+- **C1-SR**: C1 plus explicit source-tile reuse across output channels.
 
 | Path | Matched Release p50 |
 | --- | ---: |
@@ -87,9 +93,10 @@ schedule.
 | C1, native-plane stem | 1.633458 ms |
 | C1-SR, source reuse | 1.532583 ms |
 
-The paired B2 minus C1-SR median 95% confidence interval is
-`[0.180250, 0.198792] ms`. The percentages above compare marginal p50 values;
-the interval is a paired-median bootstrap estimand.
+The paired B2 minus C1-SR median 95% confidence interval for the absolute
+latency difference is `[0.180250, 0.198792] ms`. The percentages above compare
+marginal p50 values; this interval is a different paired-median bootstrap
+estimand, not a confidence interval for the percentage reduction.
 
 ![Matched Release p50 latency comparison](docs/assets/latency-comparison.svg)
 
@@ -100,6 +107,11 @@ top-5 disagreements (top-5 set agreement `0.984375`, top-5 rank agreement
 `0.96875`). The model was not retrained. These results are specific to the
 reviewed model, input contract, toolchain, and measured Apple Silicon
 environment; they are not a claim that every model is faster.
+
+B2, C1, and C1-SR use the same NV12 chroma-siting rule: each full-resolution
+source coordinate reads the corresponding half-resolution UV sample at
+`(x / 2, y / 2)`. PlaneFuse changes where the arithmetic and reuse occur, not
+which source chroma samples are used.
 
 ## Before and after
 
@@ -128,6 +140,8 @@ ImageNet classifier, not an object detector. Place one object inside the region
 and use an object with a recognizable ImageNet label, such as a mug, bottle,
 banana, keyboard, mouse, book, or microphone.
 
+![PlaneFuse Live app window showing the local camera path, live predictions, measured metrics, representation comparison, and reviewed benchmark panel](docs/assets/planefuse-live.png)
+
 The dashboard uses camera color metadata for live conversion when it is
 available. Its short probability smoother changes only presentation. Raw
 inference, parity, timing, and stored evidence remain unsmoothed.
@@ -140,9 +154,16 @@ into the first learned activation. That RGB tensor is temporary.
 PlaneFuse moves compatible preprocessing across that boundary. C1-SR reads the
 native Y and UV planes directly, stages a small source tile once, and reuses
 those values across output channels before handing the activation to the
-unchanged tail. The first native-plane schedule was correct but slower because
-it removed useful reuse; C1-SR keeps the native-plane input and restores that
-reuse with a spatial-major tile.
+unchanged tail.
+
+## Removing RGB was not the whole answer
+
+C1 showed that the full RGB representation could be removed successfully and
+already improved the matched path. A later, more aggressive direct camera-space
+fusion attempt was slower because the removed intermediate had been enabling
+useful source reuse. C1-SR keeps the native-plane advantage while staging each
+source tile once and reusing it across output channels. That reuse-aware
+schedule produced the accepted final result.
 
 ![Full RGB intermediate allocation](docs/assets/rgb-intermediate.svg)
 
@@ -185,7 +206,8 @@ deterministic 10,000-replicate block bootstrap. Quality checks covered
 activations, top-1 output, top-5 set, and top-5 ranking.
 
 The evidence landing page links the raw JSON, profiler summary, corpus, and
-independent review, plus the retained fresh-clone aggregate and raw batches:
+read-only, model-based GPT-5.6 Sol adversarial review (not an external human audit),
+plus the retained fresh-clone aggregate and raw batches:
 [`docs/RESULTS_AND_EVIDENCE.md`](docs/RESULTS_AND_EVIDENCE.md).
 
 ## How source reuse scales
@@ -205,10 +227,11 @@ activation parity at every width.
 | 40 | 0.1883 ms | 0.1854 ms | +1.55% |
 | 48 | 0.1987 ms | 0.1889 ms | +4.97% |
 
-At narrow widths, fixed tile-staging overhead dominates. As more learned
-channels share each staged source tile, C1-SR catches up and wins at the full
-verified width. This result characterizes one stem schedule; it does not show
-that PlaneFuse scales to larger models or arbitrary graphs.
+At narrow widths, staging overhead dominates. The paths move toward parity as
+more channel work shares the tile, and the clearest C1-SR advantage appears at
+the full 48-channel MobileNetV2 stem. This is a stem-only experiment on one
+verified model; the partial widths are controlled microbenchmarks, not evidence
+that larger models universally benefit.
 
 ![Stem-only source-reuse scaling](docs/assets/source-reuse-scaling.svg)
 
@@ -237,13 +260,23 @@ files under `proof/` are never overwritten. See
 [`docs/REPRODUCIBILITY.md`](docs/REPRODUCIBILITY.md) for requirements,
 expected outputs, hashes, and hardware variability notes.
 
+### Clean-clone reproduction
+
+A clean clone of the public repository with no local project state passed the
+documented workflow. B2, C1, and C1-SR preserved the same ordering, and the
+fresh C1-SR result was approximately 9.7% lower p50 than B2. Quality and parity
+checks passed. The frozen reviewed result remains 11.8128% lower by marginal
+p50; exact latency varies between sessions, so the fresh run does not replace
+the reviewed headline.
+
 ## Use PlaneFuse in a camera pipeline
 
-PlaneFuse runs the camera path and inference locally on an Arm-powered Apple
-Silicon client device. Once model assets are available, it does not need a
-cloud service. That gives the live application offline behavior and keeps the
-camera data on the device. The measured contribution is a lower-latency input
-representation path, not a claim about battery or energy use.
+Apple Silicon is an Arm-powered client platform. PlaneFuse keeps camera
+capture, preprocessing, and MobileNetV2 inference on-device; after one-time
+asset setup, inference needs no network. PlaneFuse targets the same class of
+client-side camera stack used by Apple platforms: NV12 CVPixelBuffers exposed to
+Metal, followed by local model inference. This project measures and verifies
+that path on Apple Silicon macOS, not on a phone or iOS device.
 
 The same design may fit compatible local camera workloads such as
 accessibility features, visual search, robotics perception, smart-home
@@ -285,6 +318,12 @@ let runtime = try PlaneFuseMobileNetV2Runtime(
 )
 let prediction = try runtime.predict(nv12Textures: resizedNV12)
 ```
+
+`MobileNetV2CameraAdapter` is a convenience wrapper around
+`PlaneFuseMobileNetV2Runtime` that resolves the project assets and camera-facing
+setup. Use `PlaneFuseMobileNetV2Runtime` directly when the host application
+manages its own model and coefficient paths. The verified texture contract is
+`Y: .r8Uint`, `UV: .rg8Uint`, with 224×224 luma and half-resolution 112×112 UV.
 
 See [`Examples/PlaneFuseIntegration/README.md`](Examples/PlaneFuseIntegration/README.md)
 and [`docs/INTEGRATION_GUIDE.md`](docs/INTEGRATION_GUIDE.md) for the camera
@@ -330,8 +369,9 @@ The final design came from measured failures as well as the accepted result.
 The claimed result covers one pretrained MobileNetV2 configuration, one fixed
 NV12 benchmark contract, and one Apple Silicon environment. Pipeline A is a
 contextual ordinary image-input path under a different boundary, not the
-headline comparison. T2 and T3 were not met or established. No power,
-bandwidth, universal-model, or Apple-wide speed claim is made.
+headline comparison. A Float16 activation bridge failed the declared quality
+gate, and a broader multi-model result was not established in this project. No
+power, bandwidth, universal-model, or Apple-wide speed claim is made.
 
 ## Sources and references
 

@@ -17,13 +17,18 @@ let adapter = try MobileNetV2CameraAdapter(device: device, root: projectRoot)
 let label = try adapter.classify(resizedNV12: frame)
 ```
 
+`MobileNetV2CameraAdapter` is a convenience wrapper around
+`PlaneFuseMobileNetV2Runtime` that resolves the project assets and camera-facing
+setup. Use `PlaneFuseMobileNetV2Runtime` directly when the host application
+manages its own model and coefficient paths.
+
 The complete camera sequence is:
 
 1. Receive `AVCaptureVideoDataOutput`'s `CVPixelBuffer` and read its YCbCr
    matrix/range attachments.
 2. Use a reusable `CVMetalTextureCache` to map the Y and UV planes. The
-   application bridge center-crops/resizes them into `r8Uint` and `rg8Uint`
-   224×224 textures.
+   application bridge center-crops/resizes them into `Y: .r8Uint` and
+   `UV: .rg8Uint` 224×224 / 112×112 textures.
 3. Pass those textures to `PlaneFuseMobileNetV2Runtime.predict`.
 4. Reuse the runtime for the next frame and consume the returned local
    classification.

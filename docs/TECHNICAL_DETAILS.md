@@ -29,6 +29,14 @@ treated as a third full-resolution channel. Padding coordinates are handled at
 the source boundary and the shader preserves the declared BT.601 video-range
 contract used by the benchmark corpus.
 
+### Chroma-siting contract
+
+B2, C1, and C1-SR use the same NV12 chroma-siting rule: each full-resolution
+source coordinate reads the corresponding half-resolution UV sample at
+`(x / 2, y / 2)`. B2 performs the lookup directly; C1 and C1-SR use the same
+mapping through their native-plane and staged-tile paths. PlaneFuse changes
+where the arithmetic and reuse occur, not which source chroma samples are used.
+
 ## C1 and C1-SR
 
 C1 reads the native Y and UV planes and writes the first 48-channel activation
@@ -38,8 +46,9 @@ needed by a 4x4 output tile, including the 9x9 luma and 5x5 chroma footprints,
 then reuses those source values across output-channel groups in threadgroup
 memory.
 
-This distinction matters because R6.5 showed that removing an intermediate can
-also remove useful reuse. C1-SR restores reuse at the source-plane boundary.
+This distinction matters because an earlier direct camera-space fusion attempt
+showed that removing an intermediate can also remove useful reuse. C1-SR
+restores reuse at the source-plane boundary.
 The focused schedule is shown in [`source-reuse.svg`](diagrams/source-reuse.svg).
 
 ## Runtime bridge

@@ -28,10 +28,10 @@ def main():
     ticks = [tick for tick in ticks if tick <= max_value]
     svg = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">',
-        '<title>Stem-only source-reuse scaling</title>',
-        '<desc>Wall-clock p50 for the original C1 stem and C1-SR source reuse across active output-channel widths.</desc>',
+        '<title>Source-reuse amortization inside the MobileNetV2 stem</title>',
+        '<desc>Stem-only wall-clock p50 for the original C1 stem and C1-SR source reuse across controlled active output-channel widths.</desc>',
         '<rect width="100%" height="100%" fill="#0d151b"/>',
-        '<text x="86" y="26" fill="#f4f7f5" font-family="-apple-system,BlinkMacSystemFont,Helvetica,sans-serif" font-size="19" font-weight="700">How source reuse scales</text>',
+        '<text x="86" y="26" fill="#f4f7f5" font-family="-apple-system,BlinkMacSystemFont,Helvetica,sans-serif" font-size="19" font-weight="700">Source-reuse amortization inside the MobileNetV2 stem</text>',
         '<text x="86" y="48" fill="#9aaab3" font-family="-apple-system,BlinkMacSystemFont,Helvetica,sans-serif" font-size="12">Stem-only controlled microbenchmark · Release · 224×224 NV12 · wall p50</text>',
     ]
     for tick in ticks:

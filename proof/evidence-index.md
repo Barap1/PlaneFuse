@@ -15,6 +15,6 @@ benchmark statistics by hand.
 | A/B/C selection | `proof/r7-final-selection-matrix.json` | `scripts/check_r7_final_selection_matrix.py` |
 | R7.5 raw + aggregate confirmation | `proof/r7.5-source-reuse-batches/52db138-20260811T1605Z-confirm/`, `proof/r7.5-source-reuse-final-52db138-20260811T1605Z-confirm.json` | `scripts/check_r75_source_reuse.py` |
 | R7.5 target evaluation | `proof/r7.5-competition-targets.json` | `scripts/check_r75_source_reuse.py` plus target review |
-| Independent technical review | `proof/r7.5-independent-review.md` | Review record |
+| Read-only, model-based GPT-5.6 Sol adversarial review (not an external human audit) | `proof/r7.5-independent-review.md` | Model-based review record |
 
 The old pre-repair and first R7.5 artifacts remain preserved as historical/superseded evidence. They are not silently reused as final results.
