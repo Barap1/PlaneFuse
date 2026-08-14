@@ -2,8 +2,8 @@
   "schema_version": 1,
   "status": "passed_public_github_clone",
   "repository": "https://github.com/Barap1/PlaneFuse.git",
-  "tested_commit": "72eee039bbdba7bcdca844b9f3eaabfc54438897",
-  "recorded_utc": "2026-08-14T15:20:47Z",
+  "tested_commit": "7eb1c3d30424adb6aff844ed950e98d5a036b9f3",
+  "recorded_utc": "2026-08-14T15:24:42Z",
   "hardware_class": "Apple Silicon Mac (Apple M5 Pro / AGXG17S)",
   "architecture": "arm64",
   "macos": "Version 26.6.1 (Build 25G76)",
@@ -23,31 +23,31 @@
   "quick_reproduction": {
     "status": "pass",
     "elapsed_seconds_approx": 78,
-    "benchmark_artifact": "artifacts/reproduction/20260814T151703Z/quick-benchmark.json",
-    "frontend_p50_ms": 0.2613333345,
-    "frontend_p95_ms": 0.9072916728
+    "benchmark_artifact": "artifacts/reproduction/20260814T152237Z/quick-benchmark.json",
+    "frontend_p50_ms": 0.2705833322,
+    "frontend_p95_ms": 0.9217083425
   },
   "full_reproduction": {
     "status": "pass",
     "elapsed_seconds_approx": 24,
-    "benchmark_artifact": "artifacts/reproduction/20260814T151830Z/r7.5-final.json",
+    "benchmark_artifact": "artifacts/reproduction/20260814T152401Z/r7.5-final.json",
     "batches": 5,
     "warmup_triples_per_batch": 20,
     "measured_triples_per_batch": 240,
     "permutations": 6,
-    "b2_p50_ms": 1.6106249968,
-    "c1_p50_ms": 1.5275000042,
-    "c1_sr_p50_ms": 1.4528333413,
-    "c1_sr_vs_b2_percent_lower": 9.7969208116,
-    "c1_sr_vs_c1_percent_lower": 4.8881612201,
+    "b2_p50_ms": 1.5899166756,
+    "c1_p50_ms": 1.5025833272,
+    "c1_sr_p50_ms": 1.4354583400,
+    "c1_sr_vs_b2_percent_lower": 9.7148698402,
+    "c1_sr_vs_c1_percent_lower": 4.4673054757,
     "quality": {
       "top1_agreement": 1.0,
       "top5_set_agreement": 1.0,
       "top5_ranking_agreement": 1.0,
       "activation_max_absolute_error": 0.0000059604645
     },
-    "raw_measurements": "artifacts/reproduction/20260814T151830Z/r7.5-batches/",
-    "quality_result": "artifacts/reproduction/20260814T151830Z/r7.5-final.json"
+    "raw_measurements": "artifacts/reproduction/20260814T152401Z/r7.5-batches/",
+    "quality_result": "artifacts/reproduction/20260814T152401Z/r7.5-final.json"
   },
   "model": {
     "name": "MobileNetV2",
@@ -62,7 +62,7 @@
   "frozen_r7_5_comparison": {
     "frozen_artifact": "proof/r7.5-source-reuse-final-52db138-20260811T1605Z-confirm.json",
     "frozen_c1_sr_vs_b2_percent_lower": 11.812798,
-    "fresh_c1_sr_vs_b2_percent_lower": 9.796921,
+    "fresh_c1_sr_vs_b2_percent_lower": 9.714870,
     "ordering": "C1-SR < C1 < B2",
     "interpretation": "The fresh run preserves ordering and parity; its lower magnitude is a device/runtime sample, not a replacement for the frozen reviewed result."
   },
