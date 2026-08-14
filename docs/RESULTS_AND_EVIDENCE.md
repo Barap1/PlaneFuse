@@ -42,7 +42,7 @@ C1-SR is 11.8128% lower than B2 and 6.1755% lower than C1 by marginal p50. The p
 
 ## Quality
 
-The source-reuse confirmation reports top-1 agreement 1.0, top-5 set agreement 1.0, top-5 rank agreement 1.0, and activation maximum error `5.960464e-6`. The repaired B2/C1 quality artifact retains its two real-image top-5 disagreements rather than hiding them.
+Against C1, the source-reuse confirmation reports top-1 agreement 1.0, top-5 set agreement 1.0, top-5 rank agreement 1.0, and activation maximum error `5.960464e-6`. The separate matched B2/C1 quality artifact retains two real-image top-5 disagreements: top-5 set agreement `0.984375` and top-5 rank agreement `0.96875`.
 
 ## Source-reuse scaling
 

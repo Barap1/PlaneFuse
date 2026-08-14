@@ -93,11 +93,13 @@ the interval is a paired-median bootstrap estimand.
 
 ![Matched Release p50 latency comparison](docs/assets/latency-comparison.svg)
 
-Quality on the fixed 64-input corpus was top-1, top-5 set, and top-5 rank
-agreement of 1.0, with activation maximum error `5.960464e-6`. The model was
-not retrained. These results are specific to the reviewed model, input
-contract, toolchain, and measured Apple Silicon environment; they are not a
-claim that every model is faster.
+Against the earlier C1 native-plane schedule, C1-SR matched top-1, top-5 set,
+and top-5 ranking on all 64 inputs, with activation maximum error
+`5.960464e-6`. The separate matched B2/C1 quality record retains two real-image
+top-5 disagreements (top-5 set agreement `0.984375`, top-5 rank agreement
+`0.96875`). The model was not retrained. These results are specific to the
+reviewed model, input contract, toolchain, and measured Apple Silicon
+environment; they are not a claim that every model is faster.
 
 ## Before and after
 
@@ -183,7 +185,7 @@ deterministic 10,000-replicate block bootstrap. Quality checks covered
 activations, top-1 output, top-5 set, and top-5 ranking.
 
 The evidence landing page links the raw JSON, profiler summary, corpus, and
-independent review:
+independent review, plus the retained fresh-clone aggregate and raw batches:
 [`docs/RESULTS_AND_EVIDENCE.md`](docs/RESULTS_AND_EVIDENCE.md).
 
 ## How source reuse scales

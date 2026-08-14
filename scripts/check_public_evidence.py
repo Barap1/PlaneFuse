@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 
@@ -45,6 +47,20 @@ def main() -> int:
         fail("authoritative R7.5 artifact has unexpected status")
     if final["aggregate"]["statistics"]["C1-SR"]["p50"] >= final["aggregate"]["statistics"]["B2"]["p50"]:
         fail("C1-SR is not below B2 in the authoritative artifact")
+
+    graph = subprocess.run(
+        [sys.executable, "scripts/generate_source_reuse_scaling_graph.py", "--check"],
+        cwd=ROOT, capture_output=True, text=True,
+    )
+    if graph.returncode != 0:
+        fail(graph.stderr.strip() or graph.stdout.strip() or "scaling graph is stale")
+
+    clone = subprocess.run(
+        [sys.executable, "scripts/check_public_clone_reproduction.py"],
+        cwd=ROOT, capture_output=True, text=True,
+    )
+    if clone.returncode != 0:
+        fail(clone.stderr.strip() or clone.stdout.strip() or "public clone proof is invalid")
 
     text = (ROOT / "README.md").read_text().lower()
     for forbidden in ("judge context", "winning result", "hackathon evidence"):

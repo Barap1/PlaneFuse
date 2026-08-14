@@ -81,7 +81,7 @@ C1-SR is {final['aggregate']['c1_source_reuse_percentage_vs_b2']:.4f}% lower tha
 
 ## Quality
 
-The source-reuse confirmation reports top-1 agreement {q['c1_source_reuse_top1_agreement']:.1f}, top-5 set agreement {q['c1_source_reuse_top5_set_agreement']:.1f}, top-5 rank agreement {q['c1_source_reuse_top5_ranking_agreement']:.1f}, and activation maximum error `{activation_error}`. The repaired B2/C1 quality artifact retains its two real-image top-5 disagreements rather than hiding them.
+Against C1, the source-reuse confirmation reports top-1 agreement {q['c1_source_reuse_top1_agreement']:.1f}, top-5 set agreement {q['c1_source_reuse_top5_set_agreement']:.1f}, top-5 rank agreement {q['c1_source_reuse_top5_ranking_agreement']:.1f}, and activation maximum error `{activation_error}`. The separate matched B2/C1 quality artifact retains two real-image top-5 disagreements: top-5 set agreement `0.984375` and top-5 rank agreement `0.96875`.
 
 ## Source-reuse scaling
 

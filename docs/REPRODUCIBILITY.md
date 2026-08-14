@@ -83,7 +83,10 @@ The final release clone record is
 [`proof/final/public-clone-reproduction.json`](../proof/final/public-clone-reproduction.json).
 It names the public HTTPS clone, tested commit, sanitized environment, exact
 commands, generated output, and comparison with the frozen reference. It does
-not contain user paths, machine identifiers, or credentials.
+not contain user paths, machine identifiers, or credentials. The checked-in
+aggregate and five raw batch records are retained under
+[`proof/final/public-clone-reproduction/7eb1c3d30424adb6aff844ed950e98d5a036b9f3/`](../proof/final/public-clone-reproduction/7eb1c3d30424adb6aff844ed950e98d5a036b9f3/)
+and validated by `python3 scripts/check_public_clone_reproduction.py`.
 
 ## Stem-only scaling characterization
 

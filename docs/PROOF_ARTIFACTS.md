@@ -21,6 +21,7 @@ committed, linkable, and intentionally separated by what they prove.
 | [Independent review](../proof/r7.5-independent-review.md) | Technical review outcome for the frozen result | Stored review |
 | [Reproducibility record](../proof/final/reproducibility.json) | Toolchain, hashes, commands, and checker paths | Compact proof record |
 | [Public-clone reproduction](../proof/final/public-clone-reproduction.json) | Sanitized stranger-from-scratch GitHub clone and fresh quick/full results | Release proof |
+| [Retained public-clone evidence](../proof/final/public-clone-reproduction/7eb1c3d30424adb6aff844ed950e98d5a036b9f3/) | Checked aggregate, five raw batches, and canonical batch hashes behind the fresh result | Recomputable release proof |
 | [Integration example](../Examples/PlaneFuseIntegration/README.md) | Compile-checked facade usage and camera handoff boundary | Integration source |
 | [Reproduction instructions](REPRODUCIBILITY.md) | Quick and full rerun paths without overwriting history | Reproduction guide |
 

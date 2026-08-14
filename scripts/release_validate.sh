@@ -24,12 +24,14 @@ run_clean_clone() {
   ./pf setup mobilenetv2 &&
   python3 scripts/check_benchmark_index.py &&
   python3 scripts/generate_results.py --check &&
+  python3 scripts/check_public_clone_reproduction.py &&
   python3 scripts/check_public_privacy.py &&
   python3 -B scripts/check_r7_profiler_privacy.py &&
   python3 scripts/check_r7_corpus.py &&
   python3 scripts/check_r7_final_selection_matrix.py &&
   python3 scripts/check_r75_source_reuse.py proof/r7.5-source-reuse-final-52db138-20260811T1605Z-confirm.json --expected-commit 52db138feef3d6fc52bcb5839a419423fd992019 &&
   ./pf inspect mobilenetv2 &&
+  ./scripts/check_integration_example.sh &&
   ./pf verify &&
   ./pf verify lineage &&
   ./pf build &&
@@ -67,12 +69,14 @@ report = {
         "./pf setup mobilenetv2",
         "python3 scripts/check_benchmark_index.py",
         "python3 scripts/generate_results.py --check",
+        "python3 scripts/check_public_clone_reproduction.py",
         "python3 scripts/check_public_privacy.py",
         "python3 -B scripts/check_r7_profiler_privacy.py",
         "python3 scripts/check_r7_corpus.py",
         "python3 scripts/check_r7_final_selection_matrix.py",
         "python3 scripts/check_r75_source_reuse.py proof/r7.5-source-reuse-final-52db138-20260811T1605Z-confirm.json --expected-commit 52db138feef3d6fc52bcb5839a419423fd992019",
         "./pf inspect mobilenetv2",
+        "./scripts/check_integration_example.sh",
         "./pf verify",
         "./pf verify lineage",
         "./pf build",
@@ -99,4 +103,4 @@ if [ "$status" -ne 0 ]; then
   echo "FAIL release validate: clean clone failed (proof/r0-clean-clone.json)"
   exit "$status"
 fi
-echo "PASS release validate: clean clone reproduced setup, build, tests, quick benchmark, lineage, and sample demo"
+echo "PASS release validate: clean clone reproduced setup, integration check, build, tests, quick benchmark, lineage, and sample demo"

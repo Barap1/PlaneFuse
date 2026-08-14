@@ -18,6 +18,7 @@
     "./pf reproduce quick",
     "./pf evidence --check",
     "./pf reproduce final",
+    "./scripts/check_integration_example.sh",
     "./pf live --sample"
   ],
   "quick_reproduction": {

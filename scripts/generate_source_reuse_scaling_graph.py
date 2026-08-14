@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""Create the checked-in SVG for the controlled source-reuse scaling result."""
+"""Create or check the SVG for the controlled source-reuse scaling result."""
+import argparse
 import json
 from pathlib import Path
 
@@ -56,7 +57,17 @@ def main():
         '<text x="86" y="505" fill="#71808a" font-family="-apple-system,BlinkMacSystemFont,Helvetica,sans-serif" font-size="10">Partial widths isolate the source-reuse mechanism; they are not complete alternate neural networks.</text>',
         '</svg>',
     ])
-    Path("docs/assets/source-reuse-scaling.svg").write_text("\n".join(svg) + "\n")
+    expected = "\n".join(svg) + "\n"
+    target = Path("docs/assets/source-reuse-scaling.svg")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--check", action="store_true")
+    args = parser.parse_args()
+    if args.check:
+        if not target.is_file() or target.read_text() != expected:
+            raise SystemExit("FAIL source-reuse scaling graph: generated SVG is stale")
+        print("PASS source-reuse scaling graph: generated SVG is current")
+        return
+    target.write_text(expected)
     print("PASS source-reuse scaling graph: docs/assets/source-reuse-scaling.svg")
 
 
